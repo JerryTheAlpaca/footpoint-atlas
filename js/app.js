@@ -512,27 +512,12 @@
         geo: buildGeoOption(geoView),
         series: [
           tripLineSeries(
-            '线路光晕',
-            2,
-            {
-              color: NEON,
-              width: 9,
-              opacity: 0.22,
-              shadowBlur: 28,
-              shadowColor: NEON,
-            },
-            lineData,
-            false
-          ),
-          tripLineSeries(
             '线路',
             3,
             {
               color: NEON,
               width: 2.4,
               opacity: 1,
-              shadowBlur: 16,
-              shadowColor: 'rgba(0, 229, 255, 0.95)',
             },
             lineData,
             frame.phase === 'end'
