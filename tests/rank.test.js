@@ -221,6 +221,14 @@ describe('rankAxisMax', () => {
   });
 });
 
+describe('rankGrowHold', () => {
+  it('waits after the list expands before the bar growth starts', () => {
+    const { GROW_HOLD_MS } = loadTrainRank();
+    assert.ok(GROW_HOLD_MS >= 240, 'hold was ' + GROW_HOLD_MS);
+    assert.ok(GROW_HOLD_MS <= 500, 'hold was ' + GROW_HOLD_MS);
+  });
+});
+
 describe('rankExpandLayout', () => {
   it('keeps a fixed row pitch so the list can clip-reveal instead of stretching bars', () => {
     const { rankExpandLayout, rankChartHeight, COLLAPSED_LIMIT } = loadTrainRank();
