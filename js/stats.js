@@ -34,10 +34,11 @@
   function computeStats(trainData) {
     const records = (trainData && trainData.records) || [];
     const stations = (trainData && trainData.stations) || {};
-    const routes = {};
-    const stationVisits = {};
-    const vehicleTypes = {};
-    const bureaus = {};
+  const routes = {};
+  const stationVisits = {};
+  const vehicleTypes = {};
+  const bureaus = {};
+  const trains = {};
     const stationNames = new Set();
     let mileageKm = 0;
     let skippedMissingCoord = 0;
@@ -51,6 +52,7 @@
       bump(stationVisits, from, 1);
       bump(stationVisits, to, 1);
       bump(bureaus, record.bureau, 1);
+      bump(trains, record.train, 1);
       vehicleTypesFromRecord(record.vehicle).forEach((type) => {
         bump(vehicleTypes, type, 1);
       });
@@ -73,9 +75,38 @@
       stationVisits: stationVisits,
       vehicleTypes: vehicleTypes,
       bureaus: bureaus,
+      trains: trains,
       mileageKm: mileageKm,
       skippedMissingCoord: skippedMissingCoord,
     };
+  }
+
+  function listYears(records) {
+    const years = new Set();
+    (records || []).forEach((record) => {
+      if (record && typeof record.date === 'string' && record.date.length >= 4) {
+        years.add(record.date.slice(0, 4));
+      }
+    });
+    return Array.from(years).sort();
+  }
+
+  function recordsByYear(records, year) {
+    const target = String(year);
+    return (records || []).filter(
+      (record) => record && typeof record.date === 'string' && record.date.slice(0, 4) === target
+    );
+  }
+
+  function filterRecordsByRange(records, start, end) {
+    const startDate = start || '';
+    const endDate = end || '';
+    return (records || []).filter((record) => {
+      if (!record || typeof record.date !== 'string') return false;
+      if (startDate && record.date < startDate) return false;
+      if (endDate && record.date > endDate) return false;
+      return true;
+    });
   }
 
   function sortedEntries(map, limit) {
@@ -95,6 +126,9 @@
     vehicleTypesFromRecord: vehicleTypesFromRecord,
     haversineKm: haversineKm,
     computeStats: computeStats,
+    listYears: listYears,
+    recordsByYear: recordsByYear,
+    filterRecordsByRange: filterRecordsByRange,
     sortedEntries: sortedEntries,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

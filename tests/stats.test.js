@@ -137,6 +137,52 @@ describe('computeStats', () => {
   });
 });
 
+describe('listYears / recordsByYear / filterRecordsByRange', () => {
+  const recs = [
+    { date: '2023-08-04', from: '汉口', to: '南京南', train: 'G1' },
+    { date: '2024-01-01', from: '南京南', to: '汉口', train: 'G2' },
+    { date: '2026-02-01', from: '汉口', to: '武汉', train: 'G3' },
+    { date: '2026-08-16', from: '武汉', to: '南京南', train: 'G3' },
+  ];
+
+  it('listYears returns sorted unique years', () => {
+    const { listYears } = loadStats();
+    assert.deepEqual(listYears(recs), ['2023', '2024', '2026']);
+    assert.deepEqual(listYears([]), []);
+  });
+
+  it('recordsByYear filters by year prefix', () => {
+    const { recordsByYear } = loadStats();
+    assert.equal(recordsByYear(recs, '2026').length, 2);
+    assert.equal(recordsByYear(recs, '2025').length, 0);
+  });
+
+  it('filterRecordsByRange keeps boundaries and supports open ends', () => {
+    const { filterRecordsByRange } = loadStats();
+    assert.equal(filterRecordsByRange(recs, '2024-01-01', '2026-02-01').length, 2);
+    assert.equal(filterRecordsByRange(recs, '', '2023-12-31').length, 1);
+    assert.equal(filterRecordsByRange(recs, '2025-01-01', '').length, 2);
+    assert.equal(filterRecordsByRange(recs, '', '').length, 4);
+    assert.equal(filterRecordsByRange(recs, '2030-01-01', '2030-12-31').length, 0);
+  });
+});
+
+describe('computeStats trains', () => {
+  it('counts rides per train number', () => {
+    const { computeStats } = loadStats();
+    const stats = computeStats({
+      records: [
+        { date: '2026-01-01', from: '汉口', to: '南京南', train: 'G1', vehicle: 'CR400BF-S-0001', bureau: '上海局' },
+        { date: '2026-01-02', from: '汉口', to: '南京南', train: 'G1', vehicle: 'CR400BF-S-0002', bureau: '上海局' },
+        { date: '2026-01-03', from: '汉口', to: '南京南', train: 'G2', vehicle: 'CR400BF-S-0003', bureau: '上海局' },
+      ],
+      stations: { 汉口: [114.26, 30.62], 南京南: [118.81, 31.97] },
+    });
+    assert.equal(stats.trains['G1'], 2);
+    assert.equal(stats.trains['G2'], 1);
+  });
+});
+
 describe('TRAIN_DATA integration', () => {
   it('matches the approved totals 27 / 20 / 16 / 23', () => {
     const { computeStats } = loadStats();
