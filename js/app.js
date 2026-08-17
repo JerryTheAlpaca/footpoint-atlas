@@ -63,11 +63,39 @@
     return size;
   }
 
+  var RANK_COLLAPSED_LIMIT = 3;
+  var RANK_ROW_HEIGHT = 28;
+  var RANK_CHART_PADDING = 16;
+
+  function visibleRankEntries(entries, expanded, limit) {
+    var list = Array.isArray(entries) ? entries : [];
+    var cap = limit == null ? RANK_COLLAPSED_LIMIT : limit;
+    if (expanded) return list.slice();
+    return list.slice(0, cap);
+  }
+
+  function rankChartHeight(visibleCount) {
+    var n = Math.max(1, Number(visibleCount) || 0);
+    return RANK_CHART_PADDING + n * RANK_ROW_HEIGHT;
+  }
+
+  function rankToggleHidden(totalCount, limit) {
+    var cap = limit == null ? RANK_COLLAPSED_LIMIT : limit;
+    return (Number(totalCount) || 0) <= cap;
+  }
+
   root.TrainMap = {
     buildGeoOption: buildGeoOption,
     readGeoView: readGeoView,
     routeLineWidth: routeLineWidth,
     stationSymbolSize: stationSymbolSize,
+  };
+
+  root.TrainRank = {
+    COLLAPSED_LIMIT: RANK_COLLAPSED_LIMIT,
+    visibleRankEntries: visibleRankEntries,
+    rankChartHeight: rankChartHeight,
+    rankToggleHidden: rankToggleHidden,
   };
 
   if (typeof document === 'undefined') return;
@@ -253,12 +281,11 @@
     };
   }
 
-  function renderBars(el, entries, delayBase) {
-    var chart = echarts.init(el);
-    charts.push(chart);
-    chart.setOption({
+  function barOption(entries, delayBase) {
+    return {
       animationDuration: 900,
-      grid: { left: 72, right: 28, top: 8, bottom: 18 },
+      animationDurationUpdate: 400,
+      grid: { left: 72, right: 28, top: 8, bottom: 8 },
       xAxis: Object.assign({ type: 'value', minInterval: 1 }, axisStyle()),
       yAxis: Object.assign(
         {
@@ -291,33 +318,96 @@
           label: { show: true, position: 'right', color: GOLD, fontSize: 11 },
         },
       ],
-    });
+    };
   }
 
-  function renderBureau(el, entries) {
+  function collapsedRankChartHeight(el) {
+    var block = el.closest('.chart-block');
+    var panel = document.querySelector('.side-panel');
+    if (!panel || !block) return rankChartHeight(RANK_COLLAPSED_LIMIT);
+    var gap = parseFloat(window.getComputedStyle(panel).gap) || 12;
+    var blocks = panel.querySelectorAll('.chart-block');
+    var title = block.querySelector('h2');
+    var toggle = block.querySelector('.rank-toggle');
+    var styles = window.getComputedStyle(block);
+    var chrome =
+      (parseFloat(styles.paddingTop) || 0) +
+      (parseFloat(styles.paddingBottom) || 0) +
+      (title ? title.offsetHeight : 18) +
+      4 +
+      (toggle && !toggle.hidden ? toggle.offsetHeight || 16 : 0);
+    var available = panel.clientHeight - gap * Math.max(0, blocks.length - 1);
+    var slot = available / Math.max(1, blocks.length) - chrome;
+    return Math.max(rankChartHeight(RANK_COLLAPSED_LIMIT), Math.floor(slot));
+  }
+
+  function setRankChartHeight(el, chart, targetHeight, animate) {
+    var next = Math.round(targetHeight);
+    if (!animate) {
+      el.style.height = next + 'px';
+      if (chart) chart.resize();
+      return;
+    }
+    var from = el.getBoundingClientRect().height;
+    el.style.height = from + 'px';
+    el.offsetHeight;
+    el.style.height = next + 'px';
+    var start = performance.now();
+    function tick(now) {
+      if (chart) chart.resize();
+      if (now - start < 450) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function bindRankChart(el, entries, delayBase) {
+    var block = el.closest('.chart-block');
+    var toggle = block ? block.querySelector('.rank-toggle') : null;
+    var expanded = false;
+    var collapsedHeight = collapsedRankChartHeight(el);
+    el.style.height = collapsedHeight + 'px';
     var chart = echarts.init(el);
     charts.push(chart);
-    chart.setOption({
-      animationDuration: 1100,
-      tooltip: { trigger: 'item', borderRadius: 8 },
-      series: [
-        {
-          type: 'pie',
-          roseType: 'area',
-          radius: ['18%', '72%'],
-          center: ['50%', '55%'],
-          data: entries.map(function (item) {
-            return { name: item[0], value: item[1] };
-          }),
-          label: { color: '#c6ecff', fontSize: 11, formatter: '{b} {c}' },
-          itemStyle: {
-            borderColor: '#050814',
-            borderWidth: 2,
-          },
-          color: ['#00e5ff', '#3aa0ff', '#7adfff', '#ffd166', '#5ee0b5', '#c084fc', '#f472b6'],
-        },
-      ],
+
+    function currentHeight() {
+      var visible = visibleRankEntries(entries, expanded);
+      if (!expanded) return collapsedHeight;
+      return Math.max(collapsedHeight, rankChartHeight(visible.length));
+    }
+
+    function paint(animateHeight) {
+      var visible = visibleRankEntries(entries, expanded);
+      chart.setOption(barOption(visible, delayBase));
+      setRankChartHeight(el, chart, currentHeight(), animateHeight);
+    }
+
+    if (toggle) {
+      var hideToggle = rankToggleHidden(entries.length);
+      toggle.hidden = hideToggle;
+      if (!hideToggle) {
+        var title = block.querySelector('h2');
+        var name = title ? title.textContent : '排行';
+        toggle.addEventListener('click', function () {
+          expanded = !expanded;
+          block.classList.toggle('is-expanded', expanded);
+          toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+          toggle.setAttribute('aria-label', expanded ? '收起' + name : '展开' + name);
+          paint(true);
+        });
+      }
+    }
+
+    el.addEventListener('transitionend', function (event) {
+      if (event.propertyName === 'height') chart.resize();
     });
+
+    paint(false);
+    return {
+      relayout: function () {
+        collapsedHeight = collapsedRankChartHeight(el);
+        setRankChartHeight(el, chart, currentHeight(), false);
+      },
+    };
   }
 
   function renderRecords() {
@@ -566,17 +656,23 @@
     mapChart = echarts.init(document.getElementById('map-chart'));
     charts.push(mapChart);
 
-    renderBars(
-      document.getElementById('vehicle-chart'),
-      window.TrainStats.sortedEntries(stats.vehicleTypes, 10),
-      90
-    );
-    renderBars(
-      document.getElementById('station-chart'),
-      window.TrainStats.sortedEntries(stats.stationVisits, 10),
-      70
-    );
-    renderBureau(document.getElementById('bureau-chart'), window.TrainStats.sortedEntries(stats.bureaus));
+    var rankLayouts = [
+      bindRankChart(
+        document.getElementById('vehicle-chart'),
+        window.TrainStats.sortedEntries(stats.vehicleTypes),
+        90
+      ),
+      bindRankChart(
+        document.getElementById('station-chart'),
+        window.TrainStats.sortedEntries(stats.stationVisits),
+        70
+      ),
+      bindRankChart(
+        document.getElementById('bureau-chart'),
+        window.TrainStats.sortedEntries(stats.bureaus),
+        80
+      ),
+    ];
     renderRecords();
     bindRecordListEvents();
 
@@ -618,6 +714,9 @@
     setVisibleCount(playRecords.length);
 
     if (window.TrainScale) window.TrainScale.applyPageScale();
+    charts.forEach(function (chart) {
+      chart.resize();
+    });
 
     window.addEventListener('resize', function () {
       if (window.TrainScale) window.TrainScale.applyPageScale();
