@@ -102,6 +102,8 @@ describe('computeStats', () => {
     assert.equal(stats.vehicleTypeCount, 3);
     assert.equal(stats.routes['汉口→南京南'], 2);
     assert.equal(stats.routes['南京南→汉口'], 1);
+    assert.equal(stats.lineRoutes['汉口↔南京南'], 3);
+    assert.equal(stats.lineRoutes['南京南↔武汉'], 1);
     assert.equal(stats.stationVisits['南京南'], 4);
     assert.equal(stats.stationVisits['汉口'], 3);
     assert.equal(stats.stationVisits['武汉'], 1);
@@ -167,6 +169,14 @@ describe('listYears / recordsByYear / filterRecordsByRange', () => {
   });
 });
 
+describe('routeLineKey', () => {
+  it('treats both directions as the same line', () => {
+    const { routeLineKey } = loadStats();
+    assert.equal(routeLineKey('南京南', '北京南'), '北京南↔南京南');
+    assert.equal(routeLineKey('北京南', '南京南'), '北京南↔南京南');
+  });
+});
+
 describe('computeStats trains', () => {
   it('counts rides per train number', () => {
     const { computeStats } = loadStats();
@@ -198,6 +208,7 @@ describe('TRAIN_DATA integration', () => {
     assert.equal(stats.stationVisits['南京南'], 14);
     assert.equal(stats.routes['汉口→南京南'], 3);
     assert.equal(stats.routes['南京南→汉口'], 3);
+    assert.equal(stats.lineRoutes['汉口↔南京南'], 6);
     assert.equal(stats.bureaus['上海局'], 10);
     assert.equal(stats.bureaus['广州局'], 6);
     assert.equal(stats.bureaus['武汉局'], 4);

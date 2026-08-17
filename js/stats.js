@@ -31,14 +31,19 @@
     map[key] = (map[key] || 0) + amount;
   }
 
+  function routeLineKey(from, to) {
+    return [from, to].sort((a, b) => a.localeCompare(b, 'zh-CN')).join('↔');
+  }
+
   function computeStats(trainData) {
     const records = (trainData && trainData.records) || [];
     const stations = (trainData && trainData.stations) || {};
-  const routes = {};
-  const stationVisits = {};
-  const vehicleTypes = {};
-  const bureaus = {};
-  const trains = {};
+    const routes = {};
+    const lineRoutes = {};
+    const stationVisits = {};
+    const vehicleTypes = {};
+    const bureaus = {};
+    const trains = {};
     const stationNames = new Set();
     let mileageKm = 0;
     let skippedMissingCoord = 0;
@@ -49,6 +54,7 @@
       stationNames.add(from);
       stationNames.add(to);
       bump(routes, from + '→' + to, 1);
+      bump(lineRoutes, routeLineKey(from, to), 1);
       bump(stationVisits, from, 1);
       bump(stationVisits, to, 1);
       bump(bureaus, record.bureau, 1);
@@ -72,6 +78,7 @@
       stationCount: stationNames.size,
       vehicleTypeCount: Object.keys(vehicleTypes).length,
       routes: routes,
+      lineRoutes: lineRoutes,
       stationVisits: stationVisits,
       vehicleTypes: vehicleTypes,
       bureaus: bureaus,
@@ -126,6 +133,7 @@
     vehicleTypesFromRecord: vehicleTypesFromRecord,
     haversineKm: haversineKm,
     computeStats: computeStats,
+    routeLineKey: routeLineKey,
     listYears: listYears,
     recordsByYear: recordsByYear,
     filterRecordsByRange: filterRecordsByRange,

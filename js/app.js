@@ -500,7 +500,7 @@
       ? '到访 ' + topStation[1] + ' 次'
       : '';
 
-    var topRoute = topEntry(yearStats.routes);
+    var topRoute = topEntry(yearStats.lineRoutes);
     var topTrain = topEntry(yearStats.trains);
     document.getElementById('review-top-route').textContent = topRoute ? topRoute[0] : '-';
     document.getElementById('review-top-train').textContent =
