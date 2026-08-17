@@ -75,6 +75,20 @@ describe('slicePolylineByProgress', () => {
   });
 });
 
+describe('tripStationAppearStyle', () => {
+  it('starts the circle at size 0 and grows it to the full station size', () => {
+    const { tripStationAppearStyle } = loadTrainTripPlay();
+
+    assert.equal(tripStationAppearStyle(0).size, 0);
+    assert.equal(tripStationAppearStyle(0).ringOpacity, 0);
+    assert.ok(tripStationAppearStyle(0.4).size > 0);
+    assert.ok(tripStationAppearStyle(0.4).size < tripStationAppearStyle(1).size);
+    assert.ok(tripStationAppearStyle(0.4).ringOpacity > 0);
+    assert.equal(tripStationAppearStyle(1).ringOpacity, 0);
+    assert.ok(tripStationAppearStyle(1).size >= 16);
+  });
+});
+
 describe('buildTripPlayFrame', () => {
   it('shows only the start station at t=0, with no line and no destination', () => {
     const { buildTripPlayFrame } = loadTrainTripPlay();
@@ -83,8 +97,23 @@ describe('buildTripPlayFrame', () => {
     assert.equal(frame.phase, 'start');
     assert.equal(frame.stations.length, 1);
     assert.equal(frame.stations[0].name, '南京南');
+    assert.equal(frame.stations[0].appear, 0);
     assert.equal(frame.lineCoords.length, 0);
     assert.equal(frame.head, null);
+    assert.equal(frame.done, false);
+  });
+
+  it('grows the start circle during the appear window before the line starts', () => {
+    const { buildTripPlayFrame, TRIP_PLAY_TIMING } = loadTrainTripPlay();
+    const mid = buildTripPlayFrame(TRIP_PLAY_TIMING.appearMs * 0.45, trip);
+    const ready = buildTripPlayFrame(TRIP_PLAY_TIMING.appearMs, trip);
+
+    assert.equal(mid.phase, 'start');
+    assert.ok(mid.stations[0].appear > 0);
+    assert.ok(mid.stations[0].appear < 1);
+    assert.equal(mid.lineCoords.length, 0);
+    assert.equal(ready.stations[0].appear, 1);
+    assert.equal(ready.lineCoords.length, 0);
   });
 
   it('keeps the destination hidden while the start station is held', () => {
@@ -93,6 +122,7 @@ describe('buildTripPlayFrame', () => {
 
     assert.equal(frame.phase, 'start');
     assert.equal(frame.stations.length, 1);
+    assert.equal(frame.stations[0].appear, 1);
     assert.equal(frame.lineCoords.length, 0);
     assert.equal(
       frame.stations.some(function (s) {
@@ -125,9 +155,27 @@ describe('buildTripPlayFrame', () => {
     assert.equal(frame.phase, 'end');
     assert.equal(frame.stations.length, 2);
     assert.equal(frame.stations[0].name, '南京南');
+    assert.equal(frame.stations[0].appear, 1);
     assert.equal(frame.stations[1].name, '上海虹桥');
+    assert.equal(frame.stations[1].appear, 0);
     assert.deepEqual(frame.lineCoords[frame.lineCoords.length - 1], trip.toCoord);
     assert.equal(frame.head, null);
+    assert.equal(frame.done, false);
+  });
+
+  it('grows the destination circle after the line arrives', () => {
+    const { buildTripPlayFrame, TRIP_PLAY_TIMING } = loadTrainTripPlay();
+    const arrive = TRIP_PLAY_TIMING.startHoldMs + TRIP_PLAY_TIMING.drawMs;
+    const mid = buildTripPlayFrame(arrive + TRIP_PLAY_TIMING.appearMs * 0.45, trip);
+    const done = buildTripPlayFrame(arrive + TRIP_PLAY_TIMING.appearMs, trip);
+
+    assert.equal(mid.phase, 'end');
+    assert.equal(mid.stations[0].appear, 1);
+    assert.ok(mid.stations[1].appear > 0);
+    assert.ok(mid.stations[1].appear < 1);
+    assert.equal(mid.done, false);
+    assert.equal(done.stations[1].appear, 1);
+    assert.equal(done.done, true);
   });
 });
 
