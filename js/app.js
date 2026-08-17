@@ -71,7 +71,7 @@
   var RANK_COLLAPSED_LIMIT = 3;
   var RANK_ROW_HEIGHT = 28;
   var RANK_CHART_PADDING = 16;
-  var RANK_GROW_HOLD_MS = 100;
+  var RANK_GROW_HOLD_MS = 50;
 
   function visibleRankEntries(entries, expanded, limit) {
     var list = Array.isArray(entries) ? entries : [];

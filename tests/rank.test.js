@@ -224,7 +224,7 @@ describe('rankAxisMax', () => {
 describe('rankGrowHold', () => {
   it('waits after the list expands before the bar growth starts', () => {
     const { GROW_HOLD_MS } = loadTrainRank();
-    assert.equal(GROW_HOLD_MS, 100);
+    assert.equal(GROW_HOLD_MS, 50);
   });
 });
 
