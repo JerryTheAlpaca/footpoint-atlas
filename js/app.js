@@ -1,6 +1,8 @@
-(function () {
+(function (root) {
   var NEON = '#00e5ff';
   var GOLD = '#ffd166';
+  var DEFAULT_GEO_CENTER = [104.2, 35.8];
+  var DEFAULT_GEO_ZOOM = 1.45;
   var charts = [];
   var mapChart;
   var playTimer = null;
@@ -9,6 +11,46 @@
   var sortedRecords = [];
   var stats;
   var stations = {};
+
+  function buildGeoOption(view) {
+    return {
+      map: 'china',
+      roam: true,
+      zoom: view && typeof view.zoom === 'number' ? view.zoom : DEFAULT_GEO_ZOOM,
+      center: view && Array.isArray(view.center) ? view.center : DEFAULT_GEO_CENTER,
+      scaleLimit: { min: 0.8, max: 8 },
+      itemStyle: {
+        areaColor: '#071525',
+        borderColor: '#1a6f9c',
+        borderWidth: 1,
+        shadowColor: 'rgba(0, 229, 255, 0.18)',
+        shadowBlur: 16,
+      },
+      emphasis: {
+        itemStyle: { areaColor: '#0c2d4d' },
+        label: { show: false },
+      },
+      label: { show: false },
+    };
+  }
+
+  function readGeoView(chart) {
+    if (!chart || typeof chart.getOption !== 'function') return null;
+    var option = chart.getOption();
+    var geo = option && option.geo && option.geo[0];
+    if (!geo) return null;
+    return {
+      center: geo.center,
+      zoom: geo.zoom,
+    };
+  }
+
+  root.TrainMap = {
+    buildGeoOption: buildGeoOption,
+    readGeoView: readGeoView,
+  };
+
+  if (typeof document === 'undefined') return;
 
   function showBootError(message) {
     var el = document.getElementById('boot-error');
@@ -137,30 +179,13 @@
         borderColor: NEON,
         textStyle: { color: '#e8f6ff', fontSize: 12 },
       },
-      geo: {
-        map: 'china',
-        roam: true,
-        zoom: 1.25,
-        layoutCenter: ['50%', '58%'],
-        layoutSize: '118%',
-        itemStyle: {
-          areaColor: '#071525',
-          borderColor: '#1a6f9c',
-          borderWidth: 1,
-          shadowColor: 'rgba(0, 229, 255, 0.18)',
-          shadowBlur: 16,
-        },
-        emphasis: {
-          itemStyle: { areaColor: '#0c2d4d' },
-          label: { show: false },
-        },
-        label: { show: false },
-      },
+      geo: buildGeoOption(readGeoView(mapChart)),
       series: [
         {
           name: '线路',
           type: 'lines',
           coordinateSystem: 'geo',
+          geoIndex: 0,
           zlevel: 2,
           effect: {
             show: true,
@@ -177,6 +202,7 @@
           name: '车站',
           type: 'effectScatter',
           coordinateSystem: 'geo',
+          geoIndex: 0,
           zlevel: 3,
           rippleEffect: { brushType: 'stroke', scale: 3.4, period: 3.6 },
           symbolSize: function (val) {
@@ -424,4 +450,4 @@
   } else {
     boot();
   }
-})();
+})(typeof window !== 'undefined' ? window : globalThis);
