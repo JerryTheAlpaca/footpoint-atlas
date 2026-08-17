@@ -102,12 +102,52 @@ describe('rankBarValues', () => {
 
   it('starts from zero so newly expanded bars can grow in', () => {
     const { rankBarValues } = loadTrainRank();
-    assert.deepEqual(rankBarValues(entries, false), [0, 0]);
+    assert.deepEqual(rankBarValues(entries, false), [
+      { name: 'CR400BF-S', value: 0 },
+      { name: 'CR400AF-Z', value: 0 },
+    ]);
   });
 
   it('uses the real counts after the grow-in animation', () => {
     const { rankBarValues } = loadTrainRank();
-    assert.deepEqual(rankBarValues(entries, true), [4, 3]);
+    assert.deepEqual(rankBarValues(entries, true), [
+      { name: 'CR400BF-S', value: 4 },
+      { name: 'CR400AF-Z', value: 3 },
+    ]);
+  });
+
+  it('keeps the already visible top rows and starts new rows at zero', () => {
+    const { rankBarValues, COLLAPSED_LIMIT } = loadTrainRank();
+    const list = [
+      ['CR400BF-S', 4],
+      ['CR400AF-Z', 3],
+      ['CRH380BL', 2],
+      ['CR400BF-AS', 1],
+      ['CRH1A-A', 1],
+    ];
+    assert.deepEqual(rankBarValues(list, false, COLLAPSED_LIMIT), [
+      { name: 'CR400BF-S', value: 4 },
+      { name: 'CR400AF-Z', value: 3 },
+      { name: 'CRH380BL', value: 2 },
+      { name: 'CR400BF-AS', value: 0 },
+      { name: 'CRH1A-A', value: 0 },
+    ]);
+  });
+});
+
+describe('rankGrowOption', () => {
+  it('only patches series values so ECharts can animate width instead of redrawing axes', () => {
+    const { rankGrowOption } = loadTrainRank();
+    const option = rankGrowOption([
+      ['CR400BF-S', 4],
+      ['CR400BF-AS', 1],
+    ]);
+    assert.equal(option.yAxis, undefined);
+    assert.deepEqual(option.series[0].data, [
+      { name: 'CR400BF-S', value: 4 },
+      { name: 'CR400BF-AS', value: 1 },
+    ]);
+    assert.ok(option.animationDurationUpdate >= 600);
   });
 });
 

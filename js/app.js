@@ -102,10 +102,30 @@
     return Math.max(72, Math.ceil(max) + 18);
   }
 
-  function rankBarValues(entries, grown) {
-    return (entries || []).map(function (item) {
-      return grown ? item[1] : 0;
+  function rankBarValues(entries, grown, keepCount) {
+    var keep = grown ? Number.POSITIVE_INFINITY : keepCount || 0;
+    return (entries || []).map(function (item, idx) {
+      return {
+        name: item[0],
+        value: idx < keep ? item[1] : 0,
+      };
     });
+  }
+
+  function rankGrowOption(entries) {
+    return {
+      animationDurationUpdate: 720,
+      animationEasingUpdate: 'cubicOut',
+      series: [
+        {
+          id: 'rank-bars',
+          data: rankBarValues(entries, true),
+          animationDelayUpdate: function (idx) {
+            return idx * 40;
+          },
+        },
+      ],
+    };
   }
 
   root.TrainMap = {
@@ -122,6 +142,7 @@
     rankToggleHidden: rankToggleHidden,
     rankGridLeft: rankGridLeft,
     rankBarValues: rankBarValues,
+    rankGrowOption: rankGrowOption,
   };
 
   if (typeof document === 'undefined') return;
@@ -307,9 +328,10 @@
     };
   }
 
-  function barOption(entries, delayBase, grown) {
+  function barOption(entries, delayBase, grown, keepCount) {
     var left = rankGridLeft(entries);
     return {
+      animation: true,
       animationDuration: 900,
       animationDurationUpdate: 720,
       animationEasing: 'cubicOut',
@@ -333,14 +355,15 @@
       }),
       series: [
         {
+          id: 'rank-bars',
           type: 'bar',
-          data: rankBarValues(entries, grown !== false),
+          data: rankBarValues(entries, grown !== false, keepCount),
           barWidth: 10,
           animationDelay: function (idx) {
             return idx * delayBase;
           },
           animationDelayUpdate: function (idx) {
-            return idx * Math.max(28, delayBase / 3);
+            return idx * 40;
           },
           itemStyle: {
             borderRadius: [0, 6, 6, 0],
@@ -383,23 +406,31 @@
     return Math.max(rankChartHeight(RANK_COLLAPSED_LIMIT), Math.floor(slot));
   }
 
-  function setRankChartHeight(el, chart, targetHeight, animate) {
+  function setRankChartHeight(el, chart, targetHeight, animate, onDone) {
     var next = Math.round(targetHeight);
     var from = Math.round(el.getBoundingClientRect().height);
+    var finished = false;
+    function finish() {
+      if (finished) return;
+      finished = true;
+      if (chart) chart.resize();
+      if (onDone) onDone();
+    }
     if (!animate || Math.abs(from - next) < 1) {
       el.style.height = next + 'px';
-      if (chart) chart.resize();
+      finish();
       return false;
     }
     el.style.height = from + 'px';
     el.offsetHeight;
     el.style.height = next + 'px';
-    var start = performance.now();
-    function tick(now) {
-      if (chart) chart.resize();
-      if (now - start < 450) requestAnimationFrame(tick);
+    function onEnd(event) {
+      if (event.target !== el || event.propertyName !== 'height') return;
+      el.removeEventListener('transitionend', onEnd);
+      finish();
     }
-    requestAnimationFrame(tick);
+    el.addEventListener('transitionend', onEnd);
+    setTimeout(finish, 480);
     return true;
   }
 
@@ -407,7 +438,7 @@
     var block = el.closest('.chart-block');
     var toggle = block ? block.querySelector('.rank-toggle') : null;
     var expanded = false;
-    var pendingGrow = false;
+    var paintSeq = 0;
     var collapsedHeight = collapsedRankChartHeight(el);
     el.style.height = collapsedHeight + 'px';
     var chart = echarts.init(el);
@@ -419,25 +450,25 @@
       return Math.max(collapsedHeight, rankChartHeight(visible.length));
     }
 
-    function applyBars(visible, grown) {
-      chart.setOption(barOption(visible, delayBase, grown));
+    function growAfterLayout(seq, visible) {
+      if (seq !== paintSeq) return;
+      setTimeout(function () {
+        if (seq !== paintSeq || !expanded) return;
+        chart.setOption(rankGrowOption(visible));
+      }, 50);
     }
 
     function paint(animateHeight) {
+      var seq = (paintSeq += 1);
       var visible = visibleRankEntries(entries, expanded);
       if (animateHeight && expanded) {
-        applyBars(visible, false);
-        var heightAnimating = setRankChartHeight(el, chart, currentHeight(), true);
-        if (heightAnimating) {
-          pendingGrow = true;
-        } else {
-          pendingGrow = false;
-          applyBars(visible, true);
-        }
+        chart.setOption(barOption(visible, delayBase, false, RANK_COLLAPSED_LIMIT));
+        setRankChartHeight(el, chart, currentHeight(), true, function () {
+          growAfterLayout(seq, visible);
+        });
         return;
       }
-      pendingGrow = false;
-      applyBars(visible, true);
+      chart.setOption(barOption(visible, delayBase, true));
       setRankChartHeight(el, chart, currentHeight(), animateHeight);
     }
 
@@ -456,15 +487,6 @@
         });
       }
     }
-
-    el.addEventListener('transitionend', function (event) {
-      if (event.target !== el || event.propertyName !== 'height') return;
-      chart.resize();
-      if (pendingGrow) {
-        pendingGrow = false;
-        applyBars(visibleRankEntries(entries, expanded), true);
-      }
-    });
 
     paint(false);
     return {
