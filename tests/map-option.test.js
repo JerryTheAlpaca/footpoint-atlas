@@ -95,17 +95,18 @@ describe('stationSymbolSize', () => {
     assert.ok(stationSymbolSize(14) > stationSymbolSize(3));
   });
 
-  it('keeps a one-visit station near the original size and makes hubs clearly larger', () => {
+  it('keeps a one-visit station compact and still makes hubs clearly larger', () => {
     const { stationSymbolSize } = loadTrainMap();
 
-    assert.ok(Math.abs(stationSymbolSize(1) - 14.5) < 0.01);
-    assert.ok(stationSymbolSize(14) >= 32);
+    assert.ok(Math.abs(stationSymbolSize(1) - 9.5) < 0.01);
+    assert.ok(stationSymbolSize(14) > 18);
+    assert.ok(stationSymbolSize(14) < 24);
   });
 
   it('caps huge hubs so circles do not swallow nearby stations', () => {
     const { stationSymbolSize } = loadTrainMap();
 
-    assert.equal(stationSymbolSize(200), 36);
+    assert.equal(stationSymbolSize(200), 22);
   });
 });
 

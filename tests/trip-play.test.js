@@ -78,14 +78,34 @@ describe('slicePolylineByProgress', () => {
 describe('tripStationAppearStyle', () => {
   it('starts the circle at size 0 and grows it to the full station size', () => {
     const { tripStationAppearStyle } = loadTrainTripPlay();
+    const full = tripStationAppearStyle(1).size;
 
     assert.equal(tripStationAppearStyle(0).size, 0);
     assert.equal(tripStationAppearStyle(0).ringOpacity, 0);
     assert.ok(tripStationAppearStyle(0.4).size > 0);
-    assert.ok(tripStationAppearStyle(0.4).size < tripStationAppearStyle(1).size);
+    assert.ok(tripStationAppearStyle(0.4).size < full);
     assert.ok(tripStationAppearStyle(0.4).ringOpacity > 0);
     assert.equal(tripStationAppearStyle(1).ringOpacity, 0);
-    assert.ok(tripStationAppearStyle(1).size >= 16);
+    assert.ok(full > 6);
+    assert.ok(full < 16);
+  });
+
+  it('grows an already visited station from its previous size to the new size', () => {
+    const { tripStationAppearStyle } = loadTrainTripPlay();
+
+    assert.equal(tripStationAppearStyle(0, 8, 12).size, 8);
+    assert.equal(tripStationAppearStyle(1, 8, 12).size, 12);
+    assert.ok(tripStationAppearStyle(0.4, 8, 12).size > 8);
+    assert.ok(tripStationAppearStyle(0.4, 8, 12).size < 12);
+  });
+});
+
+describe('timeline playback timing', () => {
+  it('makes station circles appear faster than a clicked single-trip replay', () => {
+    const { TRIP_PLAY_TIMING, TIMELINE_PLAY_TIMING } = loadTrainTripPlay();
+
+    assert.ok(TIMELINE_PLAY_TIMING.appearMs < TRIP_PLAY_TIMING.appearMs);
+    assert.ok(TIMELINE_PLAY_TIMING.startHoldMs < TRIP_PLAY_TIMING.startHoldMs);
   });
 });
 
