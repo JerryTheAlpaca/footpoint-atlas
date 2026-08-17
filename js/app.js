@@ -45,9 +45,26 @@
     };
   }
 
+  function routeLineWidth(count, highlighted) {
+    var rides = Math.max(1, Number(count) || 1);
+    var width = 1.2 + (rides - 1) * 0.9;
+    if (width > 6) width = 6;
+    if (highlighted) width += 1.4;
+    return width;
+  }
+
+  function stationSymbolSize(visits) {
+    var n = Math.max(1, Number(visits) || 1);
+    var size = 8 + Math.sqrt(n) * 6.5;
+    if (size > 36) size = 36;
+    return size;
+  }
+
   root.TrainMap = {
     buildGeoOption: buildGeoOption,
     readGeoView: readGeoView,
+    routeLineWidth: routeLineWidth,
+    stationSymbolSize: stationSymbolSize,
   };
 
   if (typeof document === 'undefined') return;
@@ -109,7 +126,7 @@
           records: group.records,
           lineStyle: {
             color: highlightedRoute && highlightedRoute !== key ? 'rgba(0, 229, 255, 0.18)' : NEON,
-            width: highlightedRoute === key ? 3.4 : 1.2,
+            width: routeLineWidth(group.records.length, highlightedRoute === key),
             opacity: highlightedRoute === key ? 1 : 0.75,
             curveness: 0.22,
           },
@@ -206,7 +223,7 @@
           zlevel: 3,
           rippleEffect: { brushType: 'stroke', scale: 3.4, period: 3.6 },
           symbolSize: function (val) {
-            return 8 + Math.sqrt(val[2]) * 5;
+            return stationSymbolSize(val[2]);
           },
           itemStyle: {
             color: NEON,
@@ -409,6 +426,8 @@
     animateNumber(document.getElementById('stat-vehicles'), stats.vehicleTypeCount);
     animateNumber(document.getElementById('stat-mileage'), Math.round(stats.mileageKm));
 
+    if (window.TrainScale) window.TrainScale.applyPageScale();
+
     echarts.registerMap('china', window.CHINA_GEOJSON);
     mapChart = echarts.init(document.getElementById('map-chart'));
     charts.push(mapChart);
@@ -438,7 +457,10 @@
     });
     setVisibleCount(sortedRecords.length);
 
+    if (window.TrainScale) window.TrainScale.applyPageScale();
+
     window.addEventListener('resize', function () {
+      if (window.TrainScale) window.TrainScale.applyPageScale();
       charts.forEach(function (chart) {
         chart.resize();
       });

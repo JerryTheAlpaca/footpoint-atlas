@@ -52,3 +52,51 @@ describe('readGeoView', () => {
     assert.deepEqual(view, { center: [104.2, 35.6], zoom: 2.1 });
   });
 });
+
+describe('routeLineWidth', () => {
+  it('keeps a single ride thin and thickens repeated rides', () => {
+    const { routeLineWidth } = loadTrainMap();
+
+    assert.equal(routeLineWidth(1), 1.2);
+    assert.ok(routeLineWidth(2) > routeLineWidth(1));
+    assert.ok(routeLineWidth(3) > routeLineWidth(2));
+    assert.equal(routeLineWidth(3), 3.0);
+  });
+
+  it('caps very frequent routes so the map stays readable', () => {
+    const { routeLineWidth } = loadTrainMap();
+
+    assert.equal(routeLineWidth(20), 6);
+    assert.equal(routeLineWidth(99), 6);
+  });
+
+  it('adds extra width when the route is highlighted', () => {
+    const { routeLineWidth } = loadTrainMap();
+
+    assert.ok(routeLineWidth(1, true) > routeLineWidth(1, false));
+    assert.ok(routeLineWidth(3, true) > routeLineWidth(3, false));
+  });
+});
+
+describe('stationSymbolSize', () => {
+  it('grows the station circle as visit count increases', () => {
+    const { stationSymbolSize } = loadTrainMap();
+
+    assert.ok(stationSymbolSize(1) > 0);
+    assert.ok(stationSymbolSize(3) > stationSymbolSize(1));
+    assert.ok(stationSymbolSize(14) > stationSymbolSize(3));
+  });
+
+  it('keeps a one-visit station near the original size and makes hubs clearly larger', () => {
+    const { stationSymbolSize } = loadTrainMap();
+
+    assert.ok(Math.abs(stationSymbolSize(1) - 14.5) < 0.01);
+    assert.ok(stationSymbolSize(14) >= 32);
+  });
+
+  it('caps huge hubs so circles do not swallow nearby stations', () => {
+    const { stationSymbolSize } = loadTrainMap();
+
+    assert.equal(stationSymbolSize(200), 36);
+  });
+});
