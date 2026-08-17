@@ -151,10 +151,27 @@ describe('rankGrowOption', () => {
   });
 });
 
+describe('rankExpandLayout', () => {
+  it('keeps a fixed row pitch so the list can clip-reveal instead of stretching bars', () => {
+    const { rankExpandLayout, rankChartHeight, COLLAPSED_LIMIT } = loadTrainRank();
+    const layout = rankExpandLayout(16);
+    assert.deepEqual(layout, {
+      fromClip: rankChartHeight(COLLAPSED_LIMIT),
+      toClip: rankChartHeight(16),
+      content: rankChartHeight(16),
+    });
+    assert.ok(layout.toClip > layout.fromClip);
+    assert.equal(layout.content, layout.toClip);
+  });
+});
+
 describe('ranking markup', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 
   it('places a compact expand arrow under each ranking chart', () => {
+    assert.match(html, /class="rank-clip"[\s\S]*?id="vehicle-chart"/);
+    assert.match(html, /class="rank-clip"[\s\S]*?id="station-chart"/);
+    assert.match(html, /class="rank-clip"[\s\S]*?id="bureau-chart"/);
     assert.match(html, /id="vehicle-chart"[\s\S]*?class="rank-toggle"/);
     assert.match(html, /id="station-chart"[\s\S]*?class="rank-toggle"/);
     assert.match(html, /id="bureau-chart"[\s\S]*?class="rank-toggle"/);
@@ -165,8 +182,9 @@ describe('ranking markup', () => {
 describe('ranking expand animation styles', () => {
   const css = fs.readFileSync(path.join(__dirname, '..', 'css', 'style.css'), 'utf8');
 
-  it('animates the ranking chart height when expanding or collapsing', () => {
-    const block = cssBlock(css, '.side-chart');
+  it('animates the ranking clip height when expanding or collapsing', () => {
+    const block = cssBlock(css, '.rank-clip');
+    assert.match(block, /overflow\s*:\s*hidden/);
     assert.match(block, /transition\s*:\s*height\s+[\d.]+s/);
   });
 

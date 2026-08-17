@@ -200,11 +200,16 @@ body {
   letter-spacing: 0.16em;
 }
 
+.rank-clip {
+  overflow: hidden;
+  flex: 0 0 auto;
+  transition: height 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .side-chart {
   flex: 0 0 auto;
   width: 100%;
   min-height: 0;
-  transition: height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .rank-toggle {

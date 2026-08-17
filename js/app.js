@@ -83,6 +83,17 @@
     return RANK_CHART_PADDING + n * RANK_ROW_HEIGHT;
   }
 
+  function rankExpandLayout(totalCount, limit) {
+    var cap = limit == null ? RANK_COLLAPSED_LIMIT : limit;
+    var collapsedCount = Math.min(Math.max(0, Number(totalCount) || 0), cap);
+    var fullCount = Math.max(collapsedCount, Number(totalCount) || 0);
+    return {
+      fromClip: rankChartHeight(Math.max(1, collapsedCount)),
+      toClip: rankChartHeight(Math.max(1, fullCount)),
+      content: rankChartHeight(Math.max(1, fullCount)),
+    };
+  }
+
   function rankToggleHidden(totalCount, limit) {
     var cap = limit == null ? RANK_COLLAPSED_LIMIT : limit;
     return (Number(totalCount) || 0) <= cap;
@@ -143,6 +154,7 @@
     COLLAPSED_LIMIT: RANK_COLLAPSED_LIMIT,
     visibleRankEntries: visibleRankEntries,
     rankChartHeight: rankChartHeight,
+    rankExpandLayout: rankExpandLayout,
     rankToggleHidden: rankToggleHidden,
     rankGridLeft: rankGridLeft,
     rankBarValues: rankBarValues,
@@ -150,8 +162,10 @@
   };
 
   var ROUTE_CURVENESS = 0.22;
+  var TRIP_STATION_SIZE = 16;
   var TRIP_PLAY_TIMING = {
-    startHoldMs: 520,
+    appearMs: 1200,
+    startHoldMs: 1600,
     drawMs: 2400,
   };
 
@@ -222,11 +236,31 @@
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
 
-  function tripStationPoint(name, coord) {
+  function easeOutCubic(t) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function appearProgress(elapsed, startAt, duration) {
+    return easeOutCubic((elapsed - startAt) / duration);
+  }
+
+  function tripStationAppearStyle(appear) {
+    var a = Math.max(0, Math.min(1, Number(appear) || 0));
+    return {
+      size: TRIP_STATION_SIZE * a,
+      ringSize: 8 + a * 34,
+      ringOpacity: a <= 0 || a >= 1 ? 0 : (1 - a) * 0.9,
+    };
+  }
+
+  function tripStationPoint(name, coord, appear) {
     return {
       name: name,
       value: coord.concat([1]),
       visits: 1,
+      appear: appear,
     };
   }
 
@@ -234,7 +268,10 @@
     var tmg = timing || TRIP_PLAY_TIMING;
     var elapsed = Math.max(0, Number(elapsedMs) || 0);
     var polyline = sampleRoutePolyline(trip.fromCoord, trip.toCoord, ROUTE_CURVENESS, 48);
-    var stations = [tripStationPoint(trip.from, trip.fromCoord)];
+    var startAppear = appearProgress(elapsed, 0, tmg.appearMs);
+    var stations = [tripStationPoint(trip.from, trip.fromCoord, startAppear)];
+    var arriveAt = tmg.startHoldMs + tmg.drawMs;
+    var done = elapsed >= arriveAt + tmg.appearMs;
 
     if (elapsed < tmg.startHoldMs) {
       return {
@@ -243,6 +280,7 @@
         stations: stations,
         lineCoords: [],
         head: null,
+        done: false,
       };
     }
 
@@ -256,15 +294,19 @@
         stations: stations,
         lineCoords: lineCoords.length >= 2 ? lineCoords : [],
         head: lineCoords.length ? lineCoords[lineCoords.length - 1].slice() : trip.fromCoord.slice(),
+        done: false,
       };
     }
 
     return {
       phase: 'end',
       drawProgress: 1,
-      stations: stations.concat([tripStationPoint(trip.to, trip.toCoord)]),
+      stations: stations.concat([
+        tripStationPoint(trip.to, trip.toCoord, appearProgress(elapsed, arriveAt, tmg.appearMs)),
+      ]),
       lineCoords: polyline,
       head: null,
+      done: done,
     };
   }
 
@@ -285,6 +327,7 @@
     quadraticControlPoint: quadraticControlPoint,
     sampleRoutePolyline: sampleRoutePolyline,
     slicePolylineByProgress: slicePolylineByProgress,
+    tripStationAppearStyle: tripStationAppearStyle,
     buildTripPlayFrame: buildTripPlayFrame,
     tripPlayGeoView: tripPlayGeoView,
   };
@@ -499,11 +542,65 @@
     };
   }
 
+  function tripStationRenderData(stations, growing) {
+    return (stations || [])
+      .filter(function (station) {
+        return growing ? station.appear < 1 : station.appear >= 1;
+      })
+      .map(function (station) {
+        var style = tripStationAppearStyle(station.appear);
+        return {
+          name: station.name,
+          value: station.value,
+          visits: station.visits,
+          appear: station.appear,
+          symbolSize: style.size,
+          itemStyle: {
+            color: NEON,
+            opacity: Math.min(1, station.appear * 1.4),
+          },
+          label: {
+            show: station.appear > 0.5,
+            formatter: '{b}',
+            color: '#e8f6ff',
+            fontSize: 12,
+            offset: [0, -18],
+          },
+        };
+      });
+  }
+
+  function tripStationRingData(stations) {
+    return (stations || [])
+      .map(function (station) {
+        var style = tripStationAppearStyle(station.appear);
+        return {
+          name: station.name,
+          value: station.value,
+          symbolSize: style.ringSize,
+          itemStyle: {
+            color: 'transparent',
+            borderColor: NEON,
+            borderWidth: 2,
+            opacity: style.ringOpacity,
+          },
+        };
+      })
+      .filter(function (item) {
+        return item.itemStyle.opacity > 0;
+      });
+  }
+
   function renderTripPlayFrame(frame, geoView) {
     var lineData = frame.lineCoords.length >= 2 ? [{ coords: frame.lineCoords }] : [];
     var headData = frame.head
       ? [{ name: '', value: frame.head.concat([1]), visits: 1 }]
       : [];
+    var stationTooltip = {
+      formatter: function (params) {
+        return params.name;
+      },
+    };
     mapChart.setOption(
       {
         animation: false,
@@ -542,33 +639,39 @@
             data: headData,
           },
           {
+            name: '车站光环',
+            type: 'scatter',
+            coordinateSystem: 'geo',
+            geoIndex: 0,
+            zlevel: 5,
+            silent: true,
+            animation: false,
+            symbol: 'circle',
+            label: { show: false },
+            data: tripStationRingData(frame.stations),
+          },
+          {
+            name: '车站出现',
+            type: 'scatter',
+            coordinateSystem: 'geo',
+            geoIndex: 0,
+            zlevel: 6,
+            animation: false,
+            symbol: 'circle',
+            tooltip: stationTooltip,
+            data: tripStationRenderData(frame.stations, true),
+          },
+          {
             name: '车站',
             type: 'effectScatter',
             coordinateSystem: 'geo',
             geoIndex: 0,
-            zlevel: 5,
+            zlevel: 6,
             animation: false,
             symbol: 'circle',
             rippleEffect: { brushType: 'stroke', scale: 3.2, period: 3.2 },
-            symbolSize: 16,
-            itemStyle: {
-              color: NEON,
-              shadowBlur: 16,
-              shadowColor: NEON,
-            },
-            label: {
-              show: true,
-              formatter: '{b}',
-              color: '#e8f6ff',
-              fontSize: 12,
-              offset: [0, -18],
-            },
-            tooltip: {
-              formatter: function (params) {
-                return params.name;
-              },
-            },
-            data: frame.stations,
+            tooltip: stationTooltip,
+            data: tripStationRenderData(frame.stations, false),
           },
         ],
       },
@@ -584,12 +687,13 @@
     };
   }
 
-  function barOption(entries, delayBase, grown, keepCount) {
+  function barOption(entries, delayBase, grown, keepCount, enableAnimation) {
     var left = rankGridLeft(entries);
+    var animate = enableAnimation !== false;
     return {
-      animation: true,
-      animationDuration: 900,
-      animationDurationUpdate: 720,
+      animation: animate,
+      animationDuration: animate ? 900 : 0,
+      animationDurationUpdate: animate ? 720 : 0,
       animationEasing: 'cubicOut',
       animationEasingUpdate: 'cubicOut',
       grid: { left: left, right: 36, top: 8, bottom: 8 },
@@ -642,90 +746,82 @@
     };
   }
 
-  function collapsedRankChartHeight(el) {
-    var block = el.closest('.chart-block');
-    var panel = document.querySelector('.side-panel');
-    if (!panel || !block) return rankChartHeight(RANK_COLLAPSED_LIMIT);
-    var gap = parseFloat(window.getComputedStyle(panel).gap) || 12;
-    var blocks = panel.querySelectorAll('.chart-block');
-    var title = block.querySelector('h2');
-    var toggle = block.querySelector('.rank-toggle');
-    var styles = window.getComputedStyle(block);
-    var chrome =
-      (parseFloat(styles.paddingTop) || 0) +
-      (parseFloat(styles.paddingBottom) || 0) +
-      (title ? title.offsetHeight : 18) +
-      4 +
-      (toggle && !toggle.hidden ? toggle.offsetHeight || 16 : 0);
-    var available = panel.clientHeight - gap * Math.max(0, blocks.length - 1);
-    var slot = available / Math.max(1, blocks.length) - chrome;
-    return Math.max(rankChartHeight(RANK_COLLAPSED_LIMIT), Math.floor(slot));
-  }
-
-  function setRankChartHeight(el, chart, targetHeight, animate, onDone) {
+  function animateClipHeight(clip, targetHeight, animate, onDone) {
     var next = Math.round(targetHeight);
-    var from = Math.round(el.getBoundingClientRect().height);
+    var from = Math.round(clip.getBoundingClientRect().height);
     var finished = false;
     function finish() {
       if (finished) return;
       finished = true;
-      if (chart) chart.resize();
       if (onDone) onDone();
     }
     if (!animate || Math.abs(from - next) < 1) {
-      el.style.height = next + 'px';
+      clip.style.height = next + 'px';
       finish();
       return false;
     }
-    el.style.height = from + 'px';
-    el.offsetHeight;
-    el.style.height = next + 'px';
+    clip.style.height = from + 'px';
+    clip.offsetHeight;
+    clip.style.height = next + 'px';
     function onEnd(event) {
-      if (event.target !== el || event.propertyName !== 'height') return;
-      el.removeEventListener('transitionend', onEnd);
+      if (event.target !== clip || event.propertyName !== 'height') return;
+      clip.removeEventListener('transitionend', onEnd);
       finish();
     }
-    el.addEventListener('transitionend', onEnd);
-    setTimeout(finish, 480);
+    clip.addEventListener('transitionend', onEnd);
+    setTimeout(finish, 520);
     return true;
   }
 
   function bindRankChart(el, entries, delayBase) {
+    var clip = el.parentElement;
     var block = el.closest('.chart-block');
     var toggle = block ? block.querySelector('.rank-toggle') : null;
     var expanded = false;
     var paintSeq = 0;
-    var collapsedHeight = collapsedRankChartHeight(el);
-    el.style.height = collapsedHeight + 'px';
+    var startCount = Math.min(entries.length, RANK_COLLAPSED_LIMIT) || 1;
+    el.style.height = rankChartHeight(startCount) + 'px';
+    clip.style.height = rankChartHeight(startCount) + 'px';
     var chart = echarts.init(el);
     charts.push(chart);
 
-    function currentHeight() {
-      var visible = visibleRankEntries(entries, expanded);
-      if (!expanded) return collapsedHeight;
-      return Math.max(collapsedHeight, rankChartHeight(visible.length));
-    }
-
-    function growAfterLayout(seq, visible) {
-      if (seq !== paintSeq) return;
-      setTimeout(function () {
-        if (seq !== paintSeq || !expanded) return;
-        chart.setOption(rankGrowOption(visible));
-      }, 50);
+    function layoutForCount(count) {
+      el.style.height = rankChartHeight(count) + 'px';
+      chart.resize();
     }
 
     function paint(animateHeight) {
       var seq = (paintSeq += 1);
       var visible = visibleRankEntries(entries, expanded);
+      var layout = rankExpandLayout(entries.length);
+
       if (animateHeight && expanded) {
-        chart.setOption(barOption(visible, delayBase, false, RANK_COLLAPSED_LIMIT));
-        setRankChartHeight(el, chart, currentHeight(), true, function () {
-          growAfterLayout(seq, visible);
+        layoutForCount(visible.length);
+        chart.setOption(barOption(visible, delayBase, false, RANK_COLLAPSED_LIMIT, false));
+        chart.resize();
+        animateClipHeight(clip, layout.toClip, true, function () {
+          if (seq !== paintSeq || !expanded) return;
+          setTimeout(function () {
+            if (seq !== paintSeq || !expanded) return;
+            chart.setOption(rankGrowOption(visible));
+          }, 40);
         });
         return;
       }
+
+      if (animateHeight && !expanded) {
+        animateClipHeight(clip, layout.fromClip, true, function () {
+          if (seq !== paintSeq) return;
+          chart.setOption(barOption(visible, delayBase, true, undefined, false));
+          layoutForCount(visible.length);
+        });
+        return;
+      }
+
       chart.setOption(barOption(visible, delayBase, true));
-      setRankChartHeight(el, chart, currentHeight(), animateHeight);
+      layoutForCount(visible.length);
+      clip.style.height = rankChartHeight(visible.length) + 'px';
+      chart.resize();
     }
 
     if (toggle) {
@@ -747,8 +843,9 @@
     paint(false);
     return {
       relayout: function () {
-        collapsedHeight = collapsedRankChartHeight(el);
-        setRankChartHeight(el, chart, currentHeight(), false);
+        var visible = visibleRankEntries(entries, expanded);
+        layoutForCount(visible.length);
+        clip.style.height = rankChartHeight(visible.length) + 'px';
       },
     };
   }
@@ -882,7 +979,7 @@
       if (focusedRecordIndex !== index) return;
       var frame = buildTripPlayFrame(now - start, trip);
       renderTripPlayFrame(frame, tripPlayView);
-      if (frame.phase !== 'end') {
+      if (!frame.done) {
         tripPlayRaf = requestAnimationFrame(tick);
       } else {
         tripPlayRaf = null;
