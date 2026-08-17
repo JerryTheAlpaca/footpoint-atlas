@@ -8,7 +8,8 @@
   var playTimer = null;
   var highlightedRoute = null;
   var visibleCount = 0;
-  var sortedRecords = [];
+  var allRecords = [];
+  var playRecords = [];
   var stats;
   var stations = {};
 
@@ -93,7 +94,7 @@
   }
 
   function recordsUpTo(count) {
-    return sortedRecords.slice(0, count);
+    return playRecords.slice(0, count);
   }
 
   function buildLines(records) {
@@ -317,7 +318,7 @@
 
   function renderRecords() {
     var list = document.getElementById('record-list');
-    list.innerHTML = sortedRecords
+    list.innerHTML = playRecords
       .map(function (rec, index) {
         return (
           '<li class="record-item" data-index="' +
@@ -346,7 +347,10 @@
         );
       })
       .join('');
+  }
 
+  function bindRecordListEvents() {
+    var list = document.getElementById('record-list');
     list.addEventListener('mouseover', function (event) {
       var item = event.target.closest('.record-item');
       if (!item) return;
@@ -371,10 +375,11 @@
     var label = document.getElementById('time-label');
     if (count <= 0) {
       label.textContent = '尚未出发';
-    } else if (count >= sortedRecords.length) {
-      label.textContent = '全部足迹 ' + sortedRecords[0].date.slice(0, 7) + ' → ' + sortedRecords[count - 1].date.slice(0, 7);
+    } else if (count >= playRecords.length) {
+      var prefix = playRecords.length === allRecords.length ? '全部足迹 ' : '本段足迹 ';
+      label.textContent = prefix + playRecords[0].date.slice(0, 7) + ' → ' + playRecords[count - 1].date.slice(0, 7);
     } else {
-      var rec = sortedRecords[count - 1];
+      var rec = playRecords[count - 1];
       label.textContent = rec.date + '  ' + rec.from + ' → ' + rec.to;
     }
     renderMap();
@@ -389,15 +394,76 @@
   }
 
   function startPlay() {
-    if (visibleCount >= sortedRecords.length) setVisibleCount(0);
+    if (playRecords.length === 0) return;
+    if (visibleCount >= playRecords.length) setVisibleCount(0);
     document.getElementById('play-btn').textContent = '暂停';
     playTimer = setInterval(function () {
-      if (visibleCount >= sortedRecords.length) {
+      if (visibleCount >= playRecords.length) {
         stopPlay();
         return;
       }
       setVisibleCount(visibleCount + 1);
     }, 650);
+  }
+
+  function currentRangeRecords() {
+    var mode = document.getElementById('range-mode').value;
+    if (mode === 'year') {
+      return window.TrainStats.recordsByYear(allRecords, document.getElementById('range-year').value);
+    }
+    if (mode === 'custom') {
+      return window.TrainStats.filterRecordsByRange(
+        allRecords,
+        document.getElementById('range-start').value,
+        document.getElementById('range-end').value
+      );
+    }
+    return allRecords;
+  }
+
+  function syncRangeControls() {
+    var mode = document.getElementById('range-mode').value;
+    document.getElementById('range-year').hidden = mode !== 'year';
+    document.getElementById('range-start').hidden = mode !== 'custom';
+    document.getElementById('range-end').hidden = mode !== 'custom';
+  }
+
+  function applyRangeFilter() {
+    stopPlay();
+    playRecords = currentRangeRecords();
+    var slider = document.getElementById('time-slider');
+    slider.max = String(playRecords.length);
+    document.getElementById('play-btn').disabled = playRecords.length === 0;
+    renderRecords();
+    if (playRecords.length === 0) {
+      visibleCount = 0;
+      slider.value = '0';
+      document.getElementById('time-label').textContent = '该时间段无乘车记录';
+      renderMap();
+      return;
+    }
+    setVisibleCount(playRecords.length);
+  }
+
+  function populateRangeControls() {
+    var years = window.TrainStats.listYears(allRecords);
+    var yearSelect = document.getElementById('range-year');
+    yearSelect.innerHTML = years
+      .map(function (y) {
+        return '<option value="' + y + '">' + y + ' 年</option>';
+      })
+      .join('');
+    yearSelect.value = years[years.length - 1];
+    var first = allRecords[0].date;
+    var last = allRecords[allRecords.length - 1].date;
+    var start = document.getElementById('range-start');
+    var end = document.getElementById('range-end');
+    start.min = first;
+    start.max = last;
+    start.value = first;
+    end.min = first;
+    end.max = last;
+    end.value = last;
   }
 
   function boot() {
@@ -415,10 +481,11 @@
     }
 
     stations = window.TRAIN_DATA.stations || {};
-    sortedRecords = (window.TRAIN_DATA.records || []).slice().sort(function (a, b) {
+    allRecords = (window.TRAIN_DATA.records || []).slice().sort(function (a, b) {
       if (a.date === b.date) return 0;
       return a.date < b.date ? -1 : 1;
     });
+    playRecords = allRecords;
     stats = window.TrainStats.computeStats(window.TRAIN_DATA);
 
     animateNumber(document.getElementById('stat-rides'), stats.totalRides);
@@ -444,9 +511,20 @@
     );
     renderBureau(document.getElementById('bureau-chart'), window.TrainStats.sortedEntries(stats.bureaus));
     renderRecords();
+    bindRecordListEvents();
+
+    populateRangeControls();
+    syncRangeControls();
+    document.getElementById('range-mode').addEventListener('change', function () {
+      syncRangeControls();
+      applyRangeFilter();
+    });
+    document.getElementById('range-year').addEventListener('change', applyRangeFilter);
+    document.getElementById('range-start').addEventListener('change', applyRangeFilter);
+    document.getElementById('range-end').addEventListener('change', applyRangeFilter);
 
     var slider = document.getElementById('time-slider');
-    slider.max = String(sortedRecords.length);
+    slider.max = String(playRecords.length);
     slider.addEventListener('input', function () {
       stopPlay();
       setVisibleCount(Number(slider.value));
@@ -455,7 +533,7 @@
       if (playTimer) stopPlay();
       else startPlay();
     });
-    setVisibleCount(sortedRecords.length);
+    setVisibleCount(playRecords.length);
 
     if (window.TrainScale) window.TrainScale.applyPageScale();
 
