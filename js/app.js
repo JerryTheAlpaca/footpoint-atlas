@@ -71,7 +71,7 @@
   var RANK_COLLAPSED_LIMIT = 3;
   var RANK_ROW_HEIGHT = 28;
   var RANK_CHART_PADDING = 16;
-  var RANK_GROW_HOLD_MS = 360;
+  var RANK_GROW_HOLD_MS = 100;
 
   function visibleRankEntries(entries, expanded, limit) {
     var list = Array.isArray(entries) ? entries : [];
@@ -297,6 +297,24 @@
     return easeOutCubic((elapsed - startAt) / duration);
   }
 
+  function tripSkipStations(prevVisits, rec) {
+    var visits = prevVisits || {};
+    var skip = {};
+    if (rec && rec.from && !visits[rec.from]) skip[rec.from] = true;
+    if (rec && rec.to && !visits[rec.to]) skip[rec.to] = true;
+    return skip;
+  }
+
+  function tripPlayTiming(trip, timing) {
+    var tmg = timing || TRIP_PLAY_TIMING;
+    return {
+      appearMs: tmg.appearMs,
+      startHoldMs: trip && trip.startLit ? 0 : tmg.startHoldMs,
+      drawMs: tmg.drawMs,
+      endAppearMs: trip && trip.endLit ? 0 : tmg.appearMs,
+    };
+  }
+
   function tripStationAppearStyle(appear, fromSize, toSize) {
     var a = Math.max(0, Math.min(1, Number(appear) || 0));
     var from = Math.max(0, Number(fromSize) || 0);
@@ -321,22 +339,25 @@
   }
 
   function buildTripPlayFrame(elapsedMs, trip, timing) {
-    var tmg = timing || TRIP_PLAY_TIMING;
+    var tmg = tripPlayTiming(trip, timing);
     var elapsed = Math.max(0, Number(elapsedMs) || 0);
     var polyline = sampleRoutePolyline(trip.fromCoord, trip.toCoord, ROUTE_CURVENESS, 48);
-    var startAppear = appearProgress(elapsed, 0, tmg.appearMs);
-    var stations = [
-      tripStationPoint(
-        trip.from,
-        trip.fromCoord,
-        startAppear,
-        trip.startFromSize,
-        trip.startToSize,
-        trip.startVisits
-      ),
-    ];
+    var startAppear = trip.startLit ? 1 : appearProgress(elapsed, 0, tmg.appearMs);
+    var stations = [];
+    if (!trip.startLit) {
+      stations.push(
+        tripStationPoint(
+          trip.from,
+          trip.fromCoord,
+          startAppear,
+          trip.startFromSize,
+          trip.startToSize,
+          trip.startVisits
+        )
+      );
+    }
     var arriveAt = tmg.startHoldMs + tmg.drawMs;
-    var done = elapsed >= arriveAt + tmg.appearMs;
+    var done = elapsed >= arriveAt + tmg.endAppearMs;
     var lineWidth = trip.lineWidth == null ? 2.4 : trip.lineWidth;
 
     if (elapsed < tmg.startHoldMs) {
@@ -351,7 +372,7 @@
       };
     }
 
-    var raw = (elapsed - tmg.startHoldMs) / tmg.drawMs;
+    var raw = tmg.drawMs <= 0 ? 1 : (elapsed - tmg.startHoldMs) / tmg.drawMs;
     if (raw < 1) {
       var progress = easeInOutCubic(raw);
       var lineCoords = slicePolylineByProgress(polyline, progress);
@@ -366,19 +387,23 @@
       };
     }
 
-    return {
-      phase: 'end',
-      drawProgress: 1,
-      stations: stations.concat([
+    if (!trip.endLit) {
+      stations = stations.concat([
         tripStationPoint(
           trip.to,
           trip.toCoord,
-          appearProgress(elapsed, arriveAt, tmg.appearMs),
+          appearProgress(elapsed, arriveAt, tmg.endAppearMs || tmg.appearMs),
           trip.endFromSize,
           trip.endToSize,
           trip.endVisits
         ),
-      ]),
+      ]);
+    }
+
+    return {
+      phase: 'end',
+      drawProgress: 1,
+      stations: stations,
       lineCoords: polyline,
       lineWidth: lineWidth,
       head: null,
@@ -404,6 +429,7 @@
     quadraticControlPoint: quadraticControlPoint,
     sampleRoutePolyline: sampleRoutePolyline,
     slicePolylineByProgress: slicePolylineByProgress,
+    tripSkipStations: tripSkipStations,
     tripStationAppearStyle: tripStationAppearStyle,
     buildTripPlayFrame: buildTripPlayFrame,
     tripPlayGeoView: tripPlayGeoView,
@@ -1112,6 +1138,8 @@
       to: rec.to,
       fromCoord: stations[rec.from],
       toCoord: stations[rec.to],
+      startLit: !!prevVisits[rec.from],
+      endLit: !!prevVisits[rec.to],
       startFromSize: prevVisits[rec.from] ? stationSymbolSize(prevVisits[rec.from]) : 0,
       startToSize: stationSymbolSize(nextVisits[rec.from] || 1),
       startVisits: nextVisits[rec.from] || 1,
@@ -1264,16 +1292,14 @@
     refreshTimeLabel();
 
     var settled = recordsUpTo(index);
-    var skipStations = {};
-    skipStations[rec.from] = true;
-    skipStations[rec.to] = true;
+    var trip = makeTripModel(rec, settled);
     runTripOverlay({
-      trip: makeTripModel(rec, settled),
+      trip: trip,
       timing: TIMELINE_PLAY_TIMING,
       overlay: {
         backgroundRecords: settled,
         skipRoute: rec.from + '→' + rec.to,
-        skipStations: skipStations,
+        skipStations: tripSkipStations(stationVisitMap(settled), rec),
         keepLiveView: true,
       },
       isActive: function () {
