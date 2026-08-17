@@ -4,7 +4,7 @@
   var DEFAULT_GEO_CENTER = [104.2, 35.8];
   var DEFAULT_GEO_ZOOM = 1.45;
   var GEO_ZOOM_MIN = 0.8;
-  var GEO_ZOOM_MAX = 40;
+  var GEO_ZOOM_MAX = 100;
   var charts = [];
   var mapChart;
   var playTimer = null;
