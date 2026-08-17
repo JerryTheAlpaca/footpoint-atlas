@@ -299,7 +299,7 @@
     charts.push(chart);
     chart.setOption({
       animationDuration: 1100,
-      tooltip: { trigger: 'item' },
+      tooltip: { trigger: 'item', borderRadius: 8 },
       series: [
         {
           type: 'pie',

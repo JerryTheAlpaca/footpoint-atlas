@@ -9,6 +9,9 @@
   --muted: #7fa3b8;
   --danger: #ff6b7d;
   --shadow: 0 0 24px rgba(0, 229, 255, 0.12);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 }
 
 * {
@@ -76,6 +79,7 @@ body {
   height: 32px;
   padding: 0 18px;
   border: 1px solid var(--cyan);
+  border-radius: var(--radius-sm);
   background: rgba(0, 229, 255, 0.08);
   color: var(--cyan);
   cursor: pointer;
@@ -107,6 +111,7 @@ body {
   padding: 12px 16px 14px;
   background: var(--bg-elev);
   border: 1px solid var(--line);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   overflow: hidden;
 }
@@ -146,7 +151,9 @@ body {
 .record-panel {
   background: var(--bg-elev);
   border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
 .map-panel {
@@ -207,6 +214,7 @@ body {
   height: 28px;
   padding: 0 8px;
   border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
   background: rgba(0, 20, 40, 0.6);
   color: var(--text);
   font-size: 12px;
@@ -228,6 +236,7 @@ body {
 #play-btn {
   height: 32px;
   border: 1px solid var(--cyan);
+  border-radius: var(--radius-sm);
   background: rgba(0, 229, 255, 0.08);
   color: var(--cyan);
   cursor: pointer;
@@ -269,6 +278,7 @@ body {
 .record-item {
   padding: 8px 10px;
   border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   background: rgba(0, 20, 40, 0.45);
   cursor: pointer;
 }
@@ -318,6 +328,7 @@ body {
   padding: 26px 30px 24px;
   background: var(--bg-elev);
   border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
 }
 
@@ -354,6 +365,7 @@ body {
 .review-year-btn {
   padding: 6px 20px;
   border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text);
   cursor: pointer;
@@ -376,6 +388,7 @@ body {
   padding: 14px 16px;
   background: rgba(0, 20, 40, 0.45);
   border: 1px solid var(--line);
+  border-radius: var(--radius-md);
 }
 
 .review-text {
@@ -424,4 +437,5 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 229, 255, 0.35);
+  border-radius: 999px;
 }
