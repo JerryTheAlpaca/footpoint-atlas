@@ -77,6 +77,40 @@ describe('rankToggleHidden', () => {
   });
 });
 
+describe('rankGridLeft', () => {
+  it('leaves enough room for long vehicle type names such as CR400BF-AS', () => {
+    const { rankGridLeft } = loadTrainRank();
+    const left = rankGridLeft([
+      ['CR400BF-AS', 4],
+      ['CR400BF-AZ', 1],
+      ['CRH380BL', 2],
+    ]);
+    assert.ok(left > 72, 'left grid was ' + left);
+  });
+
+  it('keeps a compact margin for short Chinese labels', () => {
+    const { rankGridLeft } = loadTrainRank();
+    assert.equal(rankGridLeft([['南京南', 14], ['上海局', 10]]), 72);
+  });
+});
+
+describe('rankBarValues', () => {
+  const entries = [
+    ['CR400BF-S', 4],
+    ['CR400AF-Z', 3],
+  ];
+
+  it('starts from zero so newly expanded bars can grow in', () => {
+    const { rankBarValues } = loadTrainRank();
+    assert.deepEqual(rankBarValues(entries, false), [0, 0]);
+  });
+
+  it('uses the real counts after the grow-in animation', () => {
+    const { rankBarValues } = loadTrainRank();
+    assert.deepEqual(rankBarValues(entries, true), [4, 3]);
+  });
+});
+
 describe('ranking markup', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 

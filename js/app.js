@@ -84,6 +84,30 @@
     return (Number(totalCount) || 0) <= cap;
   }
 
+  function rankLabelWidth(text) {
+    var s = String(text || '');
+    var width = 0;
+    for (var i = 0; i < s.length; i += 1) {
+      width += s.charCodeAt(i) > 255 ? 12 : 8.2;
+    }
+    return width;
+  }
+
+  function rankGridLeft(entries) {
+    var max = 0;
+    (entries || []).forEach(function (item) {
+      var width = rankLabelWidth(item && item[0]);
+      if (width > max) max = width;
+    });
+    return Math.max(72, Math.ceil(max) + 18);
+  }
+
+  function rankBarValues(entries, grown) {
+    return (entries || []).map(function (item) {
+      return grown ? item[1] : 0;
+    });
+  }
+
   root.TrainMap = {
     buildGeoOption: buildGeoOption,
     readGeoView: readGeoView,
@@ -96,6 +120,8 @@
     visibleRankEntries: visibleRankEntries,
     rankChartHeight: rankChartHeight,
     rankToggleHidden: rankToggleHidden,
+    rankGridLeft: rankGridLeft,
+    rankBarValues: rankBarValues,
   };
 
   if (typeof document === 'undefined') return;
@@ -281,32 +307,40 @@
     };
   }
 
-  function barOption(entries, delayBase) {
+  function barOption(entries, delayBase, grown) {
+    var left = rankGridLeft(entries);
     return {
       animationDuration: 900,
-      animationDurationUpdate: 400,
-      grid: { left: 72, right: 28, top: 8, bottom: 8 },
+      animationDurationUpdate: 720,
+      animationEasing: 'cubicOut',
+      animationEasingUpdate: 'cubicOut',
+      grid: { left: left, right: 36, top: 8, bottom: 8 },
       xAxis: Object.assign({ type: 'value', minInterval: 1 }, axisStyle()),
-      yAxis: Object.assign(
-        {
-          type: 'category',
-          inverse: true,
-          data: entries.map(function (item) {
-            return item[0];
-          }),
-          axisLabel: { color: '#c6ecff', fontSize: 11 },
-        },
-        axisStyle()
-      ),
+      yAxis: Object.assign({}, axisStyle(), {
+        type: 'category',
+        inverse: true,
+        data: entries.map(function (item) {
+          return item[0];
+        }),
+          axisLabel: {
+            color: '#c6ecff',
+            fontSize: 11,
+            interval: 0,
+            hideOverlap: false,
+            overflow: 'none',
+            ellipsis: '',
+          },
+      }),
       series: [
         {
           type: 'bar',
-          data: entries.map(function (item) {
-            return item[1];
-          }),
+          data: rankBarValues(entries, grown !== false),
           barWidth: 10,
           animationDelay: function (idx) {
             return idx * delayBase;
+          },
+          animationDelayUpdate: function (idx) {
+            return idx * Math.max(28, delayBase / 3);
           },
           itemStyle: {
             borderRadius: [0, 6, 6, 0],
@@ -315,7 +349,15 @@
               { offset: 1, color: NEON },
             ]),
           },
-          label: { show: true, position: 'right', color: GOLD, fontSize: 11 },
+          label: {
+            show: true,
+            position: 'right',
+            color: GOLD,
+            fontSize: 11,
+            formatter: function (params) {
+              return params.value ? String(params.value) : '';
+            },
+          },
         },
       ],
     };
@@ -343,12 +385,12 @@
 
   function setRankChartHeight(el, chart, targetHeight, animate) {
     var next = Math.round(targetHeight);
-    if (!animate) {
+    var from = Math.round(el.getBoundingClientRect().height);
+    if (!animate || Math.abs(from - next) < 1) {
       el.style.height = next + 'px';
       if (chart) chart.resize();
-      return;
+      return false;
     }
-    var from = el.getBoundingClientRect().height;
     el.style.height = from + 'px';
     el.offsetHeight;
     el.style.height = next + 'px';
@@ -358,12 +400,14 @@
       if (now - start < 450) requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
+    return true;
   }
 
   function bindRankChart(el, entries, delayBase) {
     var block = el.closest('.chart-block');
     var toggle = block ? block.querySelector('.rank-toggle') : null;
     var expanded = false;
+    var pendingGrow = false;
     var collapsedHeight = collapsedRankChartHeight(el);
     el.style.height = collapsedHeight + 'px';
     var chart = echarts.init(el);
@@ -375,9 +419,25 @@
       return Math.max(collapsedHeight, rankChartHeight(visible.length));
     }
 
+    function applyBars(visible, grown) {
+      chart.setOption(barOption(visible, delayBase, grown));
+    }
+
     function paint(animateHeight) {
       var visible = visibleRankEntries(entries, expanded);
-      chart.setOption(barOption(visible, delayBase));
+      if (animateHeight && expanded) {
+        applyBars(visible, false);
+        var heightAnimating = setRankChartHeight(el, chart, currentHeight(), true);
+        if (heightAnimating) {
+          pendingGrow = true;
+        } else {
+          pendingGrow = false;
+          applyBars(visible, true);
+        }
+        return;
+      }
+      pendingGrow = false;
+      applyBars(visible, true);
       setRankChartHeight(el, chart, currentHeight(), animateHeight);
     }
 
@@ -398,7 +458,12 @@
     }
 
     el.addEventListener('transitionend', function (event) {
-      if (event.propertyName === 'height') chart.resize();
+      if (event.target !== el || event.propertyName !== 'height') return;
+      chart.resize();
+      if (pendingGrow) {
+        pendingGrow = false;
+        applyBars(visibleRankEntries(entries, expanded), true);
+      }
     });
 
     paint(false);
