@@ -3,6 +3,8 @@
   var GOLD = '#ffd166';
   var DEFAULT_GEO_CENTER = [104.2, 35.8];
   var DEFAULT_GEO_ZOOM = 1.45;
+  var GEO_ZOOM_MIN = 0.8;
+  var GEO_ZOOM_MAX = 24;
   var charts = [];
   var mapChart;
   var playTimer = null;
@@ -19,7 +21,7 @@
       roam: true,
       zoom: view && typeof view.zoom === 'number' ? view.zoom : DEFAULT_GEO_ZOOM,
       center: view && Array.isArray(view.center) ? view.center : DEFAULT_GEO_CENTER,
-      scaleLimit: { min: 0.8, max: 8 },
+      scaleLimit: { min: GEO_ZOOM_MIN, max: GEO_ZOOM_MAX },
       itemStyle: {
         areaColor: '#071525',
         borderColor: '#1a6f9c',

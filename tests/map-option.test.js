@@ -24,6 +24,14 @@ describe('buildGeoOption', () => {
     assert.equal(geo.layoutSize, undefined);
   });
 
+  it('allows a higher zoom so same-city stations can be distinguished', () => {
+    const { buildGeoOption } = loadTrainMap();
+    const geo = buildGeoOption();
+
+    assert.equal(geo.scaleLimit.min, 0.8);
+    assert.equal(geo.scaleLimit.max, 24);
+  });
+
   it('keeps the current view so later setOption calls do not reset user zoom', () => {
     const { buildGeoOption } = loadTrainMap();
     const geo = buildGeoOption({
