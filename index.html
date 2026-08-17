@@ -15,6 +15,7 @@
       <div class="title-wrap">
         <p class="kicker">TRAIN FOOTPRINT</p>
         <h1>我的火车足迹</h1>
+        <button id="review-btn" type="button">年度回顾</button>
       </div>
       <div class="stat-cards">
         <article class="stat-card">
@@ -41,9 +42,22 @@
       <section class="map-panel">
         <div id="map-chart" class="chart map-chart"></div>
         <div class="timeline">
-          <button id="play-btn" type="button" aria-label="播放或暂停时间轴">播放</button>
-          <input id="time-slider" type="range" min="0" value="0">
-          <span id="time-label">准备回放</span>
+          <div class="timeline-filter">
+            <label for="range-mode">回放范围</label>
+            <select id="range-mode">
+              <option value="all">全部</option>
+              <option value="year">按年份</option>
+              <option value="custom">自定义时间段</option>
+            </select>
+            <select id="range-year" hidden></select>
+            <input id="range-start" type="date" hidden>
+            <input id="range-end" type="date" hidden>
+          </div>
+          <div class="timeline-controls">
+            <button id="play-btn" type="button" aria-label="播放或暂停时间轴">播放</button>
+            <input id="time-slider" type="range" min="0" value="0">
+            <span id="time-label">准备回放</span>
+          </div>
         </div>
       </section>
 
@@ -67,6 +81,40 @@
       <h2>乘车记录</h2>
       <ol id="record-list" class="record-list"></ol>
     </section>
+
+    <div id="review-modal" class="review-modal" hidden>
+      <div class="review-backdrop" data-review-close></div>
+      <div class="review-dialog" role="dialog" aria-modal="true" aria-labelledby="review-title">
+        <div class="review-header">
+          <h2 id="review-title">年度回顾</h2>
+          <button id="review-close" type="button" aria-label="关闭年度回顾">×</button>
+        </div>
+        <div id="review-years" class="review-years"></div>
+        <div class="review-cards">
+          <article class="review-card">
+            <span class="stat-label">乘坐次数</span>
+            <strong id="review-rides" class="stat-value">0</strong>
+          </article>
+          <article class="review-card">
+            <span class="stat-label">到访车站</span>
+            <strong id="review-stations" class="stat-value">0</strong>
+          </article>
+          <article class="review-card">
+            <span class="stat-label">最常到访车站</span>
+            <strong id="review-top-station" class="stat-value review-text">-</strong>
+            <span id="review-top-station-count" class="stat-note"></span>
+          </article>
+          <article class="review-card">
+            <span class="stat-label">最常乘坐线路</span>
+            <strong id="review-top-route" class="stat-value review-text">-</strong>
+            <span id="review-top-train" class="stat-note"></span>
+          </article>
+        </div>
+        <div class="review-actions">
+          <button id="review-play" type="button">▶ 回放这一年</button>
+        </div>
+      </div>
+    </div>
     </div>
   </div>
 
