@@ -129,7 +129,10 @@
 
   function rankGrowOption(entries) {
     return {
+      animation: true,
+      animationDuration: 720,
       animationDurationUpdate: 720,
+      animationEasing: 'cubicOut',
       animationEasingUpdate: 'cubicOut',
       series: [
         {
@@ -143,11 +146,16 @@
     };
   }
 
+  function mapRenderOpts(replaceSeries) {
+    return replaceSeries ? { replaceMerge: ['series'] } : {};
+  }
+
   root.TrainMap = {
     buildGeoOption: buildGeoOption,
     readGeoView: readGeoView,
     routeLineWidth: routeLineWidth,
     stationSymbolSize: stationSymbolSize,
+    mapRenderOpts: mapRenderOpts,
   };
 
   root.TrainRank = {
@@ -459,18 +467,18 @@
     };
   }
 
-  function renderMap(viewOverride) {
+  function renderMap(viewOverride, replaceSeries) {
     var visible = recordsUpTo(visibleCount);
     var lines = buildLines(visible);
     var points = buildStations(visible);
     mapChart.setOption(
       {
-        animation: true,
         backgroundColor: 'transparent',
         tooltip: mapTooltipStyle(),
         geo: buildGeoOption(viewOverride || readGeoView(mapChart)),
         series: [
           {
+            id: 'map-lines',
             name: '线路',
             type: 'lines',
             polyline: false,
@@ -489,6 +497,7 @@
             data: lines,
           },
           {
+            id: 'map-stations',
             name: '车站',
             type: 'effectScatter',
             coordinateSystem: 'geo',
@@ -513,7 +522,7 @@
           },
         ],
       },
-      { replaceMerge: ['series'] }
+      mapRenderOpts(replaceSeries)
     );
   }
 
@@ -609,7 +618,7 @@
         geo: buildGeoOption(geoView),
         series: [
           tripLineSeries(
-            '线路',
+            'trip-line',
             3,
             {
               color: NEON,
@@ -933,7 +942,7 @@
   function restoreFullMap() {
     var view = exitTripPlayMode();
     refreshTimeLabel();
-    renderMap(view);
+    renderMap(view, true);
   }
 
   function startTripPlay(index) {
@@ -1016,11 +1025,12 @@
   }
 
   function setVisibleCount(count) {
+    var replaceSeries = focusedRecordIndex != null || tripPlayRaf != null;
     var restoredView = exitTripPlayMode();
     visibleCount = count;
     document.getElementById('time-slider').value = String(count);
     refreshTimeLabel();
-    renderMap(restoredView);
+    renderMap(restoredView, replaceSeries);
   }
 
   function stopPlay() {
@@ -1078,11 +1088,12 @@
     document.getElementById('play-btn').disabled = playRecords.length === 0;
     renderRecords();
     if (playRecords.length === 0) {
+      var replaceSeries = focusedRecordIndex != null || tripPlayRaf != null;
       var restoredView = exitTripPlayMode();
       visibleCount = 0;
       slider.value = '0';
       document.getElementById('time-label').textContent = '该时间段无乘车记录';
-      renderMap(restoredView);
+      renderMap(restoredView, replaceSeries);
       return;
     }
     setVisibleCount(playRecords.length);

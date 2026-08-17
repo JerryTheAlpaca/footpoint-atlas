@@ -108,3 +108,19 @@ describe('stationSymbolSize', () => {
     assert.equal(stationSymbolSize(200), 36);
   });
 });
+
+describe('mapRenderOpts', () => {
+  it('does not replace series during ordinary playback updates', () => {
+    const { mapRenderOpts } = loadTrainMap();
+    const opts = mapRenderOpts(false);
+
+    assert.equal(opts.replaceMerge, undefined);
+  });
+
+  it('replaces series only when leaving single-trip playback so extra layers can be dropped', () => {
+    const { mapRenderOpts } = loadTrainMap();
+    const opts = mapRenderOpts(true);
+
+    assert.deepEqual(opts.replaceMerge, ['series']);
+  });
+});
