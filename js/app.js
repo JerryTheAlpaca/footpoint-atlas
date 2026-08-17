@@ -466,6 +466,69 @@
     end.value = last;
   }
 
+  var reviewYear = null;
+
+  function topEntry(map) {
+    var entries = window.TrainStats.sortedEntries(map, 1);
+    return entries.length ? entries[0] : null;
+  }
+
+  function renderReview() {
+    var years = window.TrainStats.listYears(allRecords);
+    if (!reviewYear || years.indexOf(reviewYear) === -1) {
+      reviewYear = years[years.length - 1];
+    }
+    var yearRecords = window.TrainStats.recordsByYear(allRecords, reviewYear);
+    var yearStats = window.TrainStats.computeStats({ records: yearRecords, stations: stations });
+
+    document.getElementById('review-years').innerHTML = years
+      .map(function (y) {
+        return (
+          '<button type="button" class="review-year-btn' +
+          (y === reviewYear ? ' is-active' : '') +
+          '" data-year="' + y + '">' + y + '</button>'
+        );
+      })
+      .join('');
+    document.getElementById('review-title').textContent = reviewYear + ' 年度回顾';
+    animateNumber(document.getElementById('review-rides'), yearStats.totalRides);
+    animateNumber(document.getElementById('review-stations'), yearStats.stationCount);
+
+    var topStation = topEntry(yearStats.stationVisits);
+    document.getElementById('review-top-station').textContent = topStation ? topStation[0] : '-';
+    document.getElementById('review-top-station-count').textContent = topStation
+      ? '到访 ' + topStation[1] + ' 次'
+      : '';
+
+    var topRoute = topEntry(yearStats.routes);
+    var topTrain = topEntry(yearStats.trains);
+    document.getElementById('review-top-route').textContent = topRoute ? topRoute[0] : '-';
+    document.getElementById('review-top-train').textContent =
+      (topRoute ? '乘坐 ' + topRoute[1] + ' 次' : '') +
+      (topTrain ? ' · 最乘车次 ' + topTrain[0] + '（' + topTrain[1] + ' 次）' : '');
+  }
+
+  function openReview() {
+    reviewYear = null;
+    renderReview();
+    document.getElementById('review-modal').hidden = false;
+  }
+
+  function closeReview() {
+    document.getElementById('review-modal').hidden = true;
+  }
+
+  function replayReviewYear() {
+    var year = reviewYear;
+    closeReview();
+    document.getElementById('range-mode').value = 'year';
+    syncRangeControls();
+    document.getElementById('range-year').value = year;
+    applyRangeFilter();
+    setVisibleCount(0);
+    startPlay();
+  }
+
   function boot() {
     if (!window.echarts) {
       showBootError('未能加载 ECharts 库（lib/echarts.min.js），请确认文件存在后刷新页面。');
@@ -533,6 +596,21 @@
       if (playTimer) stopPlay();
       else startPlay();
     });
+
+    document.getElementById('review-btn').addEventListener('click', openReview);
+    document.getElementById('review-close').addEventListener('click', closeReview);
+    document.getElementById('review-play').addEventListener('click', replayReviewYear);
+    document.querySelector('#review-modal .review-backdrop').addEventListener('click', closeReview);
+    document.getElementById('review-years').addEventListener('click', function (event) {
+      var btn = event.target.closest('.review-year-btn');
+      if (!btn) return;
+      reviewYear = btn.getAttribute('data-year');
+      renderReview();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeReview();
+    });
+
     setVisibleCount(playRecords.length);
 
     if (window.TrainScale) window.TrainScale.applyPageScale();
