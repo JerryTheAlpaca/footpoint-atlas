@@ -149,6 +149,46 @@ describe('rankGrowOption', () => {
     ]);
     assert.ok(option.animationDurationUpdate >= 600);
   });
+
+  it('turns animation back on so bars can grow after the seed option disabled it', () => {
+    const { rankGrowOption } = loadTrainRank();
+    const option = rankGrowOption([['CR400BF-S', 4]]);
+    assert.equal(option.animation, true);
+    assert.ok(option.animationDuration >= 600);
+    assert.ok(option.animationDurationUpdate >= 600);
+  });
+});
+
+describe('rankAnimation', () => {
+  it('keeps animation enabled while seeding zeros so later growth can interpolate', () => {
+    const { rankAnimation } = loadTrainRank();
+    const quiet = rankAnimation(false);
+    assert.equal(quiet.animation, true);
+    assert.equal(quiet.animationDuration, 0);
+    assert.equal(quiet.animationDurationUpdate, 0);
+  });
+});
+
+describe('rankTweenValues', () => {
+  const list = [
+    ['CR400BF-S', 4],
+    ['CR400AF-Z', 3],
+    ['CRH380BL', 2],
+    ['CR400BF-AS', 1],
+  ];
+
+  it('keeps the top rows still and grows new bars from zero', () => {
+    const { rankBarValues, rankTweenValues, COLLAPSED_LIMIT } = loadTrainRank();
+    const from = rankBarValues(list, false, COLLAPSED_LIMIT);
+    const to = rankBarValues(list, true);
+    const start = rankTweenValues(from, to, 0);
+    const mid = rankTweenValues(from, to, 0.5);
+    const end = rankTweenValues(from, to, 1);
+    assert.equal(start[3].value, 0);
+    assert.equal(mid[0].value, 4);
+    assert.equal(mid[3].value, 0.5);
+    assert.equal(end[3].value, 1);
+  });
 });
 
 describe('rankExpandLayout', () => {

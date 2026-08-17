@@ -8,6 +8,7 @@
   var charts = [];
   var mapChart;
   var playTimer = null;
+  var timelinePlaying = false;
   var tripPlayRaf = null;
   var tripPlayView = null;
   var savedGeoView = null;
@@ -62,8 +63,8 @@
 
   function stationSymbolSize(visits) {
     var n = Math.max(1, Number(visits) || 1);
-    var size = 8 + Math.sqrt(n) * 6.5;
-    if (size > 36) size = 36;
+    var size = 5.5 + Math.sqrt(n) * 4;
+    if (size > 22) size = 22;
     return size;
   }
 
@@ -127,13 +128,32 @@
     });
   }
 
-  function rankGrowOption(entries) {
+  function rankAnimation(enabled) {
     return {
       animation: true,
-      animationDuration: 720,
-      animationDurationUpdate: 720,
+      animationDuration: enabled ? 900 : 0,
+      animationDurationUpdate: enabled ? 720 : 0,
       animationEasing: 'cubicOut',
       animationEasingUpdate: 'cubicOut',
+    };
+  }
+
+  function rankTweenValues(from, to, t) {
+    var k = Math.max(0, Math.min(1, Number(t) || 0));
+    return (to || []).map(function (item, idx) {
+      var start = from && from[idx] ? Number(from[idx].value) || 0 : 0;
+      var end = Number(item.value) || 0;
+      return {
+        name: item.name,
+        value: start + (end - start) * k,
+      };
+    });
+  }
+
+  function rankGrowOption(entries) {
+    return Object.assign(rankAnimation(true), {
+      animationDuration: 720,
+      animationDurationUpdate: 720,
       series: [
         {
           id: 'rank-bars',
@@ -143,7 +163,7 @@
           },
         },
       ],
-    };
+    });
   }
 
   function mapRenderOpts(replaceSeries) {
@@ -166,15 +186,21 @@
     rankToggleHidden: rankToggleHidden,
     rankGridLeft: rankGridLeft,
     rankBarValues: rankBarValues,
+    rankAnimation: rankAnimation,
+    rankTweenValues: rankTweenValues,
     rankGrowOption: rankGrowOption,
   };
 
   var ROUTE_CURVENESS = 0.22;
-  var TRIP_STATION_SIZE = 16;
   var TRIP_PLAY_TIMING = {
     appearMs: 1200,
     startHoldMs: 1600,
     drawMs: 2400,
+  };
+  var TIMELINE_PLAY_TIMING = {
+    appearMs: 420,
+    startHoldMs: 560,
+    drawMs: 2000,
   };
 
   function quadraticControlPoint(from, to, curveness) {
@@ -254,21 +280,26 @@
     return easeOutCubic((elapsed - startAt) / duration);
   }
 
-  function tripStationAppearStyle(appear) {
+  function tripStationAppearStyle(appear, fromSize, toSize) {
     var a = Math.max(0, Math.min(1, Number(appear) || 0));
+    var from = Math.max(0, Number(fromSize) || 0);
+    var to = toSize == null ? stationSymbolSize(1) : Math.max(0, Number(toSize));
+    var newborn = from < 0.5;
     return {
-      size: TRIP_STATION_SIZE * a,
-      ringSize: 8 + a * 34,
-      ringOpacity: a <= 0 || a >= 1 ? 0 : (1 - a) * 0.9,
+      size: from + (to - from) * a,
+      ringSize: newborn ? Math.max(4, to * 0.8) + a * (to * 1.6 + 8) : to + a * 8,
+      ringOpacity: a <= 0 || a >= 1 ? 0 : (1 - a) * (newborn ? 0.9 : 0.4),
     };
   }
 
-  function tripStationPoint(name, coord, appear) {
+  function tripStationPoint(name, coord, appear, fromSize, toSize, visits) {
     return {
       name: name,
-      value: coord.concat([1]),
-      visits: 1,
+      value: coord.concat([visits || 1]),
+      visits: visits || 1,
       appear: appear,
+      fromSize: fromSize || 0,
+      toSize: toSize == null ? stationSymbolSize(1) : toSize,
     };
   }
 
@@ -277,9 +308,19 @@
     var elapsed = Math.max(0, Number(elapsedMs) || 0);
     var polyline = sampleRoutePolyline(trip.fromCoord, trip.toCoord, ROUTE_CURVENESS, 48);
     var startAppear = appearProgress(elapsed, 0, tmg.appearMs);
-    var stations = [tripStationPoint(trip.from, trip.fromCoord, startAppear)];
+    var stations = [
+      tripStationPoint(
+        trip.from,
+        trip.fromCoord,
+        startAppear,
+        trip.startFromSize,
+        trip.startToSize,
+        trip.startVisits
+      ),
+    ];
     var arriveAt = tmg.startHoldMs + tmg.drawMs;
     var done = elapsed >= arriveAt + tmg.appearMs;
+    var lineWidth = trip.lineWidth == null ? 2.4 : trip.lineWidth;
 
     if (elapsed < tmg.startHoldMs) {
       return {
@@ -287,6 +328,7 @@
         drawProgress: 0,
         stations: stations,
         lineCoords: [],
+        lineWidth: lineWidth,
         head: null,
         done: false,
       };
@@ -301,6 +343,7 @@
         drawProgress: progress,
         stations: stations,
         lineCoords: lineCoords.length >= 2 ? lineCoords : [],
+        lineWidth: lineWidth,
         head: lineCoords.length ? lineCoords[lineCoords.length - 1].slice() : trip.fromCoord.slice(),
         done: false,
       };
@@ -310,9 +353,17 @@
       phase: 'end',
       drawProgress: 1,
       stations: stations.concat([
-        tripStationPoint(trip.to, trip.toCoord, appearProgress(elapsed, arriveAt, tmg.appearMs)),
+        tripStationPoint(
+          trip.to,
+          trip.toCoord,
+          appearProgress(elapsed, arriveAt, tmg.appearMs),
+          trip.endFromSize,
+          trip.endToSize,
+          trip.endVisits
+        ),
       ]),
       lineCoords: polyline,
+      lineWidth: lineWidth,
       head: null,
       done: done,
     };
@@ -332,6 +383,7 @@
   root.TrainTripPlay = {
     ROUTE_CURVENESS: ROUTE_CURVENESS,
     TRIP_PLAY_TIMING: TRIP_PLAY_TIMING,
+    TIMELINE_PLAY_TIMING: TIMELINE_PLAY_TIMING,
     quadraticControlPoint: quadraticControlPoint,
     sampleRoutePolyline: sampleRoutePolyline,
     slicePolylineByProgress: slicePolylineByProgress,
@@ -369,7 +421,7 @@
     return playRecords.slice(0, count);
   }
 
-  function buildLines(records) {
+  function buildLines(records, skipRoute) {
     var grouped = {};
     records.forEach(function (rec) {
       var key = rec.from + '→' + rec.to;
@@ -379,6 +431,7 @@
 
     return Object.keys(grouped)
       .map(function (key) {
+        if (skipRoute && key === skipRoute) return null;
         var group = grouped[key];
         var fromCoord = stations[group.from];
         var toCoord = stations[group.to];
@@ -391,7 +444,7 @@
           return null;
         }
         return {
-          coords: [fromCoord, toCoord],
+          coords: sampleRoutePolyline(fromCoord, toCoord, ROUTE_CURVENESS, 48),
           from: group.from,
           to: group.to,
           route: key,
@@ -401,14 +454,13 @@
             color: highlightedRoute && highlightedRoute !== key ? 'rgba(0, 229, 255, 0.18)' : NEON,
             width: routeLineWidth(group.records.length, highlightedRoute === key),
             opacity: highlightedRoute === key ? 1 : 0.75,
-            curveness: ROUTE_CURVENESS,
           },
         };
       })
       .filter(Boolean);
   }
 
-  function buildStations(records) {
+  function buildStations(records, skipNames) {
     var visits = {};
     records.forEach(function (rec) {
       visits[rec.from] = (visits[rec.from] || 0) + 1;
@@ -416,6 +468,7 @@
     });
     return Object.keys(visits)
       .map(function (name) {
+        if (skipNames && skipNames[name]) return null;
         var coord = stations[name];
         if (!coord) {
           warnMissingStation(name);
@@ -467,67 +520,80 @@
     };
   }
 
+  function mapLineSeries(data) {
+    return {
+      id: 'map-lines',
+      name: '线路',
+      type: 'lines',
+      polyline: true,
+      coordinateSystem: 'geo',
+      geoIndex: 0,
+      zlevel: 2,
+      effect: {
+        show: data.length > 0,
+        period: 5,
+        trailLength: 0.45,
+        color: GOLD,
+        symbol: 'pin',
+        symbolSize: 4,
+      },
+      tooltip: { formatter: lineTooltip },
+      data: data,
+    };
+  }
+
+  function mapStationSeries(data) {
+    return {
+      id: 'map-stations',
+      name: '车站',
+      type: 'effectScatter',
+      coordinateSystem: 'geo',
+      geoIndex: 0,
+      zlevel: 3,
+      rippleEffect: { brushType: 'stroke', scale: 3.2, period: 3.6 },
+      symbolSize: function (val) {
+        return stationSymbolSize(val[2]);
+      },
+      itemStyle: {
+        color: NEON,
+        shadowBlur: 8,
+        shadowColor: NEON,
+      },
+      label: { show: false },
+      tooltip: {
+        formatter: function (params) {
+          return params.name + '<br/>到访次数：' + params.data.visits;
+        },
+      },
+      data: data,
+    };
+  }
+
+  function emptyTripFrame() {
+    return {
+      phase: 'start',
+      stations: [],
+      lineCoords: [],
+      lineWidth: 2.4,
+      head: null,
+    };
+  }
+
   function renderMap(viewOverride, replaceSeries) {
     var visible = recordsUpTo(visibleCount);
-    var lines = buildLines(visible);
-    var points = buildStations(visible);
-    mapChart.setOption(
-      {
-        backgroundColor: 'transparent',
-        tooltip: mapTooltipStyle(),
-        geo: buildGeoOption(viewOverride || readGeoView(mapChart)),
-        series: [
-          {
-            id: 'map-lines',
-            name: '线路',
-            type: 'lines',
-            polyline: false,
-            coordinateSystem: 'geo',
-            geoIndex: 0,
-            zlevel: 2,
-            effect: {
-              show: true,
-              period: 5,
-              trailLength: 0.45,
-              color: GOLD,
-              symbol: 'pin',
-              symbolSize: 5,
-            },
-            tooltip: { formatter: lineTooltip },
-            data: lines,
-          },
-          {
-            id: 'map-stations',
-            name: '车站',
-            type: 'effectScatter',
-            coordinateSystem: 'geo',
-            geoIndex: 0,
-            zlevel: 3,
-            rippleEffect: { brushType: 'stroke', scale: 3.4, period: 3.6 },
-            symbolSize: function (val) {
-              return stationSymbolSize(val[2]);
-            },
-            itemStyle: {
-              color: NEON,
-              shadowBlur: 12,
-              shadowColor: NEON,
-            },
-            label: { show: false },
-            tooltip: {
-              formatter: function (params) {
-                return params.name + '<br/>到访次数：' + params.data.visits;
-              },
-            },
-            data: points,
-          },
-        ],
-      },
-      mapRenderOpts(replaceSeries)
+    paintMapLayers(
+      buildLines(visible),
+      buildStations(visible),
+      emptyTripFrame(),
+      viewOverride || readGeoView(mapChart),
+      replaceSeries,
+      true
     );
   }
 
   function tripLineSeries(name, zlevel, lineStyle, data, showEffect) {
     return {
+      id: name,
       name: name,
       type: 'lines',
       polyline: true,
@@ -543,7 +609,7 @@
             trailLength: 0.55,
             color: GOLD,
             symbol: 'circle',
-            symbolSize: 6,
+            symbolSize: 5,
           }
         : { show: false },
       lineStyle: lineStyle,
@@ -557,7 +623,7 @@
         return growing ? station.appear < 1 : station.appear >= 1;
       })
       .map(function (station) {
-        var style = tripStationAppearStyle(station.appear);
+        var style = tripStationAppearStyle(station.appear, station.fromSize, station.toSize);
         return {
           name: station.name,
           value: station.value,
@@ -566,14 +632,14 @@
           symbolSize: style.size,
           itemStyle: {
             color: NEON,
-            opacity: Math.min(1, station.appear * 1.4),
+            opacity: Math.min(1, Math.max(0.35, station.appear * 1.4)),
           },
           label: {
             show: station.appear > 0.5,
             formatter: '{b}',
             color: '#e8f6ff',
-            fontSize: 12,
-            offset: [0, -18],
+            fontSize: 11,
+            offset: [0, -16],
           },
         };
       });
@@ -582,7 +648,7 @@
   function tripStationRingData(stations) {
     return (stations || [])
       .map(function (station) {
-        var style = tripStationAppearStyle(station.appear);
+        var style = tripStationAppearStyle(station.appear, station.fromSize, station.toSize);
         return {
           name: station.name,
           value: station.value,
@@ -600,91 +666,112 @@
       });
   }
 
-  function renderTripPlayFrame(frame, geoView) {
+  function tripOverlaySeries(frame) {
     var lineData = frame.lineCoords.length >= 2 ? [{ coords: frame.lineCoords }] : [];
     var headData = frame.head
       ? [{ name: '', value: frame.head.concat([1]), visits: 1 }]
       : [];
+    var width = frame.lineWidth == null ? 2.4 : frame.lineWidth;
     var stationTooltip = {
       formatter: function (params) {
         return params.name;
       },
     };
+    return [
+      tripLineSeries(
+        'trip-line',
+        4,
+        {
+          color: NEON,
+          width: width,
+          opacity: 1,
+        },
+        lineData,
+        frame.phase === 'end'
+      ),
+      {
+        id: 'trip-head',
+        name: '线头',
+        type: 'effectScatter',
+        coordinateSystem: 'geo',
+        geoIndex: 0,
+        zlevel: 5,
+        silent: true,
+        animation: false,
+        symbol: 'circle',
+        symbolSize: 8,
+        rippleEffect: { brushType: 'stroke', scale: 2.4, period: 2.2 },
+        itemStyle: {
+          color: GOLD,
+          shadowBlur: 12,
+          shadowColor: GOLD,
+        },
+        label: { show: false },
+        data: headData,
+      },
+      {
+        id: 'trip-rings',
+        name: '车站光环',
+        type: 'scatter',
+        coordinateSystem: 'geo',
+        geoIndex: 0,
+        zlevel: 6,
+        silent: true,
+        animation: false,
+        symbol: 'circle',
+        label: { show: false },
+        data: tripStationRingData(frame.stations),
+      },
+      {
+        id: 'trip-appearing',
+        name: '车站出现',
+        type: 'scatter',
+        coordinateSystem: 'geo',
+        geoIndex: 0,
+        zlevel: 7,
+        animation: false,
+        symbol: 'circle',
+        tooltip: stationTooltip,
+        data: tripStationRenderData(frame.stations, true),
+      },
+      {
+        id: 'trip-stations',
+        name: '行程车站',
+        type: 'effectScatter',
+        coordinateSystem: 'geo',
+        geoIndex: 0,
+        zlevel: 7,
+        animation: false,
+        symbol: 'circle',
+        rippleEffect: { brushType: 'stroke', scale: 2.8, period: 3.2 },
+        tooltip: stationTooltip,
+        data: tripStationRenderData(frame.stations, false),
+      },
+    ];
+  }
+
+  function paintMapLayers(lines, points, frame, geoView, replaceSeries, animateMap) {
     mapChart.setOption(
       {
-        animation: false,
+        animation: animateMap !== false,
         backgroundColor: 'transparent',
         tooltip: mapTooltipStyle(),
         geo: buildGeoOption(geoView),
-        series: [
-          tripLineSeries(
-            'trip-line',
-            3,
-            {
-              color: NEON,
-              width: 2.4,
-              opacity: 1,
-            },
-            lineData,
-            frame.phase === 'end'
-          ),
-          {
-            name: '线头',
-            type: 'effectScatter',
-            coordinateSystem: 'geo',
-            geoIndex: 0,
-            zlevel: 4,
-            silent: true,
-            animation: false,
-            symbol: 'circle',
-            symbolSize: 11,
-            rippleEffect: { brushType: 'stroke', scale: 2.6, period: 2.2 },
-            itemStyle: {
-              color: GOLD,
-              shadowBlur: 18,
-              shadowColor: GOLD,
-            },
-            label: { show: false },
-            data: headData,
-          },
-          {
-            name: '车站光环',
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            geoIndex: 0,
-            zlevel: 5,
-            silent: true,
-            animation: false,
-            symbol: 'circle',
-            label: { show: false },
-            data: tripStationRingData(frame.stations),
-          },
-          {
-            name: '车站出现',
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            geoIndex: 0,
-            zlevel: 6,
-            animation: false,
-            symbol: 'circle',
-            tooltip: stationTooltip,
-            data: tripStationRenderData(frame.stations, true),
-          },
-          {
-            name: '车站',
-            type: 'effectScatter',
-            coordinateSystem: 'geo',
-            geoIndex: 0,
-            zlevel: 6,
-            animation: false,
-            symbol: 'circle',
-            rippleEffect: { brushType: 'stroke', scale: 3.2, period: 3.2 },
-            tooltip: stationTooltip,
-            data: tripStationRenderData(frame.stations, false),
-          },
-        ],
+        series: [mapLineSeries(lines), mapStationSeries(points)].concat(tripOverlaySeries(frame)),
       },
-      { replaceMerge: ['series'] }
+      mapRenderOpts(replaceSeries)
+    );
+  }
+
+  function renderTripPlayFrame(frame, geoView, overlay) {
+    var bgRecords = overlay && overlay.backgroundRecords ? overlay.backgroundRecords : [];
+    paintMapLayers(
+      buildLines(bgRecords, overlay && overlay.skipRoute),
+      buildStations(bgRecords, overlay && overlay.skipStations),
+      frame,
+      geoView,
+      false,
+      false
     );
   }
 
@@ -698,13 +785,7 @@
 
   function barOption(entries, delayBase, grown, keepCount, enableAnimation) {
     var left = rankGridLeft(entries);
-    var animate = enableAnimation !== false;
-    return {
-      animation: animate,
-      animationDuration: animate ? 900 : 0,
-      animationDurationUpdate: animate ? 720 : 0,
-      animationEasing: 'cubicOut',
-      animationEasingUpdate: 'cubicOut',
+    return Object.assign(rankAnimation(enableAnimation !== false), {
       grid: { left: left, right: 36, top: 8, bottom: 8 },
       xAxis: Object.assign({ type: 'value', minInterval: 1 }, axisStyle()),
       yAxis: Object.assign({}, axisStyle(), {
@@ -747,12 +828,13 @@
             color: GOLD,
             fontSize: 11,
             formatter: function (params) {
-              return params.value ? String(params.value) : '';
+              var n = Math.round(Number(params.value) || 0);
+              return n ? String(n) : '';
             },
           },
         },
       ],
-    };
+    });
   }
 
   function animateClipHeight(clip, targetHeight, animate, onDone) {
@@ -788,6 +870,7 @@
     var toggle = block ? block.querySelector('.rank-toggle') : null;
     var expanded = false;
     var paintSeq = 0;
+    var growRaf = 0;
     var startCount = Math.min(entries.length, RANK_COLLAPSED_LIMIT) || 1;
     el.style.height = rankChartHeight(startCount) + 'px';
     clip.style.height = rankChartHeight(startCount) + 'px';
@@ -799,8 +882,39 @@
       chart.resize();
     }
 
+    function cancelGrow() {
+      if (growRaf) {
+        cancelAnimationFrame(growRaf);
+        growRaf = 0;
+      }
+    }
+
+    function growBars(seq, visible) {
+      var from = rankBarValues(visible, false, RANK_COLLAPSED_LIMIT);
+      var to = rankBarValues(visible, true);
+      var startedAt = null;
+      var duration = 720;
+      function frame(now) {
+        if (seq !== paintSeq || !expanded) {
+          growRaf = 0;
+          return;
+        }
+        if (startedAt == null) startedAt = now;
+        var t = Math.min(1, (now - startedAt) / duration);
+        var eased = 1 - Math.pow(1 - t, 3);
+        chart.setOption({
+          animation: false,
+          series: [{ id: 'rank-bars', data: rankTweenValues(from, to, eased) }],
+        });
+        if (t < 1) growRaf = requestAnimationFrame(frame);
+        else growRaf = 0;
+      }
+      growRaf = requestAnimationFrame(frame);
+    }
+
     function paint(animateHeight) {
       var seq = (paintSeq += 1);
+      cancelGrow();
       var visible = visibleRankEntries(entries, expanded);
       var layout = rankExpandLayout(entries.length);
 
@@ -810,10 +924,7 @@
         chart.resize();
         animateClipHeight(clip, layout.toClip, true, function () {
           if (seq !== paintSeq || !expanded) return;
-          setTimeout(function () {
-            if (seq !== paintSeq || !expanded) return;
-            chart.setOption(rankGrowOption(visible));
-          }, 40);
+          growBars(seq, visible);
         });
         return;
       }
@@ -945,6 +1056,68 @@
     renderMap(view, true);
   }
 
+  function stationVisitMap(records) {
+    var visits = {};
+    (records || []).forEach(function (rec) {
+      visits[rec.from] = (visits[rec.from] || 0) + 1;
+      visits[rec.to] = (visits[rec.to] || 0) + 1;
+    });
+    return visits;
+  }
+
+  function directedRouteCount(records, from, to) {
+    var n = 0;
+    (records || []).forEach(function (rec) {
+      if (rec.from === from && rec.to === to) n += 1;
+    });
+    return n;
+  }
+
+  function makeTripModel(rec, settled, lineWidth) {
+    var prevVisits = stationVisitMap(settled);
+    var nextVisits = stationVisitMap((settled || []).concat([rec]));
+    return {
+      from: rec.from,
+      to: rec.to,
+      fromCoord: stations[rec.from],
+      toCoord: stations[rec.to],
+      startFromSize: prevVisits[rec.from] ? stationSymbolSize(prevVisits[rec.from]) : 0,
+      startToSize: stationSymbolSize(nextVisits[rec.from] || 1),
+      startVisits: nextVisits[rec.from] || 1,
+      endFromSize: prevVisits[rec.to] ? stationSymbolSize(prevVisits[rec.to]) : 0,
+      endToSize: stationSymbolSize(nextVisits[rec.to] || 1),
+      endVisits: nextVisits[rec.to] || 1,
+      lineWidth: lineWidth == null ? routeLineWidth(directedRouteCount(settled, rec.from, rec.to) + 1) : lineWidth,
+    };
+  }
+
+  function runTripOverlay(opts) {
+    var trip = opts.trip;
+    var timing = opts.timing;
+    var overlay = opts.overlay;
+    if (tripPlayRaf) {
+      cancelAnimationFrame(tripPlayRaf);
+      tripPlayRaf = null;
+    }
+    function view() {
+      return overlay && overlay.keepLiveView ? readGeoView(mapChart) : opts.geoView;
+    }
+    renderTripPlayFrame(buildTripPlayFrame(0, trip, timing), view(), overlay);
+    var start = performance.now();
+    function tick(now) {
+      if (opts.isActive && !opts.isActive()) return;
+      var frame = buildTripPlayFrame(now - start, trip, timing);
+      renderTripPlayFrame(frame, view(), overlay);
+      if (!frame.done) {
+        tripPlayRaf = requestAnimationFrame(tick);
+      } else {
+        tripPlayRaf = null;
+        if (opts.onDone) opts.onDone();
+      }
+    }
+    tripPlayRaf = requestAnimationFrame(tick);
+  }
+
   function startTripPlay(index) {
     var rec = playRecords[index];
     if (!rec) return;
@@ -960,10 +1133,6 @@
     }
 
     stopPlay();
-    if (tripPlayRaf) {
-      cancelAnimationFrame(tripPlayRaf);
-      tripPlayRaf = null;
-    }
     if (focusedRecordIndex == null) {
       savedGeoView = readGeoView(mapChart);
     }
@@ -975,26 +1144,17 @@
     document.getElementById('time-label').textContent =
       '单程回放  ' + rec.date + '  ' + rec.from + ' → ' + rec.to;
 
-    var trip = {
-      from: rec.from,
-      to: rec.to,
-      fromCoord: fromCoord,
-      toCoord: toCoord,
-    };
-    renderTripPlayFrame(buildTripPlayFrame(0, trip), tripPlayView);
-
-    var start = performance.now();
-    function tick(now) {
-      if (focusedRecordIndex !== index) return;
-      var frame = buildTripPlayFrame(now - start, trip);
-      renderTripPlayFrame(frame, tripPlayView);
-      if (!frame.done) {
-        tripPlayRaf = requestAnimationFrame(tick);
-      } else {
-        tripPlayRaf = null;
-      }
-    }
-    tripPlayRaf = requestAnimationFrame(tick);
+    var trip = makeTripModel(rec, []);
+    trip.lineWidth = 2.4;
+    runTripOverlay({
+      trip: trip,
+      timing: TRIP_PLAY_TIMING,
+      geoView: tripPlayView,
+      overlay: { backgroundRecords: [] },
+      isActive: function () {
+        return focusedRecordIndex === index;
+      },
+    });
   }
 
   function bindRecordListEvents() {
@@ -1005,7 +1165,7 @@
       startTripPlay(Number(item.getAttribute('data-index')));
     });
     list.addEventListener('mouseover', function (event) {
-      if (focusedRecordIndex != null) return;
+      if (focusedRecordIndex != null || timelinePlaying) return;
       var item = event.target.closest('.record-item');
       if (!item) return;
       highlightedRoute = item.getAttribute('data-route');
@@ -1015,7 +1175,7 @@
       renderMap();
     });
     list.addEventListener('mouseleave', function () {
-      if (focusedRecordIndex != null) return;
+      if (focusedRecordIndex != null || timelinePlaying) return;
       highlightedRoute = null;
       Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
         node.classList.remove('is-active');
