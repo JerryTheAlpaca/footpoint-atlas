@@ -8,6 +8,10 @@
   var charts = [];
   var mapChart;
   var playTimer = null;
+  var tripPlayRaf = null;
+  var tripPlayView = null;
+  var savedGeoView = null;
+  var focusedRecordIndex = null;
   var highlightedRoute = null;
   var visibleCount = 0;
   var allRecords = [];
@@ -145,6 +149,146 @@
     rankGrowOption: rankGrowOption,
   };
 
+  var ROUTE_CURVENESS = 0.22;
+  var TRIP_PLAY_TIMING = {
+    startHoldMs: 520,
+    drawMs: 2400,
+  };
+
+  function quadraticControlPoint(from, to, curveness) {
+    var t = curveness == null ? ROUTE_CURVENESS : curveness;
+    return [
+      (from[0] + to[0]) / 2 - (from[1] - to[1]) * t,
+      (from[1] + to[1]) / 2 - (to[0] - from[0]) * t,
+    ];
+  }
+
+  function sampleQuadratic(p0, p1, p2, t) {
+    var u = 1 - t;
+    return [
+      u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0],
+      u * u * p0[1] + 2 * u * t * p1[1] + t * t * p2[1],
+    ];
+  }
+
+  function sampleRoutePolyline(from, to, curveness, steps) {
+    var n = Math.max(1, Number(steps) || 32);
+    var control = quadraticControlPoint(from, to, curveness);
+    var points = [];
+    for (var i = 0; i <= n; i += 1) {
+      points.push(sampleQuadratic(from, control, to, i / n));
+    }
+    points[0] = from.slice();
+    points[n] = to.slice();
+    return points;
+  }
+
+  function slicePolylineByProgress(points, progress) {
+    if (!points || !points.length) return [];
+    if (progress <= 0) return [points[0].slice()];
+    if (progress >= 1) {
+      return points.map(function (p) {
+        return p.slice();
+      });
+    }
+    var lengths = [0];
+    var total = 0;
+    for (var i = 1; i < points.length; i += 1) {
+      total += Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]);
+      lengths.push(total);
+    }
+    if (total === 0) return [points[0].slice()];
+    var target = total * progress;
+    var result = [points[0].slice()];
+    for (var i = 1; i < points.length; i += 1) {
+      if (lengths[i] < target) {
+        result.push(points[i].slice());
+      } else {
+        var seg = lengths[i] - lengths[i - 1];
+        var t = seg === 0 ? 1 : (target - lengths[i - 1]) / seg;
+        result.push([
+          points[i - 1][0] + (points[i][0] - points[i - 1][0]) * t,
+          points[i - 1][1] + (points[i][1] - points[i - 1][1]) * t,
+        ]);
+        break;
+      }
+    }
+    return result;
+  }
+
+  function easeInOutCubic(t) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function tripStationPoint(name, coord) {
+    return {
+      name: name,
+      value: coord.concat([1]),
+      visits: 1,
+    };
+  }
+
+  function buildTripPlayFrame(elapsedMs, trip, timing) {
+    var tmg = timing || TRIP_PLAY_TIMING;
+    var elapsed = Math.max(0, Number(elapsedMs) || 0);
+    var polyline = sampleRoutePolyline(trip.fromCoord, trip.toCoord, ROUTE_CURVENESS, 48);
+    var stations = [tripStationPoint(trip.from, trip.fromCoord)];
+
+    if (elapsed < tmg.startHoldMs) {
+      return {
+        phase: 'start',
+        drawProgress: 0,
+        stations: stations,
+        lineCoords: [],
+        head: null,
+      };
+    }
+
+    var raw = (elapsed - tmg.startHoldMs) / tmg.drawMs;
+    if (raw < 1) {
+      var progress = easeInOutCubic(raw);
+      var lineCoords = slicePolylineByProgress(polyline, progress);
+      return {
+        phase: 'draw',
+        drawProgress: progress,
+        stations: stations,
+        lineCoords: lineCoords.length >= 2 ? lineCoords : [],
+        head: lineCoords.length ? lineCoords[lineCoords.length - 1].slice() : trip.fromCoord.slice(),
+      };
+    }
+
+    return {
+      phase: 'end',
+      drawProgress: 1,
+      stations: stations.concat([tripStationPoint(trip.to, trip.toCoord)]),
+      lineCoords: polyline,
+      head: null,
+    };
+  }
+
+  function tripPlayGeoView(fromCoord, toCoord) {
+    var center = [(fromCoord[0] + toCoord[0]) / 2, (fromCoord[1] + toCoord[1]) / 2];
+    var lngSpan = Math.abs(fromCoord[0] - toCoord[0]);
+    var latSpan = Math.abs(fromCoord[1] - toCoord[1]);
+    var span = Math.max(lngSpan, latSpan, 0.25) * 2.2;
+    var zoom = 55 / span;
+    if (zoom < GEO_ZOOM_MIN) zoom = GEO_ZOOM_MIN;
+    if (zoom > GEO_ZOOM_MAX) zoom = GEO_ZOOM_MAX;
+    return { center: center, zoom: zoom };
+  }
+
+  root.TrainTripPlay = {
+    ROUTE_CURVENESS: ROUTE_CURVENESS,
+    TRIP_PLAY_TIMING: TRIP_PLAY_TIMING,
+    quadraticControlPoint: quadraticControlPoint,
+    sampleRoutePolyline: sampleRoutePolyline,
+    slicePolylineByProgress: slicePolylineByProgress,
+    buildTripPlayFrame: buildTripPlayFrame,
+    tripPlayGeoView: tripPlayGeoView,
+  };
+
   if (typeof document === 'undefined') return;
 
   function showBootError(message) {
@@ -206,7 +350,7 @@
             color: highlightedRoute && highlightedRoute !== key ? 'rgba(0, 229, 255, 0.18)' : NEON,
             width: routeLineWidth(group.records.length, highlightedRoute === key),
             opacity: highlightedRoute === key ? 1 : 0.75,
-            curveness: 0.22,
+            curveness: ROUTE_CURVENESS,
           },
         };
       })
@@ -262,62 +406,189 @@
     );
   }
 
-  function renderMap() {
+  function mapTooltipStyle() {
+    return {
+      trigger: 'item',
+      backgroundColor: 'rgba(5, 12, 28, 0.92)',
+      borderColor: NEON,
+      borderRadius: 8,
+      textStyle: { color: '#e8f6ff', fontSize: 12 },
+    };
+  }
+
+  function renderMap(viewOverride) {
     var visible = recordsUpTo(visibleCount);
     var lines = buildLines(visible);
     var points = buildStations(visible);
-    mapChart.setOption({
-      backgroundColor: 'transparent',
-      tooltip: {
-        trigger: 'item',
-        backgroundColor: 'rgba(5, 12, 28, 0.92)',
-        borderColor: NEON,
-        borderRadius: 8,
-        textStyle: { color: '#e8f6ff', fontSize: 12 },
-      },
-      geo: buildGeoOption(readGeoView(mapChart)),
-      series: [
-        {
-          name: '线路',
-          type: 'lines',
-          coordinateSystem: 'geo',
-          geoIndex: 0,
-          zlevel: 2,
-          effect: {
-            show: true,
-            period: 5,
-            trailLength: 0.45,
-            color: GOLD,
-            symbol: 'pin',
-            symbolSize: 5,
-          },
-          tooltip: { formatter: lineTooltip },
-          data: lines,
-        },
-        {
-          name: '车站',
-          type: 'effectScatter',
-          coordinateSystem: 'geo',
-          geoIndex: 0,
-          zlevel: 3,
-          rippleEffect: { brushType: 'stroke', scale: 3.4, period: 3.6 },
-          symbolSize: function (val) {
-            return stationSymbolSize(val[2]);
-          },
-          itemStyle: {
-            color: NEON,
-            shadowBlur: 12,
-            shadowColor: NEON,
-          },
-          tooltip: {
-            formatter: function (params) {
-              return params.name + '<br/>到访次数：' + params.data.visits;
+    mapChart.setOption(
+      {
+        animation: true,
+        backgroundColor: 'transparent',
+        tooltip: mapTooltipStyle(),
+        geo: buildGeoOption(viewOverride || readGeoView(mapChart)),
+        series: [
+          {
+            name: '线路',
+            type: 'lines',
+            polyline: false,
+            coordinateSystem: 'geo',
+            geoIndex: 0,
+            zlevel: 2,
+            effect: {
+              show: true,
+              period: 5,
+              trailLength: 0.45,
+              color: GOLD,
+              symbol: 'pin',
+              symbolSize: 5,
             },
+            tooltip: { formatter: lineTooltip },
+            data: lines,
           },
-          data: points,
-        },
-      ],
-    });
+          {
+            name: '车站',
+            type: 'effectScatter',
+            coordinateSystem: 'geo',
+            geoIndex: 0,
+            zlevel: 3,
+            rippleEffect: { brushType: 'stroke', scale: 3.4, period: 3.6 },
+            symbolSize: function (val) {
+              return stationSymbolSize(val[2]);
+            },
+            itemStyle: {
+              color: NEON,
+              shadowBlur: 12,
+              shadowColor: NEON,
+            },
+            label: { show: false },
+            tooltip: {
+              formatter: function (params) {
+                return params.name + '<br/>到访次数：' + params.data.visits;
+              },
+            },
+            data: points,
+          },
+        ],
+      },
+      { replaceMerge: ['series'] }
+    );
+  }
+
+  function tripLineSeries(name, zlevel, lineStyle, data, showEffect) {
+    return {
+      name: name,
+      type: 'lines',
+      polyline: true,
+      coordinateSystem: 'geo',
+      geoIndex: 0,
+      zlevel: zlevel,
+      silent: true,
+      animation: false,
+      effect: showEffect
+        ? {
+            show: true,
+            period: 2.4,
+            trailLength: 0.55,
+            color: GOLD,
+            symbol: 'circle',
+            symbolSize: 6,
+          }
+        : { show: false },
+      lineStyle: lineStyle,
+      data: data,
+    };
+  }
+
+  function renderTripPlayFrame(frame, geoView) {
+    var lineData = frame.lineCoords.length >= 2 ? [{ coords: frame.lineCoords }] : [];
+    var headData = frame.head
+      ? [{ name: '', value: frame.head.concat([1]), visits: 1 }]
+      : [];
+    mapChart.setOption(
+      {
+        animation: false,
+        backgroundColor: 'transparent',
+        tooltip: mapTooltipStyle(),
+        geo: buildGeoOption(geoView),
+        series: [
+          tripLineSeries(
+            '线路光晕',
+            2,
+            {
+              color: NEON,
+              width: 9,
+              opacity: 0.22,
+              shadowBlur: 28,
+              shadowColor: NEON,
+            },
+            lineData,
+            false
+          ),
+          tripLineSeries(
+            '线路',
+            3,
+            {
+              color: NEON,
+              width: 2.4,
+              opacity: 1,
+              shadowBlur: 16,
+              shadowColor: 'rgba(0, 229, 255, 0.95)',
+            },
+            lineData,
+            frame.phase === 'end'
+          ),
+          {
+            name: '线头',
+            type: 'effectScatter',
+            coordinateSystem: 'geo',
+            geoIndex: 0,
+            zlevel: 4,
+            silent: true,
+            animation: false,
+            symbol: 'circle',
+            symbolSize: 11,
+            rippleEffect: { brushType: 'stroke', scale: 2.6, period: 2.2 },
+            itemStyle: {
+              color: GOLD,
+              shadowBlur: 18,
+              shadowColor: GOLD,
+            },
+            label: { show: false },
+            data: headData,
+          },
+          {
+            name: '车站',
+            type: 'effectScatter',
+            coordinateSystem: 'geo',
+            geoIndex: 0,
+            zlevel: 5,
+            animation: false,
+            symbol: 'circle',
+            rippleEffect: { brushType: 'stroke', scale: 3.2, period: 3.2 },
+            symbolSize: 16,
+            itemStyle: {
+              color: NEON,
+              shadowBlur: 16,
+              shadowColor: NEON,
+            },
+            label: {
+              show: true,
+              formatter: '{b}',
+              color: '#e8f6ff',
+              fontSize: 12,
+              offset: [0, -18],
+            },
+            tooltip: {
+              formatter: function (params) {
+                return params.name;
+              },
+            },
+            data: frame.stations,
+          },
+        ],
+      },
+      { replaceMerge: ['series'] }
+    );
   }
 
   function axisStyle() {
@@ -530,29 +801,26 @@
       .join('');
   }
 
-  function bindRecordListEvents() {
+  function clearRecordSelection() {
     var list = document.getElementById('record-list');
-    list.addEventListener('mouseover', function (event) {
-      var item = event.target.closest('.record-item');
-      if (!item) return;
-      highlightedRoute = item.getAttribute('data-route');
-      Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
-        node.classList.toggle('is-active', node === item);
-      });
-      renderMap();
-    });
-    list.addEventListener('mouseleave', function () {
-      highlightedRoute = null;
-      Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
-        node.classList.remove('is-active');
-      });
-      renderMap();
+    if (!list) return;
+    Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
+      node.classList.remove('is-active');
+      node.classList.remove('is-selected');
     });
   }
 
-  function setVisibleCount(count) {
-    visibleCount = count;
-    document.getElementById('time-slider').value = String(count);
+  function markSelectedRecord(index) {
+    var list = document.getElementById('record-list');
+    Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
+      var selected = Number(node.getAttribute('data-index')) === index;
+      node.classList.toggle('is-selected', selected);
+      node.classList.toggle('is-active', selected);
+    });
+  }
+
+  function refreshTimeLabel() {
+    var count = visibleCount;
     var label = document.getElementById('time-label');
     if (count <= 0) {
       label.textContent = '尚未出发';
@@ -563,7 +831,114 @@
       var rec = playRecords[count - 1];
       label.textContent = rec.date + '  ' + rec.from + ' → ' + rec.to;
     }
-    renderMap();
+  }
+
+  function exitTripPlayMode() {
+    if (tripPlayRaf == null && focusedRecordIndex == null) return null;
+    if (tripPlayRaf) {
+      cancelAnimationFrame(tripPlayRaf);
+      tripPlayRaf = null;
+    }
+    var view = savedGeoView;
+    savedGeoView = null;
+    tripPlayView = null;
+    focusedRecordIndex = null;
+    highlightedRoute = null;
+    clearRecordSelection();
+    return view;
+  }
+
+  function restoreFullMap() {
+    var view = exitTripPlayMode();
+    refreshTimeLabel();
+    renderMap(view);
+  }
+
+  function startTripPlay(index) {
+    var rec = playRecords[index];
+    if (!rec) return;
+    var fromCoord = stations[rec.from];
+    var toCoord = stations[rec.to];
+    if (!fromCoord) {
+      warnMissingStation(rec.from);
+      return;
+    }
+    if (!toCoord) {
+      warnMissingStation(rec.to);
+      return;
+    }
+
+    stopPlay();
+    if (tripPlayRaf) {
+      cancelAnimationFrame(tripPlayRaf);
+      tripPlayRaf = null;
+    }
+    if (focusedRecordIndex == null) {
+      savedGeoView = readGeoView(mapChart);
+    }
+
+    focusedRecordIndex = index;
+    highlightedRoute = rec.from + '→' + rec.to;
+    tripPlayView = tripPlayGeoView(fromCoord, toCoord);
+    markSelectedRecord(index);
+    document.getElementById('time-label').textContent =
+      '单程回放  ' + rec.date + '  ' + rec.from + ' → ' + rec.to;
+
+    var trip = {
+      from: rec.from,
+      to: rec.to,
+      fromCoord: fromCoord,
+      toCoord: toCoord,
+    };
+    renderTripPlayFrame(buildTripPlayFrame(0, trip), tripPlayView);
+
+    var start = performance.now();
+    function tick(now) {
+      if (focusedRecordIndex !== index) return;
+      var frame = buildTripPlayFrame(now - start, trip);
+      renderTripPlayFrame(frame, tripPlayView);
+      if (frame.phase !== 'end') {
+        tripPlayRaf = requestAnimationFrame(tick);
+      } else {
+        tripPlayRaf = null;
+      }
+    }
+    tripPlayRaf = requestAnimationFrame(tick);
+  }
+
+  function bindRecordListEvents() {
+    var list = document.getElementById('record-list');
+    list.addEventListener('click', function (event) {
+      var item = event.target.closest('.record-item');
+      if (!item) return;
+      startTripPlay(Number(item.getAttribute('data-index')));
+    });
+    list.addEventListener('mouseover', function (event) {
+      if (focusedRecordIndex != null) return;
+      var item = event.target.closest('.record-item');
+      if (!item) return;
+      highlightedRoute = item.getAttribute('data-route');
+      Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
+        node.classList.toggle('is-active', node === item);
+      });
+      renderMap();
+    });
+    list.addEventListener('mouseleave', function () {
+      if (focusedRecordIndex != null) return;
+      highlightedRoute = null;
+      Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
+        node.classList.remove('is-active');
+      });
+      renderMap();
+    });
+  }
+
+  function setVisibleCount(count) {
+    var restoredView = exitTripPlayMode();
+    visibleCount = count;
+    document.getElementById('time-slider').value = String(count);
+    refreshTimeLabel();
+    renderMap(restoredView);
   }
 
   function stopPlay() {
@@ -576,7 +951,11 @@
 
   function startPlay() {
     if (playRecords.length === 0) return;
-    if (visibleCount >= playRecords.length) setVisibleCount(0);
+    if (visibleCount >= playRecords.length) {
+      setVisibleCount(0);
+    } else if (focusedRecordIndex != null) {
+      restoreFullMap();
+    }
     document.getElementById('play-btn').textContent = '暂停';
     playTimer = setInterval(function () {
       if (visibleCount >= playRecords.length) {
@@ -617,10 +996,11 @@
     document.getElementById('play-btn').disabled = playRecords.length === 0;
     renderRecords();
     if (playRecords.length === 0) {
+      var restoredView = exitTripPlayMode();
       visibleCount = 0;
       slider.value = '0';
       document.getElementById('time-label').textContent = '该时间段无乘车记录';
-      renderMap();
+      renderMap(restoredView);
       return;
     }
     setVisibleCount(playRecords.length);
@@ -795,7 +1175,13 @@
       renderReview();
     });
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeReview();
+      if (event.key === 'Escape') {
+        if (focusedRecordIndex != null) {
+          restoreFullMap();
+          return;
+        }
+        closeReview();
+      }
     });
 
     setVisibleCount(playRecords.length);
