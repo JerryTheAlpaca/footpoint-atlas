@@ -109,6 +109,46 @@ describe('timeline playback timing', () => {
   });
 });
 
+describe('already lit stations stay on the map', () => {
+  it('only hides stations that have not been visited yet', () => {
+    const { tripSkipStations } = loadTrainTripPlay();
+    const skip = tripSkipStations({ 南京南: 2 }, { from: '南京南', to: '上海虹桥' });
+
+    assert.equal(skip['南京南'], undefined);
+    assert.equal(skip['上海虹桥'], true);
+  });
+
+  it('does not overlay an already-lit start station, and starts drawing immediately', () => {
+    const { buildTripPlayFrame, TIMELINE_PLAY_TIMING } = loadTrainTripPlay();
+    const litTrip = Object.assign({}, trip, { startLit: true, endLit: false });
+    const frame = buildTripPlayFrame(0, litTrip, TIMELINE_PLAY_TIMING);
+
+    assert.equal(frame.phase, 'draw');
+    assert.equal(
+      frame.stations.some(function (s) {
+        return s.name === '南京南';
+      }),
+      false
+    );
+  });
+
+  it('does not replay the destination circle if that station is already lit', () => {
+    const { buildTripPlayFrame, TIMELINE_PLAY_TIMING } = loadTrainTripPlay();
+    const litTrip = Object.assign({}, trip, { startLit: false, endLit: true });
+    const arrive = TIMELINE_PLAY_TIMING.startHoldMs + TIMELINE_PLAY_TIMING.drawMs;
+    const frame = buildTripPlayFrame(arrive, litTrip, TIMELINE_PLAY_TIMING);
+
+    assert.equal(frame.phase, 'end');
+    assert.equal(frame.done, true);
+    assert.equal(
+      frame.stations.some(function (s) {
+        return s.name === '上海虹桥';
+      }),
+      false
+    );
+  });
+});
+
 describe('buildTripPlayFrame', () => {
   it('shows only the start station at t=0, with no line and no destination', () => {
     const { buildTripPlayFrame } = loadTrainTripPlay();
