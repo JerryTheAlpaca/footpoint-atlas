@@ -177,17 +177,47 @@ describe('rankTweenValues', () => {
     ['CR400BF-AS', 1],
   ];
 
-  it('keeps the top rows still and grows new bars from zero', () => {
-    const { rankBarValues, rankTweenValues, COLLAPSED_LIMIT } = loadTrainRank();
-    const from = rankBarValues(list, false, COLLAPSED_LIMIT);
+  it('grows every row from zero including the already visible top bars', () => {
+    const { rankBarValues, rankTweenValues } = loadTrainRank();
+    const from = rankBarValues(list, false);
     const to = rankBarValues(list, true);
     const start = rankTweenValues(from, to, 0);
     const mid = rankTweenValues(from, to, 0.5);
     const end = rankTweenValues(from, to, 1);
+    assert.equal(start[0].value, 0);
     assert.equal(start[3].value, 0);
-    assert.equal(mid[0].value, 4);
+    assert.equal(mid[0].value, 2);
     assert.equal(mid[3].value, 0.5);
+    assert.equal(end[0].value, 4);
     assert.equal(end[3].value, 1);
+  });
+});
+
+describe('rankGrowFrom', () => {
+  it('starts every visible bar at zero including the top three', () => {
+    const { rankGrowFrom } = loadTrainRank();
+    assert.deepEqual(
+      rankGrowFrom([
+        ['CR400BF-S', 4],
+        ['CR400AF-Z', 3],
+        ['CRH380BL', 2],
+        ['CR400BF-AS', 1],
+      ]),
+      [
+        { name: 'CR400BF-S', value: 0 },
+        { name: 'CR400AF-Z', value: 0 },
+        { name: 'CRH380BL', value: 0 },
+        { name: 'CR400BF-AS', value: 0 },
+      ]
+    );
+  });
+});
+
+describe('rankAxisMax', () => {
+  it('locks the value axis to the largest count so bars can grow against a stable scale', () => {
+    const { rankAxisMax } = loadTrainRank();
+    assert.equal(rankAxisMax([['CR400BF-S', 4], ['CR400BF-AS', 1]]), 4);
+    assert.equal(rankAxisMax([]), 1);
   });
 });
 

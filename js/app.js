@@ -128,6 +128,19 @@
     });
   }
 
+  function rankGrowFrom(entries) {
+    return rankBarValues(entries, false);
+  }
+
+  function rankAxisMax(entries) {
+    var max = 1;
+    (entries || []).forEach(function (item) {
+      var n = Number(item && item[1]) || 0;
+      if (n > max) max = n;
+    });
+    return max;
+  }
+
   function rankAnimation(enabled) {
     return {
       animation: true,
@@ -186,6 +199,8 @@
     rankToggleHidden: rankToggleHidden,
     rankGridLeft: rankGridLeft,
     rankBarValues: rankBarValues,
+    rankGrowFrom: rankGrowFrom,
+    rankAxisMax: rankAxisMax,
     rankAnimation: rankAnimation,
     rankTweenValues: rankTweenValues,
     rankGrowOption: rankGrowOption,
@@ -617,7 +632,7 @@
     };
   }
 
-  function tripStationRenderData(stations, growing) {
+  function tripStationRenderData(stations, growing, showLabel) {
     return (stations || [])
       .filter(function (station) {
         return growing ? station.appear < 1 : station.appear >= 1;
@@ -632,10 +647,10 @@
           symbolSize: style.size,
           itemStyle: {
             color: NEON,
-            opacity: Math.min(1, Math.max(0.35, station.appear * 1.4)),
+            opacity: station.fromSize > 0 ? 1 : Math.min(1, station.appear * 1.4),
           },
           label: {
-            show: station.appear > 0.5,
+            show: showLabel && station.appear > 0.5,
             formatter: '{b}',
             color: '#e8f6ff',
             fontSize: 11,
@@ -666,7 +681,7 @@
       });
   }
 
-  function tripOverlaySeries(frame) {
+  function tripOverlaySeries(frame, showLabel) {
     var lineData = frame.lineCoords.length >= 2 ? [{ coords: frame.lineCoords }] : [];
     var headData = frame.head
       ? [{ name: '', value: frame.head.concat([1]), visits: 1 }]
@@ -732,7 +747,7 @@
         animation: false,
         symbol: 'circle',
         tooltip: stationTooltip,
-        data: tripStationRenderData(frame.stations, true),
+        data: tripStationRenderData(frame.stations, true, showLabel),
       },
       {
         id: 'trip-stations',
@@ -745,19 +760,21 @@
         symbol: 'circle',
         rippleEffect: { brushType: 'stroke', scale: 2.8, period: 3.2 },
         tooltip: stationTooltip,
-        data: tripStationRenderData(frame.stations, false),
+        data: tripStationRenderData(frame.stations, false, showLabel),
       },
     ];
   }
 
-  function paintMapLayers(lines, points, frame, geoView, replaceSeries, animateMap) {
+  function paintMapLayers(lines, points, frame, geoView, replaceSeries, animateMap, showLabel) {
     mapChart.setOption(
       {
         animation: animateMap !== false,
         backgroundColor: 'transparent',
         tooltip: mapTooltipStyle(),
         geo: buildGeoOption(geoView),
-        series: [mapLineSeries(lines), mapStationSeries(points)].concat(tripOverlaySeries(frame)),
+        series: [mapLineSeries(lines), mapStationSeries(points)].concat(
+          tripOverlaySeries(frame, showLabel !== false)
+        ),
       },
       mapRenderOpts(replaceSeries)
     );
@@ -771,7 +788,8 @@
       frame,
       geoView,
       false,
-      false
+      false,
+      !(overlay && overlay.keepLiveView)
     );
   }
 
@@ -787,7 +805,7 @@
     var left = rankGridLeft(entries);
     return Object.assign(rankAnimation(enableAnimation !== false), {
       grid: { left: left, right: 36, top: 8, bottom: 8 },
-      xAxis: Object.assign({ type: 'value', minInterval: 1 }, axisStyle()),
+      xAxis: Object.assign({ type: 'value', minInterval: 1, max: rankAxisMax(entries) }, axisStyle()),
       yAxis: Object.assign({}, axisStyle(), {
         type: 'category',
         inverse: true,
@@ -890,12 +908,13 @@
     }
 
     function growBars(seq, visible) {
-      var from = rankBarValues(visible, false, RANK_COLLAPSED_LIMIT);
+      var from = rankGrowFrom(visible);
       var to = rankBarValues(visible, true);
+      var axisMax = rankAxisMax(visible);
       var startedAt = null;
       var duration = 720;
       function frame(now) {
-        if (seq !== paintSeq || !expanded) {
+        if (seq !== paintSeq) {
           growRaf = 0;
           return;
         }
@@ -904,6 +923,7 @@
         var eased = 1 - Math.pow(1 - t, 3);
         chart.setOption({
           animation: false,
+          xAxis: { max: axisMax },
           series: [{ id: 'rank-bars', data: rankTweenValues(from, to, eased) }],
         });
         if (t < 1) growRaf = requestAnimationFrame(frame);
@@ -920,12 +940,10 @@
 
       if (animateHeight && expanded) {
         layoutForCount(visible.length);
-        chart.setOption(barOption(visible, delayBase, false, RANK_COLLAPSED_LIMIT, false));
+        chart.setOption(barOption(visible, delayBase, false, 0, false));
         chart.resize();
-        animateClipHeight(clip, layout.toClip, true, function () {
-          if (seq !== paintSeq || !expanded) return;
-          growBars(seq, visible);
-        });
+        growBars(seq, visible);
+        animateClipHeight(clip, layout.toClip, true);
         return;
       }
 
@@ -1185,8 +1203,12 @@
   }
 
   function setVisibleCount(count) {
-    var replaceSeries = focusedRecordIndex != null || tripPlayRaf != null;
+    var replaceSeries = focusedRecordIndex != null;
     var restoredView = exitTripPlayMode();
+    if (tripPlayRaf) {
+      cancelAnimationFrame(tripPlayRaf);
+      tripPlayRaf = null;
+    }
     visibleCount = count;
     document.getElementById('time-slider').value = String(count);
     refreshTimeLabel();
@@ -1194,28 +1216,77 @@
   }
 
   function stopPlay() {
+    var wasPlaying = timelinePlaying;
+    timelinePlaying = false;
     if (playTimer) {
       clearInterval(playTimer);
       playTimer = null;
     }
+    if (wasPlaying && focusedRecordIndex == null && tripPlayRaf) {
+      cancelAnimationFrame(tripPlayRaf);
+      tripPlayRaf = null;
+      renderMap();
+    }
     document.getElementById('play-btn').textContent = '播放';
+  }
+
+  function animateTimelineRecord(index) {
+    if (!timelinePlaying) return;
+    if (index >= playRecords.length) {
+      stopPlay();
+      return;
+    }
+    var rec = playRecords[index];
+    if (!rec || !stations[rec.from] || !stations[rec.to]) {
+      visibleCount = index + 1;
+      document.getElementById('time-slider').value = String(visibleCount);
+      refreshTimeLabel();
+      renderMap();
+      animateTimelineRecord(index + 1);
+      return;
+    }
+
+    visibleCount = index + 1;
+    document.getElementById('time-slider').value = String(visibleCount);
+    refreshTimeLabel();
+
+    var settled = recordsUpTo(index);
+    var skipStations = {};
+    skipStations[rec.from] = true;
+    skipStations[rec.to] = true;
+    runTripOverlay({
+      trip: makeTripModel(rec, settled),
+      timing: TIMELINE_PLAY_TIMING,
+      overlay: {
+        backgroundRecords: settled,
+        skipRoute: rec.from + '→' + rec.to,
+        skipStations: skipStations,
+        keepLiveView: true,
+      },
+      isActive: function () {
+        return timelinePlaying && focusedRecordIndex == null && visibleCount === index + 1;
+      },
+      onDone: function () {
+        if (!timelinePlaying) return;
+        renderMap();
+        animateTimelineRecord(index + 1);
+      },
+    });
   }
 
   function startPlay() {
     if (playRecords.length === 0) return;
+    var restored = exitTripPlayMode();
+    if (restored) renderMap(restored, true);
     if (visibleCount >= playRecords.length) {
-      setVisibleCount(0);
-    } else if (focusedRecordIndex != null) {
-      restoreFullMap();
+      visibleCount = 0;
+      document.getElementById('time-slider').value = '0';
+      refreshTimeLabel();
+      renderMap();
     }
+    timelinePlaying = true;
     document.getElementById('play-btn').textContent = '暂停';
-    playTimer = setInterval(function () {
-      if (visibleCount >= playRecords.length) {
-        stopPlay();
-        return;
-      }
-      setVisibleCount(visibleCount + 1);
-    }, 650);
+    animateTimelineRecord(visibleCount);
   }
 
   function currentRangeRecords() {
