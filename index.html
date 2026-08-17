@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的火车足迹</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="boot-error" class="boot-error" hidden></div>
+
+  <div class="app">
+    <header class="header">
+      <div class="title-wrap">
+        <p class="kicker">TRAIN FOOTPRINT</p>
+        <h1>我的火车足迹</h1>
+      </div>
+      <div class="stat-cards">
+        <article class="stat-card">
+          <span class="stat-label">总乘坐次数</span>
+          <strong id="stat-rides" class="stat-value">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">到访车站</span>
+          <strong id="stat-stations" class="stat-value">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">车型数</span>
+          <strong id="stat-vehicles" class="stat-value">0</strong>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">估算总里程</span>
+          <strong id="stat-mileage" class="stat-value">0</strong>
+          <span class="stat-note">公里 · 按直线估算</span>
+        </article>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="map-panel">
+        <div id="map-chart" class="chart map-chart"></div>
+        <div class="timeline">
+          <button id="play-btn" type="button" aria-label="播放或暂停时间轴">播放</button>
+          <input id="time-slider" type="range" min="0" value="0">
+          <span id="time-label">准备回放</span>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="chart-block">
+          <h2>车型排行</h2>
+          <div id="vehicle-chart" class="chart side-chart"></div>
+        </section>
+        <section class="chart-block">
+          <h2>车站排行</h2>
+          <div id="station-chart" class="chart side-chart"></div>
+        </section>
+        <section class="chart-block">
+          <h2>路局分布</h2>
+          <div id="bureau-chart" class="chart side-chart rose-chart"></div>
+        </section>
+      </aside>
+    </main>
+
+    <section class="record-panel">
+      <h2>乘车记录</h2>
+      <ol id="record-list" class="record-list"></ol>
+    </section>
+  </div>
+
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <script src="lib/echarts.min.js"></script>
+  <script src="map/china.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
