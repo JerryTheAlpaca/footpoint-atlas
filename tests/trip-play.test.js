@@ -147,6 +147,17 @@ describe('already lit stations stay on the map', () => {
       false
     );
   });
+
+  it('does not redraw an already visible route, so the old line can just thicken', () => {
+    const { buildTripPlayFrame, TIMELINE_PLAY_TIMING } = loadTrainTripPlay();
+    const litTrip = Object.assign({}, trip, { startLit: true, endLit: true, routeLit: true });
+    const frame = buildTripPlayFrame(0, litTrip, TIMELINE_PLAY_TIMING);
+
+    assert.equal(frame.phase, 'end');
+    assert.equal(frame.done, true);
+    assert.equal(frame.lineCoords.length, 0);
+    assert.equal(frame.head, null);
+  });
 });
 
 describe('buildTripPlayFrame', () => {

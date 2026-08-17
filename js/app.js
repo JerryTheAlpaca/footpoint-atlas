@@ -310,7 +310,7 @@
     return {
       appearMs: tmg.appearMs,
       startHoldMs: trip && trip.startLit ? 0 : tmg.startHoldMs,
-      drawMs: tmg.drawMs,
+      drawMs: trip && trip.routeLit ? 0 : tmg.drawMs,
       endAppearMs: trip && trip.endLit ? 0 : tmg.appearMs,
     };
   }
@@ -359,6 +359,7 @@
     var arriveAt = tmg.startHoldMs + tmg.drawMs;
     var done = elapsed >= arriveAt + tmg.endAppearMs;
     var lineWidth = trip.lineWidth == null ? 2.4 : trip.lineWidth;
+    var overlayLine = !trip.routeLit;
 
     if (elapsed < tmg.startHoldMs) {
       return {
@@ -404,7 +405,7 @@
       phase: 'end',
       drawProgress: 1,
       stations: stations,
-      lineCoords: polyline,
+      lineCoords: trip.routeLit ? [] : polyline,
       lineWidth: lineWidth,
       head: null,
       done: done,
@@ -1140,6 +1141,7 @@
       toCoord: stations[rec.to],
       startLit: !!prevVisits[rec.from],
       endLit: !!prevVisits[rec.to],
+      routeLit: directedRouteCount(settled, rec.from, rec.to) > 0,
       startFromSize: prevVisits[rec.from] ? stationSymbolSize(prevVisits[rec.from]) : 0,
       startToSize: stationSymbolSize(nextVisits[rec.from] || 1),
       startVisits: nextVisits[rec.from] || 1,
@@ -1293,12 +1295,12 @@
 
     var settled = recordsUpTo(index);
     var trip = makeTripModel(rec, settled);
+    var backgroundRecords = trip.routeLit ? settled.concat([rec]) : settled;
     runTripOverlay({
       trip: trip,
       timing: TIMELINE_PLAY_TIMING,
       overlay: {
-        backgroundRecords: settled,
-        skipRoute: rec.from + '→' + rec.to,
+        backgroundRecords: backgroundRecords,
         skipStations: tripSkipStations(stationVisitMap(settled), rec),
         keepLiveView: true,
       },
