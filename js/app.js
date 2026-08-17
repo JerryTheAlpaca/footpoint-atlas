@@ -714,12 +714,18 @@
     setVisibleCount(playRecords.length);
 
     if (window.TrainScale) window.TrainScale.applyPageScale();
+    rankLayouts.forEach(function (rank) {
+      rank.relayout();
+    });
     charts.forEach(function (chart) {
       chart.resize();
     });
 
     window.addEventListener('resize', function () {
       if (window.TrainScale) window.TrainScale.applyPageScale();
+      rankLayouts.forEach(function (rank) {
+        rank.relayout();
+      });
       charts.forEach(function (chart) {
         chart.resize();
       });
