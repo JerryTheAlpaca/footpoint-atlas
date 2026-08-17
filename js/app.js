@@ -426,6 +426,14 @@
     return { center: center, zoom: zoom };
   }
 
+  function recordsForDisplay(records) {
+    return (records || [])
+      .map(function (rec, index) {
+        return { rec: rec, index: index };
+      })
+      .reverse();
+  }
+
   root.TrainTripPlay = {
     ROUTE_CURVENESS: ROUTE_CURVENESS,
     TRIP_PLAY_TIMING: TRIP_PLAY_TIMING,
@@ -437,6 +445,10 @@
     tripStationAppearStyle: tripStationAppearStyle,
     buildTripPlayFrame: buildTripPlayFrame,
     tripPlayGeoView: tripPlayGeoView,
+  };
+
+  root.TrainRecords = {
+    recordsForDisplay: recordsForDisplay,
   };
 
   if (typeof document === 'undefined') return;
@@ -1042,8 +1054,10 @@
 
   function renderRecords() {
     var list = document.getElementById('record-list');
-    list.innerHTML = playRecords
-      .map(function (rec, index) {
+    list.innerHTML = recordsForDisplay(playRecords)
+      .map(function (item) {
+        var rec = item.rec;
+        var index = item.index;
         return (
           '<li class="record-item" data-index="' +
           index +
