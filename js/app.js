@@ -4,7 +4,7 @@
   var DEFAULT_GEO_CENTER = [104.2, 35.8];
   var DEFAULT_GEO_ZOOM = 1.45;
   var GEO_ZOOM_MIN = 0.8;
-  var GEO_ZOOM_MAX = 24;
+  var GEO_ZOOM_MAX = 40;
   var charts = [];
   var mapChart;
   var playTimer = null;
@@ -197,6 +197,7 @@
         trigger: 'item',
         backgroundColor: 'rgba(5, 12, 28, 0.92)',
         borderColor: NEON,
+        borderRadius: 8,
         textStyle: { color: '#e8f6ff', fontSize: 12 },
       },
       geo: buildGeoOption(readGeoView(mapChart)),
@@ -281,6 +282,7 @@
             return idx * delayBase;
           },
           itemStyle: {
+            borderRadius: [0, 6, 6, 0],
             color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
               { offset: 0, color: '#044b6e' },
               { offset: 1, color: NEON },
