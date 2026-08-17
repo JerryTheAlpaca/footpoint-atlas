@@ -148,15 +148,16 @@ describe('already lit stations stay on the map', () => {
     );
   });
 
-  it('does not redraw an already visible route, so the old line can just thicken', () => {
+  it('still sends a light along an already visible route without redrawing the stroke', () => {
     const { buildTripPlayFrame, TIMELINE_PLAY_TIMING } = loadTrainTripPlay();
     const litTrip = Object.assign({}, trip, { startLit: true, endLit: true, routeLit: true });
-    const frame = buildTripPlayFrame(0, litTrip, TIMELINE_PLAY_TIMING);
+    const mid = buildTripPlayFrame(TIMELINE_PLAY_TIMING.drawMs * 0.4, litTrip, TIMELINE_PLAY_TIMING);
 
-    assert.equal(frame.phase, 'end');
-    assert.equal(frame.done, true);
-    assert.equal(frame.lineCoords.length, 0);
-    assert.equal(frame.head, null);
+    assert.equal(mid.phase, 'draw');
+    assert.equal(mid.hideOverlayStroke, true);
+    assert.ok(mid.lineCoords.length >= 2);
+    assert.ok(mid.head);
+    assert.equal(mid.done, false);
   });
 });
 

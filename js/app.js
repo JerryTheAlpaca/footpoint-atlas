@@ -310,7 +310,7 @@
     return {
       appearMs: tmg.appearMs,
       startHoldMs: trip && trip.startLit ? 0 : tmg.startHoldMs,
-      drawMs: trip && trip.routeLit ? 0 : tmg.drawMs,
+      drawMs: tmg.drawMs,
       endAppearMs: trip && trip.endLit ? 0 : tmg.appearMs,
     };
   }
@@ -359,7 +359,7 @@
     var arriveAt = tmg.startHoldMs + tmg.drawMs;
     var done = elapsed >= arriveAt + tmg.endAppearMs;
     var lineWidth = trip.lineWidth == null ? 2.4 : trip.lineWidth;
-    var overlayLine = !trip.routeLit;
+    var hideOverlayStroke = !!trip.routeLit;
 
     if (elapsed < tmg.startHoldMs) {
       return {
@@ -368,6 +368,7 @@
         stations: stations,
         lineCoords: [],
         lineWidth: lineWidth,
+        hideOverlayStroke: hideOverlayStroke,
         head: null,
         done: false,
       };
@@ -383,6 +384,7 @@
         stations: stations,
         lineCoords: lineCoords.length >= 2 ? lineCoords : [],
         lineWidth: lineWidth,
+        hideOverlayStroke: hideOverlayStroke,
         head: lineCoords.length ? lineCoords[lineCoords.length - 1].slice() : trip.fromCoord.slice(),
         done: false,
       };
@@ -405,8 +407,9 @@
       phase: 'end',
       drawProgress: 1,
       stations: stations,
-      lineCoords: trip.routeLit ? [] : polyline,
+      lineCoords: hideOverlayStroke ? [] : polyline,
       lineWidth: lineWidth,
+      hideOverlayStroke: hideOverlayStroke,
       head: null,
       done: done,
     };
@@ -488,6 +491,7 @@
           return null;
         }
         return {
+          id: key,
           coords: sampleRoutePolyline(fromCoord, toCoord, ROUTE_CURVENESS, 48),
           from: group.from,
           to: group.to,
@@ -711,7 +715,8 @@
   }
 
   function tripOverlaySeries(frame, showLabel) {
-    var lineData = frame.lineCoords.length >= 2 ? [{ coords: frame.lineCoords }] : [];
+    var lineData =
+      frame.hideOverlayStroke || frame.lineCoords.length < 2 ? [] : [{ coords: frame.lineCoords }];
     var headData = frame.head
       ? [{ name: '', value: frame.head.concat([1]), visits: 1 }]
       : [];
@@ -820,6 +825,13 @@
       false,
       !(overlay && overlay.keepLiveView)
     );
+  }
+
+  function renderTripOverlayOnly(frame, showLabel) {
+    mapChart.setOption({
+      animation: false,
+      series: tripOverlaySeries(frame, showLabel),
+    });
   }
 
   function axisStyle() {
@@ -1168,7 +1180,7 @@
     function tick(now) {
       if (opts.isActive && !opts.isActive()) return;
       var frame = buildTripPlayFrame(now - start, trip, timing);
-      renderTripPlayFrame(frame, view(), overlay);
+      renderTripOverlayOnly(frame, !(overlay && overlay.keepLiveView));
       if (!frame.done) {
         tripPlayRaf = requestAnimationFrame(tick);
       } else {
