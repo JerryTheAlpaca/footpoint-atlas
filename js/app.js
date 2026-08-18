@@ -650,7 +650,7 @@
         period: 5,
         trailLength: 0.45,
         color: style.effectColor,
-        symbol: type === 'conv' ? 'circle' : 'pin',
+        symbol: 'circle',
         symbolSize: 4,
       },
       tooltip: { formatter: lineTooltip },
