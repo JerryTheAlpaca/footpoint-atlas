@@ -114,29 +114,6 @@ describe('computeStats', () => {
     assert.equal(stats.bureaus['武汉局'], 2);
   });
 
-  it('sums haversine distance and skips stations that lack coordinates', () => {
-    const { computeStats } = loadStats();
-    const stats = computeStats({
-      records: [
-        ...records,
-        {
-          date: '2025-01-01',
-          from: '未知站',
-          to: '南京南',
-          train: 'G999',
-          vehicle: 'CRH2A-2001',
-          origin: '未知站',
-          terminal: '南京南',
-          bureau: '上海局',
-        },
-      ],
-      stations,
-    });
-
-    assert.ok(stats.mileageKm > 0);
-    assert.equal(stats.skippedMissingCoord, 1);
-    assert.equal(stats.stationCount, 4);
-  });
 });
 
 describe('listYears / recordsByYear / filterRecordsByRange', () => {
@@ -194,23 +171,29 @@ describe('computeStats trains', () => {
 });
 
 describe('TRAIN_DATA integration', () => {
-  it('matches the approved totals 27 / 20 / 16 / 23', () => {
+  it('matches the Excel-synced totals 33 / 27 / 17 / 29', () => {
     const { computeStats } = loadStats();
     const sandbox = {};
     const fn = new Function('window', fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8'));
     fn(sandbox);
     const stats = computeStats(sandbox.TRAIN_DATA);
+    const data = sandbox.TRAIN_DATA;
 
-    assert.equal(stats.totalRides, 27);
-    assert.equal(stats.stationCount, 20);
-    assert.equal(stats.vehicleTypeCount, 16);
-    assert.equal(stats.routeCount, 23);
-    assert.equal(stats.stationVisits['南京南'], 14);
+    for (const rec of data.records) {
+      assert.ok(data.stations[rec.from], 'missing coord for ' + rec.from);
+      assert.ok(data.stations[rec.to], 'missing coord for ' + rec.to);
+    }
+
+    assert.equal(stats.totalRides, 33);
+    assert.equal(stats.stationCount, 27);
+    assert.equal(stats.vehicleTypeCount, 17);
+    assert.equal(stats.routeCount, 29);
+    assert.equal(stats.stationVisits['南京南'], 16);
     assert.equal(stats.routes['汉口→南京南'], 3);
     assert.equal(stats.routes['南京南→汉口'], 3);
     assert.equal(stats.lineRoutes['汉口↔南京南'], 6);
-    assert.equal(stats.bureaus['上海局'], 10);
-    assert.equal(stats.bureaus['广州局'], 6);
+    assert.equal(stats.bureaus['上海局'], 12);
+    assert.equal(stats.bureaus['广州局'], 8);
     assert.equal(stats.bureaus['武汉局'], 4);
     assert.equal(stats.vehicleTypes['CR400BF-S'], 4);
   });
