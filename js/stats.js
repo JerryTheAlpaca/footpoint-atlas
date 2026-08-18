@@ -22,6 +22,18 @@
     return [from, to].sort((a, b) => a.localeCompare(b, 'zh-CN')).join('↔');
   }
 
+  function trainTypeOf(record) {
+    var train = String((record && record.train) || '').trim();
+    return /^[GDC]/i.test(train) ? 'emu' : 'conv';
+  }
+
+  function filterRecordsByType(records, type) {
+    if (!type || type === 'all') return (records || []).slice();
+    return (records || []).filter(function (record) {
+      return trainTypeOf(record) === type;
+    });
+  }
+
   function computeStats(trainData) {
     const records = (trainData && trainData.records) || [];
     const routes = {};
@@ -114,6 +126,8 @@
   root.TrainStats = {
     extractVehicleType: extractVehicleType,
     vehicleTypesFromRecord: vehicleTypesFromRecord,
+    trainTypeOf: trainTypeOf,
+    filterRecordsByType: filterRecordsByType,
     computeStats: computeStats,
     routeLineKey: routeLineKey,
     listYears: listYears,

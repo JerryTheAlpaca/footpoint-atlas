@@ -1,6 +1,11 @@
 (function (root) {
   var NEON = '#00e5ff';
   var GOLD = '#ffd166';
+  var CONV = '#3ddc84';
+  var ROUTE_LINE_STYLES = {
+    emu: { color: NEON, type: 'solid', effectColor: GOLD },
+    conv: { color: CONV, type: 'solid', effectColor: CONV },
+  };
   var DEFAULT_GEO_CENTER = [104.2, 35.8];
   var DEFAULT_GEO_ZOOM = 1.45;
   var GEO_ZOOM_MIN = 0.8;
@@ -17,6 +22,7 @@
   var visibleCount = 0;
   var allRecords = [];
   var playRecords = [];
+  var typeFilter = 'all';
   var stats;
   var stations = {};
 
@@ -188,7 +194,9 @@
     readGeoView: readGeoView,
     routeLineWidth: routeLineWidth,
     stationSymbolSize: stationSymbolSize,
+    mapLineSeries: mapLineSeries,
     mapRenderOpts: mapRenderOpts,
+    ROUTE_LINE_STYLES: ROUTE_LINE_STYLES,
   };
 
   root.TrainRank = {
@@ -337,12 +345,20 @@
     };
   }
 
+  function tripFrameColors(trip) {
+    return {
+      lineColor: trip.lineColor || NEON,
+      effectColor: trip.effectColor || GOLD,
+    };
+  }
+
   function buildTripPlayFrame(elapsedMs, trip, timing) {
     var tmg = tripPlayTiming(trip, timing);
     var elapsed = Math.max(0, Number(elapsedMs) || 0);
     var polyline = sampleRoutePolyline(trip.fromCoord, trip.toCoord, ROUTE_CURVENESS, 48);
     var startAppear = trip.startLit ? 1 : appearProgress(elapsed, 0, tmg.appearMs);
     var stations = [];
+    var colors = tripFrameColors(trip);
     if (!trip.startLit) {
       stations.push(
         tripStationPoint(
@@ -361,7 +377,7 @@
     var hideOverlayStroke = !!trip.routeLit;
 
     if (elapsed < tmg.startHoldMs) {
-      return {
+      return Object.assign(colors, {
         phase: 'start',
         drawProgress: 0,
         stations: stations,
@@ -370,14 +386,14 @@
         hideOverlayStroke: hideOverlayStroke,
         head: null,
         done: false,
-      };
+      });
     }
 
     var raw = tmg.drawMs <= 0 ? 1 : (elapsed - tmg.startHoldMs) / tmg.drawMs;
     if (raw < 1) {
       var progress = easeInOutCubic(raw);
       var lineCoords = slicePolylineByProgress(polyline, progress);
-      return {
+      return Object.assign(colors, {
         phase: 'draw',
         drawProgress: progress,
         stations: stations,
@@ -386,7 +402,7 @@
         hideOverlayStroke: hideOverlayStroke,
         head: lineCoords.length ? lineCoords[lineCoords.length - 1].slice() : trip.fromCoord.slice(),
         done: false,
-      };
+      });
     }
 
     if (!trip.endLit) {
@@ -402,7 +418,7 @@
       ]);
     }
 
-    return {
+    return Object.assign(colors, {
       phase: 'end',
       drawProgress: 1,
       stations: stations,
@@ -411,7 +427,7 @@
       hideOverlayStroke: hideOverlayStroke,
       head: null,
       done: done,
-    };
+    });
   }
 
   function tripPlayGeoView(fromCoord, toCoord) {
@@ -479,18 +495,39 @@
     return playRecords.slice(0, count);
   }
 
-  function buildLines(records, skipRoute) {
+  function routeKey(from, to) {
+    return from + '→' + to;
+  }
+
+  function lineKey(from, to, type) {
+    return routeKey(from, to) + '|' + type;
+  }
+
+  function dimLineColor(type) {
+    return type === 'conv' ? 'rgba(61, 220, 132, 0.18)' : 'rgba(0, 229, 255, 0.18)';
+  }
+
+  function vehicleLabel(rec) {
+    if (rec.vehicle) return rec.vehicle;
+    return window.TrainStats.trainTypeOf(rec) === 'conv' ? '普速（无车号）' : '-';
+  }
+
+  function buildLines(records, skipLineKey) {
     var grouped = {};
     records.forEach(function (rec) {
-      var key = rec.from + '→' + rec.to;
-      if (!grouped[key]) grouped[key] = { from: rec.from, to: rec.to, records: [] };
+      var type = window.TrainStats.trainTypeOf(rec);
+      var key = lineKey(rec.from, rec.to, type);
+      if (!grouped[key]) {
+        grouped[key] = { from: rec.from, to: rec.to, type: type, records: [] };
+      }
       grouped[key].records.push(rec);
     });
 
     return Object.keys(grouped)
       .map(function (key) {
-        if (skipRoute && key === skipRoute) return null;
+        if (skipLineKey && key === skipLineKey) return null;
         var group = grouped[key];
+        var style = ROUTE_LINE_STYLES[group.type];
         var fromCoord = stations[group.from];
         var toCoord = stations[group.to];
         if (!fromCoord) {
@@ -503,20 +540,32 @@
         }
         return {
           id: key,
+          name: key,
           coords: sampleRoutePolyline(fromCoord, toCoord, ROUTE_CURVENESS, 48),
           from: group.from,
           to: group.to,
-          route: key,
+          route: routeKey(group.from, group.to),
+          trainType: group.type,
           count: group.records.length,
           records: group.records,
           lineStyle: {
-            color: highlightedRoute && highlightedRoute !== key ? 'rgba(0, 229, 255, 0.18)' : NEON,
+            color: style.color,
             width: routeLineWidth(group.records.length),
-            opacity: highlightedRoute === key ? 1 : 0.75,
+            opacity: 0.75,
           },
         };
       })
       .filter(Boolean);
+  }
+
+  function splitLinesByType(lines) {
+    var emu = [];
+    var conv = [];
+    (lines || []).forEach(function (line) {
+      if (line.trainType === 'conv') conv.push(line);
+      else emu.push(line);
+    });
+    return { emu: emu, conv: conv };
   }
 
   function buildStations(records, skipNames) {
@@ -552,7 +601,7 @@
           '　' +
           rec.train +
           '<br/>车型：' +
-          rec.vehicle +
+          vehicleLabel(rec) +
           '<br/>路局：' +
           rec.bureau
         );
@@ -579,21 +628,29 @@
     };
   }
 
-  function mapLineSeries(data) {
+  function mapLineSeries(type, data) {
+    var style = ROUTE_LINE_STYLES[type] || ROUTE_LINE_STYLES.emu;
     return {
-      id: 'map-lines',
-      name: '线路',
+      id: 'map-lines-' + type,
+      name: type === 'conv' ? '普速线路' : '动车线路',
       type: 'lines',
       polyline: true,
       coordinateSystem: 'geo',
       geoIndex: 0,
       zlevel: 2,
+      emphasis: {
+        focus: 'series',
+        lineStyle: { color: style.color, opacity: 1 },
+      },
+      blur: {
+        lineStyle: { color: dimLineColor(type) },
+      },
       effect: {
         show: data.length > 0,
         period: 5,
         trailLength: 0.45,
-        color: GOLD,
-        symbol: 'pin',
+        color: style.effectColor,
+        symbol: type === 'conv' ? 'circle' : 'pin',
         symbolSize: 4,
       },
       tooltip: { formatter: lineTooltip },
@@ -638,7 +695,21 @@
     };
   }
 
-  function renderMap(viewOverride, replaceSeries, animate) {
+  function highlightRouteOnMap(lineKey) {
+    ['emu', 'conv'].forEach(function (type) {
+      mapChart.dispatchAction({ type: 'downplay', seriesId: 'map-lines-' + type });
+    });
+    if (lineKey) {
+      var highlightType = lineKey.indexOf('|conv') > -1 ? 'conv' : 'emu';
+      mapChart.dispatchAction({
+        type: 'highlight',
+        seriesId: 'map-lines-' + highlightType,
+        name: lineKey,
+      });
+    }
+  }
+
+  function renderMap(viewOverride, replaceSeries) {
     var visible = recordsUpTo(visibleCount);
     paintMapLayers(
       buildLines(visible),
@@ -646,15 +717,13 @@
       emptyTripFrame(),
       viewOverride || readGeoView(mapChart),
       replaceSeries,
-      animate !== false
+      true
     );
+    if (highlightedRoute) highlightRouteOnMap(highlightedRoute);
   }
 
-  function renderMapForHighlight() {
-    renderMap(null, false, false);
-  }
-
-  function tripLineSeries(name, zlevel, lineStyle, data, showEffect) {
+  function tripLineSeries(name, zlevel, lineStyle, data, showEffect, effectColor) {
+    var trailColor = effectColor || GOLD;
     return {
       id: name,
       name: name,
@@ -670,7 +739,7 @@
             show: true,
             period: 2.4,
             trailLength: 0.55,
-            color: GOLD,
+            color: trailColor,
             symbol: 'circle',
             symbolSize: 5,
           }
@@ -736,6 +805,8 @@
       ? [{ name: '', value: frame.head.concat([1]), visits: 1 }]
       : [];
     var width = frame.lineWidth == null ? 2.4 : frame.lineWidth;
+    var lineColor = frame.lineColor || NEON;
+    var effectColor = frame.effectColor || GOLD;
     var stationTooltip = {
       formatter: function (params) {
         return params.name;
@@ -746,12 +817,13 @@
         'trip-line',
         4,
         {
-          color: NEON,
+          color: lineColor,
           width: width,
           opacity: 1,
         },
         lineData,
-        frame.phase === 'end'
+        frame.phase === 'end',
+        effectColor
       ),
       {
         id: 'trip-head',
@@ -766,9 +838,9 @@
         symbolSize: 8,
         rippleEffect: { brushType: 'stroke', scale: 2.4, period: 2.2 },
         itemStyle: {
-          color: GOLD,
+          color: effectColor,
           shadowBlur: 12,
-          shadowColor: GOLD,
+          shadowColor: effectColor,
         },
         label: { show: false },
         data: headData,
@@ -815,15 +887,18 @@
   }
 
   function paintMapLayers(lines, points, frame, geoView, replaceSeries, animateMap, showLabel) {
+    var split = splitLinesByType(lines);
     mapChart.setOption(
       {
         animation: animateMap !== false,
         backgroundColor: 'transparent',
         tooltip: mapTooltipStyle(),
         geo: buildGeoOption(geoView),
-        series: [mapLineSeries(lines), mapStationSeries(points)].concat(
-          tripOverlaySeries(frame, showLabel !== false)
-        ),
+        series: [
+          mapLineSeries('emu', split.emu),
+          mapLineSeries('conv', split.conv),
+          mapStationSeries(points),
+        ].concat(tripOverlaySeries(frame, showLabel !== false)),
       },
       mapRenderOpts(replaceSeries)
     );
@@ -832,7 +907,7 @@
   function renderTripPlayFrame(frame, geoView, overlay) {
     var bgRecords = overlay && overlay.backgroundRecords ? overlay.backgroundRecords : [];
     paintMapLayers(
-      buildLines(bgRecords, overlay && overlay.skipRoute),
+      buildLines(bgRecords, overlay && overlay.skipLineKey),
       buildStations(bgRecords, overlay && overlay.skipStations),
       frame,
       geoView,
@@ -1061,13 +1136,24 @@
       .map(function (item) {
         var rec = item.rec;
         var index = item.index;
+        var type = window.TrainStats.trainTypeOf(rec);
+        var metaParts = [rec.train];
+        if (rec.vehicle) metaParts.push(rec.vehicle);
+        metaParts.push(rec.bureau);
+        var lineKeyValue = lineKey(rec.from, rec.to, type);
         return (
-          '<li class="record-item" data-index="' +
+          '<li class="record-item' +
+          (type === 'conv' ? ' is-conv' : '') +
+          '" data-index="' +
           index +
           '" data-route="' +
           rec.from +
           '→' +
           rec.to +
+          '" data-type="' +
+          type +
+          '" data-line-key="' +
+          lineKeyValue +
           '">' +
           '<div class="record-date">' +
           rec.date +
@@ -1078,11 +1164,7 @@
           rec.to +
           '</div>' +
           '<div class="record-meta">' +
-          rec.train +
-          ' · ' +
-          rec.vehicle +
-          ' · ' +
-          rec.bureau +
+          metaParts.join(' · ') +
           '</div>' +
           '</li>'
         );
@@ -1163,11 +1245,16 @@
   function makeTripModel(rec, settled, lineWidth) {
     var prevVisits = stationVisitMap(settled);
     var nextVisits = stationVisitMap((settled || []).concat([rec]));
+    var type = window.TrainStats.trainTypeOf(rec);
+    var style = ROUTE_LINE_STYLES[type];
     return {
       from: rec.from,
       to: rec.to,
       fromCoord: stations[rec.from],
       toCoord: stations[rec.to],
+      trainType: type,
+      lineColor: style.color,
+      effectColor: style.effectColor,
       startLit: !!prevVisits[rec.from],
       endLit: !!prevVisits[rec.to],
       routeLit: directedRouteCount(settled, rec.from, rec.to) > 0,
@@ -1228,7 +1315,7 @@
     }
 
     focusedRecordIndex = index;
-    highlightedRoute = rec.from + '→' + rec.to;
+    highlightedRoute = lineKey(rec.from, rec.to, window.TrainStats.trainTypeOf(rec));
     tripPlayView = tripPlayGeoView(fromCoord, toCoord);
     markSelectedRecord(index);
     document.getElementById('time-label').textContent =
@@ -1258,13 +1345,13 @@
       if (focusedRecordIndex != null || timelinePlaying) return;
       var item = event.target.closest('.record-item');
       if (!item) return;
-      var route = item.getAttribute('data-route');
-      if (route === highlightedRoute) return;
-      highlightedRoute = route;
+      var lineKeyValue = item.getAttribute('data-line-key');
+      if (lineKeyValue === highlightedRoute) return;
+      highlightedRoute = lineKeyValue;
       Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
         node.classList.toggle('is-active', node === item);
       });
-      renderMapForHighlight();
+      highlightRouteOnMap(lineKeyValue);
     });
     list.addEventListener('mouseleave', function () {
       if (focusedRecordIndex != null || timelinePlaying) return;
@@ -1273,7 +1360,7 @@
       Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
         node.classList.remove('is-active');
       });
-      renderMapForHighlight();
+      highlightRouteOnMap(null);
     });
   }
 
@@ -1384,9 +1471,19 @@
     document.getElementById('range-end').hidden = mode !== 'custom';
   }
 
+  function currentFilteredRecords() {
+    return window.TrainStats.filterRecordsByType(currentRangeRecords(), typeFilter);
+  }
+
+  function syncTypeFilterButtons() {
+    Array.prototype.forEach.call(document.querySelectorAll('.type-filter-btn'), function (btn) {
+      btn.classList.toggle('is-active', btn.getAttribute('data-type') === typeFilter);
+    });
+  }
+
   function applyRangeFilter() {
     stopPlay();
-    playRecords = currentRangeRecords();
+    playRecords = currentFilteredRecords();
     var slider = document.getElementById('time-slider');
     slider.max = String(playRecords.length);
     document.getElementById('play-btn').disabled = playRecords.length === 0;
@@ -1396,7 +1493,7 @@
       var restoredView = exitTripPlayMode();
       visibleCount = 0;
       slider.value = '0';
-      document.getElementById('time-label').textContent = '该时间段无乘车记录';
+      document.getElementById('time-label').textContent = '该筛选条件下无乘车记录';
       renderMap(restoredView, replaceSeries);
       return;
     }
@@ -1556,6 +1653,15 @@
     document.getElementById('range-year').addEventListener('change', applyRangeFilter);
     document.getElementById('range-start').addEventListener('change', applyRangeFilter);
     document.getElementById('range-end').addEventListener('change', applyRangeFilter);
+
+    Array.prototype.forEach.call(document.querySelectorAll('.type-filter-btn'), function (btn) {
+      btn.addEventListener('click', function () {
+        typeFilter = btn.getAttribute('data-type') || 'all';
+        syncTypeFilterButtons();
+        applyRangeFilter();
+      });
+    });
+    syncTypeFilterButtons();
 
     var slider = document.getElementById('time-slider');
     slider.max = String(playRecords.length);

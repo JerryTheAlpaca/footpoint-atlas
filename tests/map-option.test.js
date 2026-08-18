@@ -110,6 +110,17 @@ describe('stationSymbolSize', () => {
   });
 });
 
+describe('mapLineSeries highlight states', () => {
+  it('dims sibling lines via blur state instead of rebuilding the map', () => {
+    const { mapLineSeries } = loadTrainMap();
+    const series = mapLineSeries('emu', [{ name: '甲→乙', coords: [[0, 0], [1, 1]] }]);
+
+    assert.equal(series.emphasis.focus, 'series');
+    assert.equal(series.emphasis.lineStyle.opacity, 1);
+    assert.ok(series.blur.lineStyle.color.includes('0.18'));
+  });
+});
+
 describe('mapRenderOpts', () => {
   it('does not replace series during ordinary playback updates', () => {
     const { mapRenderOpts } = loadTrainMap();
