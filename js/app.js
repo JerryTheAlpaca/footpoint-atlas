@@ -31,6 +31,8 @@
   var typeFilter = 'all';
   var stats;
   var stations = {};
+  var mapLineByKey = {};
+  var recordLinesDimmed = false;
 
   function buildGeoOption(view) {
     return {
@@ -205,6 +207,8 @@
     ROUTE_LINE_STYLES: ROUTE_LINE_STYLES,
     HIGHLIGHT_LINE_COLORS: HIGHLIGHT_LINE_COLORS,
     lineHoverStyle: lineHoverStyle,
+    hoverOverlaySeries: hoverOverlaySeries,
+    lineSeriesDimPatch: lineSeriesDimPatch,
   };
 
   root.TrainRank = {
@@ -570,7 +574,6 @@
           lineStyle: {
             color: style.color,
             width: routeLineWidth(group.records.length),
-            opacity: 0.75,
           },
         };
       })
@@ -657,13 +660,12 @@
       coordinateSystem: 'geo',
       geoIndex: 0,
       zlevel: 2,
-      emphasis: {
-        focus: 'self',
-        lineStyle: { color: style.color, opacity: 1 },
+      animation: false,
+      lineStyle: {
+        color: style.color,
+        opacity: RESTING_LINE_OPACITY,
       },
-      blur: {
-        lineStyle: { color: dimLineColor(type) },
-      },
+      emphasis: { disabled: true },
       effect: {
         show: data.length > 0,
         period: 5,
@@ -674,6 +676,38 @@
       },
       tooltip: { formatter: lineTooltip },
       data: data,
+    };
+  }
+
+  function hoverOverlaySeries(line) {
+    var type = line && line.trainType === 'conv' ? 'conv' : 'emu';
+    var width = line && line.lineStyle && line.lineStyle.width ? line.lineStyle.width + 1.2 : 2.4;
+    return {
+      id: 'map-line-hover',
+      name: '高亮线路',
+      type: 'lines',
+      polyline: true,
+      coordinateSystem: 'geo',
+      geoIndex: 0,
+      zlevel: 8,
+      silent: true,
+      animation: false,
+      effect: { show: false },
+      lineStyle: {
+        color: HIGHLIGHT_LINE_COLORS[type],
+        width: width,
+        opacity: 1,
+      },
+      data: line && line.coords ? [{ name: line.name, coords: line.coords }] : [],
+    };
+  }
+
+  function lineSeriesDimPatch(type, dimmed) {
+    return {
+      id: 'map-lines-' + type,
+      lineStyle: {
+        opacity: dimmed ? DIMMED_LINE_OPACITY : RESTING_LINE_OPACITY,
+      },
     };
   }
 
@@ -717,21 +751,20 @@
   function highlightRouteOnMap(lineKey, dimSiblings) {
     if (!mapChart) return;
     var stayDimmed = dimSiblings !== false && (dimSiblings || !!lineKey);
-    var patches = [];
-    var opt = mapChart.getOption();
-    ['emu', 'conv'].forEach(function (type) {
-      var series = opt.series.find(function (s) {
-        return s.id === 'map-lines-' + type;
-      });
-      if (!series) return;
-      series.data.forEach(function (d) {
-        d.lineStyle = lineHoverStyle(type, d.name === lineKey, stayDimmed, d.lineStyle.width);
-      });
-      patches.push({ id: 'map-lines-' + type, data: series.data });
-    });
-    if (patches.length) {
-      mapChart.setOption({ animation: false, series: patches });
+    var overlay = hoverOverlaySeries(lineKey ? mapLineByKey[lineKey] : null);
+    var patches = [
+      {
+        id: overlay.id,
+        data: overlay.data,
+        lineStyle: overlay.lineStyle,
+      },
+    ];
+    if (stayDimmed !== recordLinesDimmed) {
+      patches.push(lineSeriesDimPatch('emu', stayDimmed));
+      patches.push(lineSeriesDimPatch('conv', stayDimmed));
+      recordLinesDimmed = stayDimmed;
     }
+    mapChart.setOption({ animation: false, series: patches });
   }
 
   function renderMap(viewOverride, replaceSeries) {
@@ -913,6 +946,11 @@
 
   function paintMapLayers(lines, points, frame, geoView, replaceSeries, animateMap, showLabel) {
     var split = splitLinesByType(lines);
+    mapLineByKey = {};
+    (lines || []).forEach(function (line) {
+      mapLineByKey[line.name] = line;
+    });
+    recordLinesDimmed = false;
     mapChart.setOption(
       {
         animation: animateMap !== false,
@@ -923,6 +961,7 @@
           mapLineSeries('emu', split.emu),
           mapLineSeries('conv', split.conv),
           mapStationSeries(points),
+          hoverOverlaySeries(null),
         ].concat(tripOverlaySeries(frame, showLabel !== false)),
       },
       mapRenderOpts(replaceSeries)
