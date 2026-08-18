@@ -102,6 +102,15 @@
       .slice(0, limit || undefined);
   }
 
+  function topEntries(map) {
+    var entries = sortedEntries(map);
+    if (!entries.length) return [];
+    var maxCount = entries[0][1];
+    return entries.filter(function (entry) {
+      return entry[1] === maxCount;
+    });
+  }
+
   root.TrainStats = {
     extractVehicleType: extractVehicleType,
     vehicleTypesFromRecord: vehicleTypesFromRecord,
@@ -111,5 +120,6 @@
     recordsByYear: recordsByYear,
     filterRecordsByRange: filterRecordsByRange,
     sortedEntries: sortedEntries,
+    topEntries: topEntries,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1426,9 +1426,18 @@
 
   var reviewYear = null;
 
-  function topEntry(map) {
-    var entries = window.TrainStats.sortedEntries(map, 1);
-    return entries.length ? entries[0] : null;
+  function renderTopLines(container, entries, fallback) {
+    container.textContent = '';
+    if (!entries.length) {
+      container.textContent = fallback;
+      return;
+    }
+    entries.forEach(function (entry) {
+      var line = document.createElement('span');
+      line.className = 'review-top-line';
+      line.textContent = entry[0];
+      container.appendChild(line);
+    });
   }
 
   function renderReview() {
@@ -1452,18 +1461,17 @@
     animateNumber(document.getElementById('review-rides'), yearStats.totalRides);
     animateNumber(document.getElementById('review-stations'), yearStats.stationCount);
 
-    var topStation = topEntry(yearStats.stationVisits);
-    document.getElementById('review-top-station').textContent = topStation ? topStation[0] : '-';
-    document.getElementById('review-top-station-count').textContent = topStation
-      ? '到访 ' + topStation[1] + ' 次'
+    var topStations = window.TrainStats.topEntries(yearStats.stationVisits);
+    renderTopLines(document.getElementById('review-top-station'), topStations, '-');
+    document.getElementById('review-top-station-count').textContent = topStations.length
+      ? '到访 ' + topStations[0][1] + ' 次'
       : '';
 
-    var topRoute = topEntry(yearStats.lineRoutes);
-    var topTrain = topEntry(yearStats.trains);
-    document.getElementById('review-top-route').textContent = topRoute ? topRoute[0] : '-';
-    document.getElementById('review-top-train').textContent =
-      (topRoute ? '乘坐 ' + topRoute[1] + ' 次' : '') +
-      (topTrain ? ' · 最乘车次 ' + topTrain[0] + '（' + topTrain[1] + ' 次）' : '');
+    var topRoutes = window.TrainStats.topEntries(yearStats.lineRoutes);
+    renderTopLines(document.getElementById('review-top-route'), topRoutes, '-');
+    document.getElementById('review-top-train').textContent = topRoutes.length
+      ? '乘坐 ' + topRoutes[0][1] + ' 次'
+      : '';
   }
 
   function openReview() {

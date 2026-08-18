@@ -170,6 +170,26 @@ describe('computeStats trains', () => {
   });
 });
 
+describe('topEntries', () => {
+  it('returns every entry tied for the highest count', () => {
+    const { topEntries } = loadStats();
+    assert.deepEqual(
+      topEntries({ 南京南: 4, 汉口: 3, 武汉: 3 }),
+      [
+        ['南京南', 4],
+      ]
+    );
+    assert.deepEqual(
+      topEntries({ 南京南: 4, 汉口: 4, 武汉: 3 }),
+      [
+        ['汉口', 4],
+        ['南京南', 4],
+      ]
+    );
+    assert.deepEqual(topEntries({}), []);
+  });
+});
+
 describe('TRAIN_DATA integration', () => {
   it('matches the Excel-synced totals 33 / 27 / 17 / 29', () => {
     const { computeStats } = loadStats();
