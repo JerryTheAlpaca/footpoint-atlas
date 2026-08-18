@@ -99,11 +99,12 @@ body {
 }
 
 .stat-cards {
+  --stat-card-width: calc((880px - 36px) / 4);
   display: grid;
-  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  grid-template-columns: repeat(3, var(--stat-card-width));
   gap: 12px;
-  flex: 1;
-  max-width: 880px;
+  margin-left: auto;
+  flex: 0 0 auto;
 }
 
 .stat-card {

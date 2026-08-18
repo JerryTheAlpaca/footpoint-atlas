@@ -1512,7 +1512,6 @@
     animateNumber(document.getElementById('stat-rides'), stats.totalRides);
     animateNumber(document.getElementById('stat-stations'), stats.stationCount);
     animateNumber(document.getElementById('stat-vehicles'), stats.vehicleTypeCount);
-    animateNumber(document.getElementById('stat-mileage'), Math.round(stats.mileageKm));
 
     if (window.TrainScale) window.TrainScale.applyPageScale();
 

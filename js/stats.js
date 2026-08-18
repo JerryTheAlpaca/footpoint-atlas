@@ -14,19 +14,6 @@
     return Array.from(new Set(types));
   }
 
-  function haversineKm(fromCoord, toCoord) {
-    const R = 6371;
-    const toRad = (deg) => (deg * Math.PI) / 180;
-    const dLat = toRad(toCoord[1] - fromCoord[1]);
-    const dLng = toRad(toCoord[0] - fromCoord[0]);
-    const lat1 = toRad(fromCoord[1]);
-    const lat2 = toRad(toCoord[1]);
-    const h =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
-  }
-
   function bump(map, key, amount) {
     map[key] = (map[key] || 0) + amount;
   }
@@ -37,7 +24,6 @@
 
   function computeStats(trainData) {
     const records = (trainData && trainData.records) || [];
-    const stations = (trainData && trainData.stations) || {};
     const routes = {};
     const lineRoutes = {};
     const stationVisits = {};
@@ -45,8 +31,6 @@
     const bureaus = {};
     const trains = {};
     const stationNames = new Set();
-    let mileageKm = 0;
-    let skippedMissingCoord = 0;
 
     records.forEach((record) => {
       const from = record.from;
@@ -62,14 +46,6 @@
       vehicleTypesFromRecord(record.vehicle).forEach((type) => {
         bump(vehicleTypes, type, 1);
       });
-
-      const fromCoord = stations[from];
-      const toCoord = stations[to];
-      if (!fromCoord || !toCoord) {
-        skippedMissingCoord += 1;
-        return;
-      }
-      mileageKm += haversineKm(fromCoord, toCoord);
     });
 
     return {
@@ -83,8 +59,6 @@
       vehicleTypes: vehicleTypes,
       bureaus: bureaus,
       trains: trains,
-      mileageKm: mileageKm,
-      skippedMissingCoord: skippedMissingCoord,
     };
   }
 
@@ -131,7 +105,6 @@
   root.TrainStats = {
     extractVehicleType: extractVehicleType,
     vehicleTypesFromRecord: vehicleTypesFromRecord,
-    haversineKm: haversineKm,
     computeStats: computeStats,
     routeLineKey: routeLineKey,
     listYears: listYears,
