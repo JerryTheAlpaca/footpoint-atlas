@@ -116,9 +116,9 @@ describe('mapLineSeries highlight states', () => {
     const series = mapLineSeries('emu', [{ name: '甲→乙|emu', coords: [[0, 0], [1, 1]] }]);
 
     assert.equal(series.id, 'map-lines-emu');
-    assert.equal(series.emphasis.focus, 'series');
+    assert.equal(series.emphasis.focus, 'self');
     assert.equal(series.emphasis.lineStyle.opacity, 1);
-    assert.ok(series.blur.lineStyle.color.includes('0.18'));
+    assert.ok(series.blur.lineStyle.color.includes('0.15'));
   });
 
   it('uses green solid styling for conv lines', () => {

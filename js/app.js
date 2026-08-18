@@ -504,12 +504,7 @@
   }
 
   function dimLineColor(type) {
-    return type === 'conv' ? 'rgba(22, 163, 74, 0.18)' : 'rgba(0, 229, 255, 0.18)';
-  }
-
-  function vehicleLabel(rec) {
-    if (rec.vehicle) return rec.vehicle;
-    return window.TrainStats.trainTypeOf(rec) === 'conv' ? '普速（无车号）' : '-';
+    return type === 'conv' ? 'rgba(22, 163, 74, 0.15)' : 'rgba(0, 229, 255, 0.15)';
   }
 
   function buildLines(records, skipLineKey) {
@@ -596,12 +591,12 @@
     if (!data || !data.records) return '';
     var rows = data.records
       .map(function (rec) {
+        var vehiclePart = rec.vehicle ? '<br/>车型：' + rec.vehicle : '';
         return (
           rec.date +
           '　' +
           rec.train +
-          '<br/>车型：' +
-          vehicleLabel(rec) +
+          vehiclePart +
           '<br/>路局：' +
           rec.bureau
         );
@@ -639,7 +634,7 @@
       geoIndex: 0,
       zlevel: 2,
       emphasis: {
-        focus: 'series',
+        focus: 'self',
         lineStyle: { color: style.color, opacity: 1 },
       },
       blur: {
@@ -696,17 +691,20 @@
   }
 
   function highlightRouteOnMap(lineKey) {
+    var opt = mapChart.getOption();
     ['emu', 'conv'].forEach(function (type) {
-      mapChart.dispatchAction({ type: 'downplay', seriesId: 'map-lines-' + type });
-    });
-    if (lineKey) {
-      var highlightType = lineKey.indexOf('|conv') > -1 ? 'conv' : 'emu';
-      mapChart.dispatchAction({
-        type: 'highlight',
-        seriesId: 'map-lines-' + highlightType,
-        name: lineKey,
+      var series = opt.series.find(function (s) { return s.id === 'map-lines-' + type; });
+      if (!series) return;
+      series.data.forEach(function (d) {
+        var isTarget = d.name === lineKey;
+        d.lineStyle = {
+          color: d.lineStyle.color,
+          width: d.lineStyle.width,
+          opacity: isTarget ? 1 : (lineKey ? 0.15 : 0.75),
+        };
       });
-    }
+    });
+    mapChart.setOption({ series: opt.series });
   }
 
   function renderMap(viewOverride, replaceSeries) {
