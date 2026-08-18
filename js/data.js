@@ -21,6 +21,16 @@ window.TRAIN_DATA = {
       "bureau": "青藏公司"
     },
     {
+      "date": "2023-08-03",
+      "from": "西宁",
+      "to": "西安",
+      "train": "K1352",
+      "vehicle": "",
+      "origin": "乌鲁木齐",
+      "terminal": "连云港东",
+      "bureau": "乌鲁木齐局"
+    },
+    {
       "date": "2023-08-04",
       "from": "西安北",
       "to": "郑州东",
@@ -38,6 +48,16 @@ window.TRAIN_DATA = {
       "vehicle": "CR400AF-Z-0212",
       "origin": "北京西",
       "terminal": "武汉",
+      "bureau": "武汉局"
+    },
+    {
+      "date": "2023-08-04",
+      "from": "武昌",
+      "to": "杭州",
+      "train": "Z45",
+      "vehicle": "",
+      "origin": "武昌",
+      "terminal": "杭州",
       "bureau": "武汉局"
     },
     {
@@ -199,6 +219,26 @@ window.TRAIN_DATA = {
       "origin": "蚌埠南",
       "terminal": "广州南",
       "bureau": "广州局"
+    },
+    {
+      "date": "2026-04-29",
+      "from": "武昌",
+      "to": "西安",
+      "train": "K146",
+      "vehicle": "",
+      "origin": "武昌",
+      "terminal": "西安",
+      "bureau": "武汉局"
+    },
+    {
+      "date": "2026-05-03",
+      "from": "西安",
+      "to": "武昌",
+      "train": "K148",
+      "vehicle": "",
+      "origin": "西安",
+      "terminal": "武昌",
+      "bureau": "武汉局"
     },
     {
       "date": "2026-05-29",
@@ -384,6 +424,10 @@ window.TRAIN_DATA = {
       120.43,
       31.59
     ],
+    "杭州": [
+      120.18,
+      30.24
+    ],
     "杭州东": [
       120.21,
       30.29
@@ -391,6 +435,10 @@ window.TRAIN_DATA = {
     "杭州西": [
       119.98,
       30.3
+    ],
+    "武昌": [
+      114.32,
+      30.53
     ],
     "武汉": [
       114.42,
@@ -419,6 +467,10 @@ window.TRAIN_DATA = {
     "西宁": [
       101.81,
       36.62
+    ],
+    "西安": [
+      108.97,
+      34.28
     ],
     "西安北": [
       108.93,

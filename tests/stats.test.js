@@ -10,6 +10,43 @@ function loadStats() {
   return fn(sandbox, sandbox);
 }
 
+describe('trainTypeOf', () => {
+  it('classifies G/D/C trains as emu', () => {
+    const { trainTypeOf } = loadStats();
+    assert.equal(trainTypeOf({ train: 'G123' }), 'emu');
+    assert.equal(trainTypeOf({ train: 'D2256' }), 'emu');
+    assert.equal(trainTypeOf({ train: 'C1234' }), 'emu');
+  });
+
+  it('classifies K/T/Z and numeric trains as conv', () => {
+    const { trainTypeOf } = loadStats();
+    assert.equal(trainTypeOf({ train: 'K1352' }), 'conv');
+    assert.equal(trainTypeOf({ train: 'Z45' }), 'conv');
+    assert.equal(trainTypeOf({ train: 'T123' }), 'conv');
+  });
+});
+
+describe('filterRecordsByType', () => {
+  const recs = [
+    { train: 'G1' },
+    { train: 'K1' },
+    { train: 'D2' },
+    { train: 'Z3' },
+  ];
+
+  it('returns all records when type is all or empty', () => {
+    const { filterRecordsByType } = loadStats();
+    assert.equal(filterRecordsByType(recs, 'all').length, 4);
+    assert.equal(filterRecordsByType(recs, '').length, 4);
+  });
+
+  it('filters emu and conv records', () => {
+    const { filterRecordsByType } = loadStats();
+    assert.equal(filterRecordsByType(recs, 'emu').length, 2);
+    assert.equal(filterRecordsByType(recs, 'conv').length, 2);
+  });
+});
+
 describe('extractVehicleType', () => {
   it('strips the trailing car number from a CR400 series code', () => {
     const { extractVehicleType } = loadStats();
@@ -191,7 +228,7 @@ describe('topEntries', () => {
 });
 
 describe('TRAIN_DATA integration', () => {
-  it('matches the Excel-synced totals 33 / 27 / 17 / 29', () => {
+  it('matches the Excel-synced totals 37 / 30 / 17 / 33', () => {
     const { computeStats } = loadStats();
     const sandbox = {};
     const fn = new Function('window', fs.readFileSync(path.join(__dirname, '..', 'js', 'data.js'), 'utf8'));
@@ -204,17 +241,18 @@ describe('TRAIN_DATA integration', () => {
       assert.ok(data.stations[rec.to], 'missing coord for ' + rec.to);
     }
 
-    assert.equal(stats.totalRides, 33);
-    assert.equal(stats.stationCount, 27);
+    assert.equal(stats.totalRides, 37);
+    assert.equal(stats.stationCount, 30);
     assert.equal(stats.vehicleTypeCount, 17);
-    assert.equal(stats.routeCount, 29);
+    assert.equal(stats.routeCount, 33);
     assert.equal(stats.stationVisits['南京南'], 16);
     assert.equal(stats.routes['汉口→南京南'], 3);
     assert.equal(stats.routes['南京南→汉口'], 3);
     assert.equal(stats.lineRoutes['汉口↔南京南'], 6);
     assert.equal(stats.bureaus['上海局'], 12);
     assert.equal(stats.bureaus['广州局'], 8);
-    assert.equal(stats.bureaus['武汉局'], 4);
+    assert.equal(stats.bureaus['武汉局'], 7);
+    assert.equal(stats.bureaus['乌鲁木齐局'], 1);
     assert.equal(stats.vehicleTypes['CR400BF-S'], 4);
   });
 });

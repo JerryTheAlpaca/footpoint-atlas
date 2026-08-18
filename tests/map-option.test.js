@@ -113,11 +113,23 @@ describe('stationSymbolSize', () => {
 describe('mapLineSeries highlight states', () => {
   it('dims sibling lines via blur state instead of rebuilding the map', () => {
     const { mapLineSeries } = loadTrainMap();
-    const series = mapLineSeries('emu', [{ name: '甲→乙', coords: [[0, 0], [1, 1]] }]);
+    const series = mapLineSeries('emu', [{ name: '甲→乙|emu', coords: [[0, 0], [1, 1]] }]);
 
+    assert.equal(series.id, 'map-lines-emu');
     assert.equal(series.emphasis.focus, 'series');
     assert.equal(series.emphasis.lineStyle.opacity, 1);
     assert.ok(series.blur.lineStyle.color.includes('0.18'));
+  });
+
+  it('uses green solid styling for conv lines', () => {
+    const { mapLineSeries, ROUTE_LINE_STYLES } = loadTrainMap();
+    const series = mapLineSeries('conv', [{ name: '甲→乙|conv', coords: [[0, 0], [1, 1]] }]);
+
+    assert.equal(series.id, 'map-lines-conv');
+    assert.equal(ROUTE_LINE_STYLES.conv.type, 'solid');
+    assert.equal(ROUTE_LINE_STYLES.conv.color, '#3ddc84');
+    assert.notEqual(ROUTE_LINE_STYLES.conv.color, ROUTE_LINE_STYLES.emu.color);
+    assert.equal(series.effect.color, '#3ddc84');
   });
 });
 
