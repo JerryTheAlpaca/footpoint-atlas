@@ -144,33 +144,19 @@ describe('mapLineSeries highlight states', () => {
   });
 
   it('highlights with a separate overlay so base lines are not rebuilt', () => {
-    const { hoverOverlaySeries } = loadTrainMap();
-    const empty = hoverOverlaySeries(null);
-    const overlay = hoverOverlaySeries({
-      name: '甲→乙|emu',
-      trainType: 'emu',
-      coords: [[0, 0], [1, 1]],
-      lineStyle: { width: 1.2 },
-    });
+    const { hoverLineDrawStyle, HIGHLIGHT_LINE_COLORS } = loadTrainMap();
+    const style = hoverLineDrawStyle('emu', 1.2);
 
-    assert.equal(empty.id, 'map-line-hover');
-    assert.equal(empty.animation, false);
-    assert.equal(empty.effect.show, false);
-    assert.deepEqual(empty.data, []);
-    assert.equal(overlay.data.length, 1);
-    assert.deepEqual(overlay.data[0].coords, [[0, 0], [1, 1]]);
+    assert.equal(style.stroke, HIGHLIGHT_LINE_COLORS.emu);
+    assert.equal(style.opacity, 1);
+    assert.ok(style.lineWidth > 1.2);
   });
 
-  it('dims base line series by series opacity without replacing data', () => {
-    const { lineSeriesDimPatch } = loadTrainMap();
-    const dimmed = lineSeriesDimPatch('emu', true);
-    const restored = lineSeriesDimPatch('conv', false);
+  it('dims the line canvas layer without replacing series data', () => {
+    const { lineLayerOpacity } = loadTrainMap();
 
-    assert.equal(dimmed.id, 'map-lines-emu');
-    assert.equal(dimmed.lineStyle.opacity, 0.15);
-    assert.equal(dimmed.data, undefined);
-    assert.equal(restored.id, 'map-lines-conv');
-    assert.equal(restored.lineStyle.opacity, 0.75);
+    assert.equal(lineLayerOpacity(false), 1);
+    assert.ok(Math.abs(lineLayerOpacity(true) - 0.15 / 0.75) < 0.0001);
   });
 
   it('uses green solid styling for conv lines', () => {

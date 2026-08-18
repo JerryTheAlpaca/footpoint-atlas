@@ -33,6 +33,10 @@
   var stations = {};
   var mapLineByKey = {};
   var recordLinesDimmed = false;
+  var recordAreaActive = false;
+  var hoverZrLine = null;
+  var LINE_ZLEVEL = 2;
+  var HOVER_ZLEVEL = 10;
 
   function buildGeoOption(view) {
     return {
@@ -207,8 +211,8 @@
     ROUTE_LINE_STYLES: ROUTE_LINE_STYLES,
     HIGHLIGHT_LINE_COLORS: HIGHLIGHT_LINE_COLORS,
     lineHoverStyle: lineHoverStyle,
-    hoverOverlaySeries: hoverOverlaySeries,
-    lineSeriesDimPatch: lineSeriesDimPatch,
+    lineLayerOpacity: lineLayerOpacity,
+    hoverLineDrawStyle: hoverLineDrawStyle,
   };
 
   root.TrainRank = {
@@ -535,6 +539,19 @@
     };
   }
 
+  function lineLayerOpacity(dimmed) {
+    if (!dimmed) return 1;
+    return DIMMED_LINE_OPACITY / RESTING_LINE_OPACITY;
+  }
+
+  function hoverLineDrawStyle(type, width) {
+    return {
+      stroke: HIGHLIGHT_LINE_COLORS[type] || HIGHLIGHT_LINE_COLORS.emu,
+      lineWidth: (Number(width) || 1.2) + 1.2,
+      opacity: 1,
+    };
+  }
+
   function buildLines(records, skipLineKey) {
     var grouped = {};
     records.forEach(function (rec) {
@@ -659,7 +676,7 @@
       polyline: true,
       coordinateSystem: 'geo',
       geoIndex: 0,
-      zlevel: 2,
+      zlevel: LINE_ZLEVEL,
       animation: false,
       lineStyle: {
         color: style.color,
@@ -676,38 +693,6 @@
       },
       tooltip: { formatter: lineTooltip },
       data: data,
-    };
-  }
-
-  function hoverOverlaySeries(line) {
-    var type = line && line.trainType === 'conv' ? 'conv' : 'emu';
-    var width = line && line.lineStyle && line.lineStyle.width ? line.lineStyle.width + 1.2 : 2.4;
-    return {
-      id: 'map-line-hover',
-      name: '高亮线路',
-      type: 'lines',
-      polyline: true,
-      coordinateSystem: 'geo',
-      geoIndex: 0,
-      zlevel: 8,
-      silent: true,
-      animation: false,
-      effect: { show: false },
-      lineStyle: {
-        color: HIGHLIGHT_LINE_COLORS[type],
-        width: width,
-        opacity: 1,
-      },
-      data: line && line.coords ? [{ name: line.name, coords: line.coords }] : [],
-    };
-  }
-
-  function lineSeriesDimPatch(type, dimmed) {
-    return {
-      id: 'map-lines-' + type,
-      lineStyle: {
-        opacity: dimmed ? DIMMED_LINE_OPACITY : RESTING_LINE_OPACITY,
-      },
     };
   }
 
@@ -748,23 +733,76 @@
     };
   }
 
+  function setLineLayerDimmed(dimmed) {
+    if (!mapChart || typeof mapChart.getZr !== 'function') {
+      recordLinesDimmed = dimmed;
+      return;
+    }
+    var painter = mapChart.getZr().painter;
+    var layer = painter && typeof painter.getLayer === 'function' ? painter.getLayer(LINE_ZLEVEL) : null;
+    if (layer && layer.dom) {
+      layer.dom.style.opacity = String(lineLayerOpacity(dimmed));
+    }
+    recordLinesDimmed = dimmed;
+  }
+
+  function ensureHoverZrLine() {
+    if (hoverZrLine || !mapChart || typeof mapChart.getZr !== 'function') return hoverZrLine;
+    var Graphic = window.echarts && window.echarts.graphic;
+    var Polyline = Graphic && Graphic.Polyline;
+    if (!Polyline) return null;
+    hoverZrLine = new Polyline({
+      silent: true,
+      zlevel: HOVER_ZLEVEL,
+      z: 100,
+      shape: { points: [] },
+      style: { stroke: HIGHLIGHT_LINE_COLORS.emu, lineWidth: 2.4, opacity: 0, lineCap: 'round', lineJoin: 'round' },
+    });
+    mapChart.getZr().add(hoverZrLine);
+    return hoverZrLine;
+  }
+
   function highlightRouteOnMap(lineKey, dimSiblings) {
     if (!mapChart) return;
     var stayDimmed = dimSiblings !== false && (dimSiblings || !!lineKey);
-    var overlay = hoverOverlaySeries(lineKey ? mapLineByKey[lineKey] : null);
-    var patches = [
-      {
-        id: overlay.id,
-        data: overlay.data,
-        lineStyle: overlay.lineStyle,
-      },
-    ];
     if (stayDimmed !== recordLinesDimmed) {
-      patches.push(lineSeriesDimPatch('emu', stayDimmed));
-      patches.push(lineSeriesDimPatch('conv', stayDimmed));
-      recordLinesDimmed = stayDimmed;
+      setLineLayerDimmed(stayDimmed);
     }
-    mapChart.setOption({ animation: false, series: patches });
+    var el = ensureHoverZrLine();
+    var line = lineKey ? mapLineByKey[lineKey] : null;
+    if (!el) return;
+    if (!line || !line.coords) {
+      el.setStyle({ opacity: 0 });
+      el.setShape({ points: [] });
+      return;
+    }
+    var points = [];
+    var i;
+    for (i = 0; i < line.coords.length; i++) {
+      var px = mapChart.convertToPixel({ geoIndex: 0 }, line.coords[i]);
+      if (!px) {
+        points = [];
+        break;
+      }
+      points.push(px);
+    }
+    var type = line.trainType === 'conv' ? 'conv' : 'emu';
+    var width = line.lineStyle && line.lineStyle.width ? line.lineStyle.width : 1.2;
+    var draw = hoverLineDrawStyle(type, width);
+    el.setShape({ points: points });
+    el.setStyle({
+      stroke: draw.stroke,
+      lineWidth: draw.lineWidth,
+      opacity: points.length ? 1 : 0,
+      lineCap: 'round',
+      lineJoin: 'round',
+    });
+  }
+
+  function refreshHoverOverlay() {
+    var wasDimmed = recordLinesDimmed;
+    recordLinesDimmed = false;
+    highlightRouteOnMap(highlightedRoute, wasDimmed || recordAreaActive);
   }
 
   function renderMap(viewOverride, replaceSeries) {
@@ -961,11 +999,14 @@
           mapLineSeries('emu', split.emu),
           mapLineSeries('conv', split.conv),
           mapStationSeries(points),
-          hoverOverlaySeries(null),
         ].concat(tripOverlaySeries(frame, showLabel !== false)),
       },
       mapRenderOpts(replaceSeries)
     );
+    if (hoverZrLine) {
+      hoverZrLine.setStyle({ opacity: 0 });
+      hoverZrLine.setShape({ points: [] });
+    }
   }
 
   function renderTripPlayFrame(frame, geoView, overlay) {
@@ -1401,7 +1442,6 @@
   function bindRecordListEvents() {
     var list = document.getElementById('record-list');
     var panel = list.closest('.record-panel') || list;
-    var recordAreaActive = false;
     list.addEventListener('click', function (event) {
       var item = event.target.closest('.record-item');
       if (!item) return;
@@ -1428,10 +1468,6 @@
     panel.addEventListener('mouseleave', function () {
       if (focusedRecordIndex != null || timelinePlaying) return;
       recordAreaActive = false;
-      if (highlightedRoute == null) {
-        highlightRouteOnMap(null, false);
-        return;
-      }
       highlightedRoute = null;
       Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
         node.classList.remove('is-active');
@@ -1699,6 +1735,7 @@
     echarts.registerMap('china', window.CHINA_GEOJSON);
     mapChart = echarts.init(document.getElementById('map-chart'));
     charts.push(mapChart);
+    mapChart.on('georoam', refreshHoverOverlay);
 
     var rankLayouts = [
       bindRankChart(
@@ -1788,6 +1825,7 @@
       charts.forEach(function (chart) {
         chart.resize();
       });
+      refreshHoverOverlay();
     });
   }
 
