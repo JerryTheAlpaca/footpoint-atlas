@@ -1,7 +1,7 @@
 (function (root) {
   var NEON = '#00e5ff';
   var GOLD = '#ffd166';
-  var CONV = '#3ddc84';
+  var CONV = '#22c55e';
   var ROUTE_LINE_STYLES = {
     emu: { color: NEON, type: 'solid', effectColor: GOLD },
     conv: { color: CONV, type: 'solid', effectColor: CONV },
@@ -504,7 +504,7 @@
   }
 
   function dimLineColor(type) {
-    return type === 'conv' ? 'rgba(61, 220, 132, 0.18)' : 'rgba(0, 229, 255, 0.18)';
+    return type === 'conv' ? 'rgba(34, 197, 94, 0.18)' : 'rgba(0, 229, 255, 0.18)';
   }
 
   function vehicleLabel(rec) {
