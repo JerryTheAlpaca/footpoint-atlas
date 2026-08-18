@@ -10,7 +10,7 @@
     emu: '#ffffff',
     conv: '#bbf7d0',
   };
-  var DIMMED_LINE_OPACITY = 0.15;
+  var DIMMED_LINE_OPACITY = 0.4;
   var RESTING_LINE_OPACITY = 0.75;
   var DEFAULT_GEO_CENTER = [104.2, 35.8];
   var DEFAULT_GEO_ZOOM = 1.45;
@@ -520,7 +520,7 @@
   }
 
   function dimLineColor(type) {
-    return type === 'conv' ? 'rgba(22, 163, 74, 0.15)' : 'rgba(0, 229, 255, 0.15)';
+    return type === 'conv' ? 'rgba(22, 163, 74, 0.4)' : 'rgba(0, 229, 255, 0.4)';
   }
 
   function lineHoverStyle(type, isTarget, dimSiblings, width) {

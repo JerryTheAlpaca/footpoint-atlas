@@ -138,7 +138,7 @@ describe('mapLineSeries highlight states', () => {
     const dimmed = lineHoverStyle('emu', false, true, 1.2);
     const restored = lineHoverStyle('emu', false, false, 1.2);
 
-    assert.equal(dimmed.opacity, 0.15);
+    assert.equal(dimmed.opacity, 0.4);
     assert.equal(dimmed.color, ROUTE_LINE_STYLES.emu.color);
     assert.equal(restored.opacity, 0.75);
   });
@@ -156,7 +156,7 @@ describe('mapLineSeries highlight states', () => {
     const { lineLayerOpacity } = loadTrainMap();
 
     assert.equal(lineLayerOpacity(false), 1);
-    assert.ok(Math.abs(lineLayerOpacity(true) - 0.15 / 0.75) < 0.0001);
+    assert.ok(Math.abs(lineLayerOpacity(true) - 0.4 / 0.75) < 0.0001);
   });
 
   it('uses green solid styling for conv lines', () => {
