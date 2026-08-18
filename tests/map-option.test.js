@@ -127,9 +127,9 @@ describe('mapLineSeries highlight states', () => {
 
     assert.equal(series.id, 'map-lines-conv');
     assert.equal(ROUTE_LINE_STYLES.conv.type, 'solid');
-    assert.equal(ROUTE_LINE_STYLES.conv.color, '#22c55e');
+    assert.equal(ROUTE_LINE_STYLES.conv.color, '#16a34a');
     assert.notEqual(ROUTE_LINE_STYLES.conv.color, ROUTE_LINE_STYLES.emu.color);
-    assert.equal(series.effect.color, '#22c55e');
+    assert.equal(series.effect.color, '#16a34a');
   });
 });
 
