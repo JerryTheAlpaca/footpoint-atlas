@@ -121,6 +121,28 @@ describe('mapLineSeries highlight states', () => {
     assert.ok(series.blur.lineStyle.color.includes('0.15'));
   });
 
+  it('uses a brighter highlight color than the resting line', () => {
+    const { lineHoverStyle, ROUTE_LINE_STYLES, HIGHLIGHT_LINE_COLORS } = loadTrainMap();
+    const emu = lineHoverStyle('emu', true, true, 1.2);
+    const conv = lineHoverStyle('conv', true, true, 1.2);
+
+    assert.equal(emu.color, HIGHLIGHT_LINE_COLORS.emu);
+    assert.equal(conv.color, HIGHLIGHT_LINE_COLORS.conv);
+    assert.notEqual(emu.color, ROUTE_LINE_STYLES.emu.color);
+    assert.notEqual(conv.color, ROUTE_LINE_STYLES.conv.color);
+    assert.equal(emu.opacity, 1);
+  });
+
+  it('keeps sibling lines dimmed while the cursor stays in the record area', () => {
+    const { lineHoverStyle, ROUTE_LINE_STYLES } = loadTrainMap();
+    const dimmed = lineHoverStyle('emu', false, true, 1.2);
+    const restored = lineHoverStyle('emu', false, false, 1.2);
+
+    assert.equal(dimmed.opacity, 0.15);
+    assert.equal(dimmed.color, ROUTE_LINE_STYLES.emu.color);
+    assert.equal(restored.opacity, 0.75);
+  });
+
   it('uses green solid styling for conv lines', () => {
     const { mapLineSeries, ROUTE_LINE_STYLES } = loadTrainMap();
     const series = mapLineSeries('conv', [{ name: '甲→乙|conv', coords: [[0, 0], [1, 1]] }]);

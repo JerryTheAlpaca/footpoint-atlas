@@ -6,6 +6,12 @@
     emu: { color: NEON, type: 'solid', effectColor: GOLD },
     conv: { color: CONV, type: 'solid', effectColor: CONV },
   };
+  var HIGHLIGHT_LINE_COLORS = {
+    emu: '#ffffff',
+    conv: '#bbf7d0',
+  };
+  var DIMMED_LINE_OPACITY = 0.15;
+  var RESTING_LINE_OPACITY = 0.75;
   var DEFAULT_GEO_CENTER = [104.2, 35.8];
   var DEFAULT_GEO_ZOOM = 1.45;
   var GEO_ZOOM_MIN = 0.8;
@@ -197,6 +203,8 @@
     mapLineSeries: mapLineSeries,
     mapRenderOpts: mapRenderOpts,
     ROUTE_LINE_STYLES: ROUTE_LINE_STYLES,
+    HIGHLIGHT_LINE_COLORS: HIGHLIGHT_LINE_COLORS,
+    lineHoverStyle: lineHoverStyle,
   };
 
   root.TrainRank = {
@@ -507,6 +515,22 @@
     return type === 'conv' ? 'rgba(22, 163, 74, 0.15)' : 'rgba(0, 229, 255, 0.15)';
   }
 
+  function lineHoverStyle(type, isTarget, dimSiblings, width) {
+    var style = ROUTE_LINE_STYLES[type] || ROUTE_LINE_STYLES.emu;
+    if (isTarget) {
+      return {
+        color: HIGHLIGHT_LINE_COLORS[type] || HIGHLIGHT_LINE_COLORS.emu,
+        width: width,
+        opacity: 1,
+      };
+    }
+    return {
+      color: style.color,
+      width: width,
+      opacity: dimSiblings ? DIMMED_LINE_OPACITY : RESTING_LINE_OPACITY,
+    };
+  }
+
   function buildLines(records, skipLineKey) {
     var grouped = {};
     records.forEach(function (rec) {
@@ -690,21 +714,24 @@
     };
   }
 
-  function highlightRouteOnMap(lineKey) {
+  function highlightRouteOnMap(lineKey, dimSiblings) {
+    if (!mapChart) return;
+    var stayDimmed = dimSiblings !== false && (dimSiblings || !!lineKey);
+    var patches = [];
     var opt = mapChart.getOption();
     ['emu', 'conv'].forEach(function (type) {
-      var series = opt.series.find(function (s) { return s.id === 'map-lines-' + type; });
+      var series = opt.series.find(function (s) {
+        return s.id === 'map-lines-' + type;
+      });
       if (!series) return;
       series.data.forEach(function (d) {
-        var isTarget = d.name === lineKey;
-        d.lineStyle = {
-          color: d.lineStyle.color,
-          width: d.lineStyle.width,
-          opacity: isTarget ? 1 : (lineKey ? 0.15 : 0.75),
-        };
+        d.lineStyle = lineHoverStyle(type, d.name === lineKey, stayDimmed, d.lineStyle.width);
       });
+      patches.push({ id: 'map-lines-' + type, data: series.data });
     });
-    mapChart.setOption({ series: opt.series });
+    if (patches.length) {
+      mapChart.setOption({ animation: false, series: patches });
+    }
   }
 
   function renderMap(viewOverride, replaceSeries) {
@@ -717,7 +744,7 @@
       replaceSeries,
       true
     );
-    if (highlightedRoute) highlightRouteOnMap(highlightedRoute);
+    if (highlightedRoute) highlightRouteOnMap(highlightedRoute, true);
   }
 
   function tripLineSeries(name, zlevel, lineStyle, data, showEffect, effectColor) {
@@ -1334,31 +1361,43 @@
 
   function bindRecordListEvents() {
     var list = document.getElementById('record-list');
+    var panel = list.closest('.record-panel') || list;
+    var recordAreaActive = false;
     list.addEventListener('click', function (event) {
       var item = event.target.closest('.record-item');
       if (!item) return;
       startTripPlay(Number(item.getAttribute('data-index')));
+    });
+    panel.addEventListener('mouseenter', function () {
+      if (focusedRecordIndex != null || timelinePlaying) return;
+      recordAreaActive = true;
+      highlightRouteOnMap(highlightedRoute, true);
     });
     list.addEventListener('mouseover', function (event) {
       if (focusedRecordIndex != null || timelinePlaying) return;
       var item = event.target.closest('.record-item');
       if (!item) return;
       var lineKeyValue = item.getAttribute('data-line-key');
-      if (lineKeyValue === highlightedRoute) return;
+      if (lineKeyValue === highlightedRoute && recordAreaActive) return;
       highlightedRoute = lineKeyValue;
+      recordAreaActive = true;
       Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
         node.classList.toggle('is-active', node === item);
       });
-      highlightRouteOnMap(lineKeyValue);
+      highlightRouteOnMap(lineKeyValue, true);
     });
-    list.addEventListener('mouseleave', function () {
+    panel.addEventListener('mouseleave', function () {
       if (focusedRecordIndex != null || timelinePlaying) return;
-      if (highlightedRoute == null) return;
+      recordAreaActive = false;
+      if (highlightedRoute == null) {
+        highlightRouteOnMap(null, false);
+        return;
+      }
       highlightedRoute = null;
       Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
         node.classList.remove('is-active');
       });
-      highlightRouteOnMap(null);
+      highlightRouteOnMap(null, false);
     });
   }
 
