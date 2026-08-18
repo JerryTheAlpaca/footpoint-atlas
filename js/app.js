@@ -53,11 +53,10 @@
     };
   }
 
-  function routeLineWidth(count, highlighted) {
+  function routeLineWidth(count) {
     var rides = Math.max(1, Number(count) || 1);
     var width = 1.2 + (rides - 1) * 0.9;
     if (width > 6) width = 6;
-    if (highlighted) width += 1.4;
     return width;
   }
 
@@ -512,7 +511,7 @@
           records: group.records,
           lineStyle: {
             color: highlightedRoute && highlightedRoute !== key ? 'rgba(0, 229, 255, 0.18)' : NEON,
-            width: routeLineWidth(group.records.length, highlightedRoute === key),
+            width: routeLineWidth(group.records.length),
             opacity: highlightedRoute === key ? 1 : 0.75,
           },
         };
@@ -639,7 +638,7 @@
     };
   }
 
-  function renderMap(viewOverride, replaceSeries) {
+  function renderMap(viewOverride, replaceSeries, animate) {
     var visible = recordsUpTo(visibleCount);
     paintMapLayers(
       buildLines(visible),
@@ -647,8 +646,12 @@
       emptyTripFrame(),
       viewOverride || readGeoView(mapChart),
       replaceSeries,
-      true
+      animate !== false
     );
+  }
+
+  function renderMapForHighlight() {
+    renderMap(null, false, false);
   }
 
   function tripLineSeries(name, zlevel, lineStyle, data, showEffect) {
@@ -1255,19 +1258,22 @@
       if (focusedRecordIndex != null || timelinePlaying) return;
       var item = event.target.closest('.record-item');
       if (!item) return;
-      highlightedRoute = item.getAttribute('data-route');
+      var route = item.getAttribute('data-route');
+      if (route === highlightedRoute) return;
+      highlightedRoute = route;
       Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
         node.classList.toggle('is-active', node === item);
       });
-      renderMap();
+      renderMapForHighlight();
     });
     list.addEventListener('mouseleave', function () {
       if (focusedRecordIndex != null || timelinePlaying) return;
+      if (highlightedRoute == null) return;
       highlightedRoute = null;
       Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
         node.classList.remove('is-active');
       });
-      renderMap();
+      renderMapForHighlight();
     });
   }
 

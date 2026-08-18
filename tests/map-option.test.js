@@ -78,11 +78,11 @@ describe('routeLineWidth', () => {
     assert.equal(routeLineWidth(99), 6);
   });
 
-  it('adds extra width when the route is highlighted', () => {
+  it('keeps all lines at the same base width during highlight to avoid flicker', () => {
     const { routeLineWidth } = loadTrainMap();
 
-    assert.ok(routeLineWidth(1, true) > routeLineWidth(1, false));
-    assert.ok(routeLineWidth(3, true) > routeLineWidth(3, false));
+    assert.equal(routeLineWidth(1, true), routeLineWidth(1, false));
+    assert.equal(routeLineWidth(3, true), routeLineWidth(3, false));
   });
 });
 
