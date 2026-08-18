@@ -159,6 +159,15 @@ describe('mapLineSeries highlight states', () => {
     assert.ok(Math.abs(lineLayerOpacity(true) - 0.4 / 0.75) < 0.0001);
   });
 
+  it('does not dim other lines during timeline playback', () => {
+    const { shouldDimMapLines } = loadTrainMap();
+
+    assert.equal(shouldDimMapLines(true, false, null), true);
+    assert.equal(shouldDimMapLines(true, true, null), false);
+    assert.equal(shouldDimMapLines(false, false, null), false);
+    assert.equal(shouldDimMapLines(true, false, 0), false);
+  });
+
   it('uses green solid styling for conv lines', () => {
     const { mapLineSeries, ROUTE_LINE_STYLES } = loadTrainMap();
     const series = mapLineSeries('conv', [{ name: '甲→乙|conv', coords: [[0, 0], [1, 1]] }]);

@@ -213,6 +213,7 @@
     lineHoverStyle: lineHoverStyle,
     lineLayerOpacity: lineLayerOpacity,
     hoverLineDrawStyle: hoverLineDrawStyle,
+    shouldDimMapLines: shouldDimMapLines,
   };
 
   root.TrainRank = {
@@ -552,6 +553,13 @@
     };
   }
 
+  function shouldDimMapLines(areaActive, playing, focusedIndex) {
+    var active = areaActive == null ? recordAreaActive : areaActive;
+    var isPlaying = playing == null ? timelinePlaying : playing;
+    var focused = focusedIndex === undefined ? focusedRecordIndex : focusedIndex;
+    return !!active && !isPlaying && focused == null;
+  }
+
   function buildLines(records, skipLineKey) {
     var grouped = {};
     records.forEach(function (rec) {
@@ -764,7 +772,7 @@
 
   function highlightRouteOnMap(lineKey, dimSiblings) {
     if (!mapChart) return;
-    var stayDimmed = dimSiblings !== false && (dimSiblings || !!lineKey);
+    var stayDimmed = dimSiblings !== false && shouldDimMapLines();
     if (stayDimmed !== recordLinesDimmed) {
       setLineLayerDimmed(stayDimmed);
     }
@@ -815,7 +823,7 @@
       replaceSeries,
       true
     );
-    if (highlightedRoute) highlightRouteOnMap(highlightedRoute, true);
+    if (shouldDimMapLines() && highlightedRoute) highlightRouteOnMap(highlightedRoute, true);
   }
 
   function tripLineSeries(name, zlevel, lineStyle, data, showEffect, effectColor) {
@@ -1007,6 +1015,7 @@
       hoverZrLine.setStyle({ opacity: 0 });
       hoverZrLine.setShape({ points: [] });
     }
+    setLineLayerDimmed(false);
   }
 
   function renderTripPlayFrame(frame, geoView, overlay) {
@@ -1466,12 +1475,15 @@
       highlightRouteOnMap(lineKeyValue, true);
     });
     panel.addEventListener('mouseleave', function () {
-      if (focusedRecordIndex != null || timelinePlaying) return;
       recordAreaActive = false;
-      highlightedRoute = null;
       Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
         node.classList.remove('is-active');
       });
+      if (focusedRecordIndex != null || timelinePlaying) {
+        setLineLayerDimmed(false);
+        return;
+      }
+      highlightedRoute = null;
       highlightRouteOnMap(null, false);
     });
   }
@@ -1558,6 +1570,11 @@
     }
     timelinePlaying = true;
     document.getElementById('play-btn').textContent = '暂停';
+    setLineLayerDimmed(false);
+    if (hoverZrLine) {
+      hoverZrLine.setStyle({ opacity: 0 });
+      hoverZrLine.setShape({ points: [] });
+    }
     animateTimelineRecord(visibleCount);
   }
 
