@@ -207,6 +207,127 @@ describe('computeStats trains', () => {
   });
 });
 
+describe('splitVehicleUnits', () => {
+  it('splits coupled units, strips 重联 and keeps only numbered units', () => {
+    const { splitVehicleUnits } = loadStats();
+    assert.deepEqual(
+      splitVehicleUnits('CRH1A-A-1172+CRH1A-A-1248重联'),
+      ['CRH1A-A-1172', 'CRH1A-A-1248']
+    );
+  });
+
+  it('drops bare model codes without a serial number', () => {
+    const { splitVehicleUnits } = loadStats();
+    assert.deepEqual(splitVehicleUnits('CR400BF'), []);
+    assert.deepEqual(splitVehicleUnits('CRH380BL'), []);
+  });
+
+  it('dedupes repeated units and tolerates empty input', () => {
+    const { splitVehicleUnits } = loadStats();
+    assert.deepEqual(splitVehicleUnits('CRH1A-1001+CRH1A-1001'), ['CRH1A-1001']);
+    assert.deepEqual(splitVehicleUnits(''), []);
+    assert.deepEqual(splitVehicleUnits(null), []);
+    assert.deepEqual(splitVehicleUnits(undefined), []);
+  });
+});
+
+describe('findRepeatedTrains', () => {
+  const recs = [
+    { date: '2026-01-18', from: '汉口', to: '南京南', train: 'D2256', vehicle: 'CRH3A-3100' },
+    { date: '2026-04-11', from: '汉口', to: '合肥南', train: 'G678', vehicle: 'CR400BF-Z-3129' },
+    { date: '2026-05-29', from: '六安', to: '南京南', train: 'G678', vehicle: 'CR400BF-AZ-5254' },
+    { date: '2026-07-14', from: '汉口', to: '南京南', train: 'D2256', vehicle: 'CRH3A-3100' },
+    { date: '2026-08-01', from: '南京南', to: '汉口', train: 'G1', vehicle: 'CR400AF-0001' },
+  ];
+
+  it('keeps only trains ridden at least twice, sorted by count then latest date', () => {
+    const { findRepeatedTrains } = loadStats();
+    const result = findRepeatedTrains(recs);
+    assert.equal(result.length, 2);
+    assert.deepEqual(result.map((g) => g.train), ['D2256', 'G678']);
+    assert.equal(result[0].count, 2);
+    assert.deepEqual(result[0].rides.map((r) => r.date), ['2026-01-18', '2026-07-14']);
+    assert.deepEqual(result[0].rides.map((r) => r.index), [0, 3]);
+  });
+
+  it('flags sameVehicle only when numbered units intersect across rides', () => {
+    const { findRepeatedTrains } = loadStats();
+    const result = findRepeatedTrains(recs);
+    const d2256 = result.find((g) => g.train === 'D2256');
+    const g678 = result.find((g) => g.train === 'G678');
+    assert.equal(d2256.sameVehicle, true);
+    assert.equal(g678.sameVehicle, false);
+  });
+
+  it('treats bare model codes as no shared vehicle and ignores bad input', () => {
+    const { findRepeatedTrains } = loadStats();
+    const result = findRepeatedTrains([
+      { date: '2023-08-04', from: '西安北', to: '郑州东', train: 'G56', vehicle: 'CR400BF' },
+      { date: '2023-08-05', from: '杭州西', to: '南京南', train: 'G56', vehicle: 'CR400BF' },
+      { date: '2023-08-06', from: '南京南', to: '汉口', train: '', vehicle: 'CR400BF-0001' },
+      null,
+    ]);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].train, 'G56');
+    assert.equal(result[0].sameVehicle, false);
+    assert.deepEqual(findRepeatedTrains([]), []);
+    assert.deepEqual(findRepeatedTrains(null), []);
+  });
+
+  it('detects a shared unit through coupled consists', () => {
+    const { findRepeatedTrains } = loadStats();
+    const result = findRepeatedTrains([
+      { date: '2026-01-01', from: '汉口', to: '南京南', train: 'D9', vehicle: 'CRH1A-A-1172+CRH1A-A-1248重联' },
+      { date: '2026-02-01', from: '汉口', to: '南京南', train: 'D9', vehicle: 'CRH1A-A-1248+CRH1A-A-2000重联' },
+    ]);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].sameVehicle, true);
+  });
+});
+
+describe('findRepeatedVehicles', () => {
+  const recs = [
+    { date: '2026-01-18', from: '汉口', to: '南京南', train: 'D2256', vehicle: 'CRH3A-3100' },
+    { date: '2026-04-11', from: '汉口', to: '合肥南', train: 'G678', vehicle: 'CR400BF-Z-3129' },
+    { date: '2026-07-14', from: '汉口', to: '南京南', train: 'D2256', vehicle: 'CRH3A-3100' },
+    { date: '2026-08-01', from: '南京南', to: '汉口', train: 'G1', vehicle: 'CR400AF-0001' },
+  ];
+
+  it('keeps only units seen at least twice and flags sameTrain', () => {
+    const { findRepeatedVehicles } = loadStats();
+    const result = findRepeatedVehicles(recs);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].unit, 'CRH3A-3100');
+    assert.equal(result[0].count, 2);
+    assert.equal(result[0].sameTrain, true);
+    assert.deepEqual(result[0].rides.map((r) => r.index), [0, 2]);
+  });
+
+  it('tracks each coupled unit independently and flags cross-train reunions', () => {
+    const { findRepeatedVehicles } = loadStats();
+    const result = findRepeatedVehicles([
+      { date: '2026-01-01', from: '汉口', to: '南京南', train: 'D1', vehicle: 'CRH1A-A-1172+CRH1A-A-1248重联' },
+      { date: '2026-02-01', from: '南京南', to: '汉口', train: 'D2', vehicle: 'CRH1A-A-1172' },
+    ]);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].unit, 'CRH1A-A-1172');
+    assert.equal(result[0].sameTrain, false);
+  });
+
+  it('ignores bare model codes and empty input', () => {
+    const { findRepeatedVehicles } = loadStats();
+    assert.deepEqual(
+      findRepeatedVehicles([
+        { date: '2023-08-04', from: '西安北', to: '郑州东', train: 'G56', vehicle: 'CR400BF' },
+        { date: '2023-08-05', from: '杭州西', to: '南京南', train: 'G254', vehicle: 'CR400BF' },
+      ]),
+      []
+    );
+    assert.deepEqual(findRepeatedVehicles([]), []);
+    assert.deepEqual(findRepeatedVehicles(null), []);
+  });
+});
+
 describe('topEntries', () => {
   it('returns every entry tied for the highest count', () => {
     const { topEntries } = loadStats();

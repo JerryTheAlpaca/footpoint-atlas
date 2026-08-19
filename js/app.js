@@ -34,6 +34,9 @@
   var mapLineByKey = {};
   var recordLinesDimmed = false;
   var recordAreaActive = false;
+  var reunionTrains = [];
+  var reunionVehicles = [];
+  var reunionBadges = new Map();
   var hoverZrLine = null;
   var LINE_ZLEVEL = 2;
   var HOVER_ZLEVEL = 10;
@@ -1254,6 +1257,19 @@
         var metaParts = [rec.train];
         if (rec.vehicle) metaParts.push(rec.vehicle);
         metaParts.push(rec.bureau);
+        var badgeHtml = (reunionBadges.get(rec) || [])
+          .map(function (badge) {
+            return (
+              '<span class="reunion-badge reunion-badge-' +
+              badge.kind +
+              '">' +
+              (badge.kind === 'vehicle' ? '车号重逢' : '车次重逢') +
+              '×' +
+              badge.count +
+              '</span>'
+            );
+          })
+          .join('');
         var lineKeyValue = lineKey(rec.from, rec.to, type);
         return (
           '<li class="record-item is-' +
@@ -1279,6 +1295,7 @@
           '</div>' +
           '<div class="record-meta">' +
           metaParts.join(' · ') +
+          badgeHtml +
           '</div>' +
           '</li>'
         );
@@ -1301,6 +1318,177 @@
       var selected = Number(node.getAttribute('data-index')) === index;
       node.classList.toggle('is-selected', selected);
       node.classList.toggle('is-active', selected);
+    });
+  }
+
+  function computeReunions() {
+    reunionTrains = window.TrainStats.findRepeatedTrains(allRecords);
+    reunionVehicles = window.TrainStats.findRepeatedVehicles(allRecords);
+    reunionBadges = new Map();
+    function addBadge(group, kind) {
+      group.rides.forEach(function (ride) {
+        var rec = allRecords[ride.index];
+        if (!rec) return;
+        if (!reunionBadges.has(rec)) reunionBadges.set(rec, []);
+        reunionBadges.get(rec).push({ kind: kind, count: group.count });
+      });
+    }
+    reunionTrains.forEach(function (group) {
+      addBadge(group, 'train');
+    });
+    reunionVehicles.forEach(function (group) {
+      addBadge(group, 'vehicle');
+    });
+  }
+
+  function reunionItemHtml(kind, groupIndex, name, count, sameTrainAndVehicle, rideLines) {
+    return (
+      '<li class="reunion-item" data-kind="' +
+      kind +
+      '" data-group="' +
+      groupIndex +
+      '">' +
+      '<div class="reunion-item-head">' +
+      '<span class="reunion-item-name">' +
+      name +
+      '</span>' +
+      '<span class="reunion-item-count">×' +
+      count +
+      '</span>' +
+      (sameTrainAndVehicle ? '<span class="reunion-item-tag">同车重逢</span>' : '') +
+      '</div>' +
+      '<div class="reunion-item-rides">' +
+      rideLines
+        .map(function (text) {
+          return '<span>' + text + '</span>';
+        })
+        .join('') +
+      '</div>' +
+      '</li>'
+    );
+  }
+
+  function renderReunions() {
+    var block = document.getElementById('reunion-block');
+    if (!block) return;
+    var vehicleWrap = document.getElementById('reunion-vehicles');
+    var trainWrap = document.getElementById('reunion-trains');
+    var vehicleList = document.getElementById('reunion-vehicle-list');
+    var trainList = document.getElementById('reunion-train-list');
+    var hasVehicles = reunionVehicles.length > 0;
+    var hasTrains = reunionTrains.length > 0;
+    vehicleWrap.hidden = !hasVehicles;
+    trainWrap.hidden = !hasTrains;
+    block.hidden = !hasVehicles && !hasTrains;
+    if (block.hidden) return;
+    vehicleList.innerHTML = reunionVehicles
+      .map(function (group, index) {
+        return reunionItemHtml(
+          'vehicle',
+          index,
+          group.unit,
+          group.count,
+          group.sameTrain,
+          group.rides.map(function (ride) {
+            return ride.date + ' ' + ride.train + ' ' + ride.from + '→' + ride.to;
+          })
+        );
+      })
+      .join('');
+    trainList.innerHTML = reunionTrains
+      .map(function (group, index) {
+        return reunionItemHtml(
+          'train',
+          index,
+          group.train,
+          group.count,
+          group.sameVehicle,
+          group.rides.map(function (ride) {
+            return (
+              ride.date +
+              ' ' +
+              ride.from +
+              '→' +
+              ride.to +
+              (ride.vehicle ? ' ' + ride.vehicle : '')
+            );
+          })
+        );
+      })
+      .join('');
+  }
+
+  function reunionGroupOf(item) {
+    var kind = item.getAttribute('data-kind');
+    var groupIndex = Number(item.getAttribute('data-group'));
+    var groups = kind === 'vehicle' ? reunionVehicles : reunionTrains;
+    return groups[groupIndex] || null;
+  }
+
+  function reunionRecordNodes(group) {
+    var list = document.getElementById('record-list');
+    var nodes = [];
+    if (!list || !group) return nodes;
+    group.rides.forEach(function (ride) {
+      var playIndex = playRecords.indexOf(allRecords[ride.index]);
+      if (playIndex === -1) return;
+      var node = list.querySelector('.record-item[data-index="' + playIndex + '"]');
+      if (node) nodes.push(node);
+    });
+    return nodes;
+  }
+
+  function bindReunionEvents() {
+    var block = document.getElementById('reunion-block');
+    if (!block) return;
+    block.addEventListener('mouseover', function (event) {
+      if (focusedRecordIndex != null || timelinePlaying) return;
+      var item = event.target.closest('.reunion-item');
+      if (!item) return;
+      var group = reunionGroupOf(item);
+      if (!group) return;
+      var latest = group.rides[group.rides.length - 1];
+      highlightedRoute = lineKey(latest.from, latest.to, window.TrainStats.trainTypeOf(latest));
+      recordAreaActive = true;
+      Array.prototype.forEach.call(block.querySelectorAll('.reunion-item'), function (node) {
+        node.classList.toggle('is-active', node === item);
+      });
+      reunionRecordNodes(group).forEach(function (node) {
+        node.classList.add('is-active');
+      });
+      highlightRouteOnMap(highlightedRoute, true);
+    });
+    block.addEventListener('mouseleave', function () {
+      recordAreaActive = false;
+      Array.prototype.forEach.call(block.querySelectorAll('.reunion-item'), function (node) {
+        node.classList.remove('is-active');
+      });
+      var list = document.getElementById('record-list');
+      if (list) {
+        Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
+          node.classList.remove('is-active');
+        });
+      }
+      if (focusedRecordIndex != null || timelinePlaying) {
+        setLineLayerDimmed(false);
+        return;
+      }
+      highlightedRoute = null;
+      highlightRouteOnMap(null, false);
+    });
+    block.addEventListener('click', function (event) {
+      var item = event.target.closest('.reunion-item');
+      if (!item) return;
+      var group = reunionGroupOf(item);
+      if (!group) return;
+      var latest = group.rides[group.rides.length - 1];
+      var playIndex = playRecords.indexOf(allRecords[latest.index]);
+      if (playIndex === -1) return;
+      markSelectedRecord(playIndex);
+      var list = document.getElementById('record-list');
+      if (!list) return;
+      var node = list.querySelector('.record-item[data-index="' + playIndex + '"]');
+      if (node) node.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     });
   }
 
@@ -1742,6 +1930,7 @@
     });
     playRecords = allRecords;
     stats = window.TrainStats.computeStats(window.TRAIN_DATA);
+    computeReunions();
 
     animateNumber(document.getElementById('stat-rides'), stats.totalRides);
     animateNumber(document.getElementById('stat-stations'), stats.stationCount);
@@ -1773,6 +1962,8 @@
     ];
     renderRecords();
     bindRecordListEvents();
+    renderReunions();
+    bindReunionEvents();
 
     populateRangeControls();
     syncRangeControls();

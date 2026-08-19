@@ -102,6 +102,113 @@
     });
   }
 
+  function splitVehicleUnits(vehicle) {
+    const seen = new Set();
+    return String(vehicle || '')
+      .replace(/重联/g, '')
+      .split('+')
+      .map(function (unit) {
+        return unit.trim();
+      })
+      .filter(function (unit) {
+        if (!/-\d+$/.test(unit) || seen.has(unit)) return false;
+        seen.add(unit);
+        return true;
+      });
+  }
+
+  function byRideDate(a, b) {
+    const da = String(a.date || '');
+    const db = String(b.date || '');
+    if (da !== db) return da < db ? -1 : 1;
+    return a.index - b.index;
+  }
+
+  function reunionGroupSort(a, b) {
+    if (b.count !== a.count) return b.count - a.count;
+    const da = String(a.rides[a.rides.length - 1].date || '');
+    const db = String(b.rides[b.rides.length - 1].date || '');
+    if (da !== db) return da < db ? 1 : -1;
+    return String(a.key).localeCompare(String(b.key));
+  }
+
+  function sharedUnitsAcrossRides(rides) {
+    let common = null;
+    for (let i = 0; i < rides.length; i++) {
+      const units = splitVehicleUnits(rides[i].vehicle);
+      common = common === null ? units : common.filter((unit) => units.indexOf(unit) !== -1);
+      if (!common.length) return false;
+    }
+    return common !== null && common.length > 0;
+  }
+
+  function findRepeatedTrains(records) {
+    const groups = {};
+    (records || []).forEach(function (record, index) {
+      if (!record) return;
+      const train = String(record.train || '').trim();
+      if (!train) return;
+      if (!groups[train]) groups[train] = [];
+      groups[train].push({
+        index: index,
+        date: record.date,
+        from: record.from,
+        to: record.to,
+        vehicle: record.vehicle,
+      });
+    });
+    return Object.keys(groups)
+      .filter(function (train) {
+        return groups[train].length >= 2;
+      })
+      .map(function (train) {
+        const rides = groups[train].slice().sort(byRideDate);
+        return {
+          key: train,
+          train: train,
+          count: rides.length,
+          rides: rides,
+          sameVehicle: sharedUnitsAcrossRides(rides),
+        };
+      })
+      .sort(reunionGroupSort);
+  }
+
+  function findRepeatedVehicles(records) {
+    const groups = {};
+    (records || []).forEach(function (record, index) {
+      if (!record) return;
+      splitVehicleUnits(record.vehicle).forEach(function (unit) {
+        if (!groups[unit]) groups[unit] = [];
+        groups[unit].push({
+          index: index,
+          date: record.date,
+          train: record.train,
+          from: record.from,
+          to: record.to,
+        });
+      });
+    });
+    return Object.keys(groups)
+      .filter(function (unit) {
+        return groups[unit].length >= 2;
+      })
+      .map(function (unit) {
+        const rides = groups[unit].slice().sort(byRideDate);
+        const sameTrain = rides.every(function (ride) {
+          return ride.train === rides[0].train;
+        });
+        return {
+          key: unit,
+          unit: unit,
+          count: rides.length,
+          rides: rides,
+          sameTrain: sameTrain,
+        };
+      })
+      .sort(reunionGroupSort);
+  }
+
   function sortedEntries(map, limit) {
     return Object.keys(map)
       .map(function (key) {
@@ -133,6 +240,9 @@
     listYears: listYears,
     recordsByYear: recordsByYear,
     filterRecordsByRange: filterRecordsByRange,
+    splitVehicleUnits: splitVehicleUnits,
+    findRepeatedTrains: findRepeatedTrains,
+    findRepeatedVehicles: findRepeatedVehicles,
     sortedEntries: sortedEntries,
     topEntries: topEntries,
   };
