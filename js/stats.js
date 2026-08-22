@@ -209,6 +209,30 @@
       .sort(reunionGroupSort);
   }
 
+  function buildReunionState(records) {
+    const source = records || [];
+    const trains = findRepeatedTrains(source);
+    const vehicles = findRepeatedVehicles(source);
+    const badges = new Map();
+
+    function addBadge(group, kind) {
+      group.rides.forEach(function (ride) {
+        const record = source[ride.index];
+        if (!record) return;
+        if (!badges.has(record)) badges.set(record, []);
+        badges.get(record).push({ kind: kind, count: group.count });
+      });
+    }
+
+    trains.forEach(function (group) {
+      addBadge(group, 'train');
+    });
+    vehicles.forEach(function (group) {
+      addBadge(group, 'vehicle');
+    });
+    return { trains: trains, vehicles: vehicles, badges: badges };
+  }
+
   function sortedEntries(map, limit) {
     return Object.keys(map)
       .map(function (key) {
@@ -243,6 +267,7 @@
     splitVehicleUnits: splitVehicleUnits,
     findRepeatedTrains: findRepeatedTrains,
     findRepeatedVehicles: findRepeatedVehicles,
+    buildReunionState: buildReunionState,
     sortedEntries: sortedEntries,
     topEntries: topEntries,
   };

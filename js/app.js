@@ -18,7 +18,6 @@
   var GEO_ZOOM_MAX = 100;
   var charts = [];
   var mapChart;
-  var playTimer = null;
   var timelinePlaying = false;
   var tripPlayRaf = null;
   var tripPlayView = null;
@@ -484,6 +483,26 @@
 
   root.TrainRecords = {
     recordsForDisplay: recordsForDisplay,
+    syncActiveRecordNodes: function (nodes, activeNodes) {
+      var active = activeNodes || [];
+      (nodes || []).forEach(function (node) {
+        node.classList.toggle('is-active', active.indexOf(node) !== -1);
+      });
+    },
+  };
+
+  function formatTopTrainSummary(entries) {
+    var list = Array.isArray(entries) ? entries : [];
+    if (!list.length) return '';
+    var names = list.map(function (entry) {
+      return entry[0];
+    });
+    var count = list[0][1];
+    return '最常车次 ' + names.join('、') + (names.length > 1 ? ' · 各 ' : ' · ') + count + ' 次';
+  }
+
+  root.TrainReview = {
+    formatTopTrainSummary: formatTopTrainSummary,
   };
 
   if (typeof document === 'undefined') return;
@@ -1321,24 +1340,11 @@
     });
   }
 
-  function computeReunions() {
-    reunionTrains = window.TrainStats.findRepeatedTrains(allRecords);
-    reunionVehicles = window.TrainStats.findRepeatedVehicles(allRecords);
-    reunionBadges = new Map();
-    function addBadge(group, kind) {
-      group.rides.forEach(function (ride) {
-        var rec = allRecords[ride.index];
-        if (!rec) return;
-        if (!reunionBadges.has(rec)) reunionBadges.set(rec, []);
-        reunionBadges.get(rec).push({ kind: kind, count: group.count });
-      });
-    }
-    reunionTrains.forEach(function (group) {
-      addBadge(group, 'train');
-    });
-    reunionVehicles.forEach(function (group) {
-      addBadge(group, 'vehicle');
-    });
+  function computeReunions(records) {
+    var state = window.TrainStats.buildReunionState(records || []);
+    reunionTrains = state.trains;
+    reunionVehicles = state.vehicles;
+    reunionBadges = state.badges;
   }
 
   function reunionItemHtml(kind, groupIndex, name, count, sameTrainAndVehicle, rideLines) {
@@ -1430,9 +1436,7 @@
     var nodes = [];
     if (!list || !group) return nodes;
     group.rides.forEach(function (ride) {
-      var playIndex = playRecords.indexOf(allRecords[ride.index]);
-      if (playIndex === -1) return;
-      var node = list.querySelector('.record-item[data-index="' + playIndex + '"]');
+      var node = list.querySelector('.record-item[data-index="' + ride.index + '"]');
       if (node) nodes.push(node);
     });
     return nodes;
@@ -1453,9 +1457,13 @@
       Array.prototype.forEach.call(block.querySelectorAll('.reunion-item'), function (node) {
         node.classList.toggle('is-active', node === item);
       });
-      reunionRecordNodes(group).forEach(function (node) {
-        node.classList.add('is-active');
-      });
+      var list = document.getElementById('record-list');
+      if (list) {
+        window.TrainRecords.syncActiveRecordNodes(
+          Array.prototype.slice.call(list.querySelectorAll('.record-item')),
+          reunionRecordNodes(group)
+        );
+      }
       highlightRouteOnMap(highlightedRoute, true);
     });
     block.addEventListener('mouseleave', function () {
@@ -1482,8 +1490,7 @@
       var group = reunionGroupOf(item);
       if (!group) return;
       var latest = group.rides[group.rides.length - 1];
-      var playIndex = playRecords.indexOf(allRecords[latest.index]);
-      if (playIndex === -1) return;
+      var playIndex = latest.index;
       markSelectedRecord(playIndex);
       var list = document.getElementById('record-list');
       if (!list) return;
@@ -1692,10 +1699,6 @@
   function stopPlay() {
     var wasPlaying = timelinePlaying;
     timelinePlaying = false;
-    if (playTimer) {
-      clearInterval(playTimer);
-      playTimer = null;
-    }
     if (wasPlaying && focusedRecordIndex == null && tripPlayRaf) {
       cancelAnimationFrame(tripPlayRaf);
       tripPlayRaf = null;
@@ -1801,10 +1804,15 @@
   function applyRangeFilter() {
     stopPlay();
     playRecords = currentFilteredRecords();
+    recordAreaActive = false;
+    highlightedRoute = null;
+    setLineLayerDimmed(false);
+    computeReunions(playRecords);
     var slider = document.getElementById('time-slider');
     slider.max = String(playRecords.length);
     document.getElementById('play-btn').disabled = playRecords.length === 0;
     renderRecords();
+    renderReunions();
     if (playRecords.length === 0) {
       var replaceSeries = focusedRecordIndex != null || tripPlayRaf != null;
       var restoredView = exitTripPlayMode();
@@ -1883,9 +1891,9 @@
 
     var topRoutes = window.TrainStats.topEntries(yearStats.lineRoutes);
     renderTopLines(document.getElementById('review-top-route'), topRoutes, '-');
-    document.getElementById('review-top-train').textContent = topRoutes.length
-      ? '乘坐 ' + topRoutes[0][1] + ' 次'
-      : '';
+    document.getElementById('review-top-train').textContent = formatTopTrainSummary(
+      window.TrainStats.topEntries(yearStats.trains)
+    );
   }
 
   function openReview() {
@@ -1930,7 +1938,7 @@
     });
     playRecords = allRecords;
     stats = window.TrainStats.computeStats(window.TRAIN_DATA);
-    computeReunions();
+    computeReunions(playRecords);
 
     animateNumber(document.getElementById('stat-rides'), stats.totalRides);
     animateNumber(document.getElementById('stat-stations'), stats.stationCount);
@@ -1991,7 +1999,7 @@
       setVisibleCount(Number(slider.value));
     });
     document.getElementById('play-btn').addEventListener('click', function () {
-      if (playTimer) stopPlay();
+      if (timelinePlaying) stopPlay();
       else startPlay();
     });
 

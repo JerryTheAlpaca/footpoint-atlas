@@ -348,6 +348,35 @@ describe('topEntries', () => {
   });
 });
 
+describe('buildReunionState', () => {
+  const records = [
+    { date: '2026-01-01', from: '汉口', to: '南京南', train: 'D1', vehicle: 'CRH1A-A-1172' },
+    { date: '2026-02-01', from: '南京南', to: '汉口', train: 'D2', vehicle: 'CRH1A-A-2000' },
+    { date: '2026-03-01', from: '汉口', to: '南京南', train: 'D1', vehicle: 'CRH1A-A-1172' },
+  ];
+
+  it('uses the supplied filtered records as the index and badge source', () => {
+    const { buildReunionState } = loadStats();
+    const state = buildReunionState(records);
+    assert.deepEqual(state.trains.map((group) => group.train), ['D1']);
+    assert.deepEqual(state.trains[0].rides.map((ride) => ride.index), [0, 2]);
+    assert.deepEqual(state.vehicles.map((group) => group.unit), ['CRH1A-A-1172']);
+    assert.deepEqual(state.badges.get(records[0]), [
+      { kind: 'train', count: 2 },
+      { kind: 'vehicle', count: 2 },
+    ]);
+    assert.equal(state.badges.has(records[1]), false);
+  });
+
+  it('drops groups and badges when the active filter leaves only one ride', () => {
+    const { buildReunionState } = loadStats();
+    const state = buildReunionState(records.slice(0, 1));
+    assert.deepEqual(state.trains, []);
+    assert.deepEqual(state.vehicles, []);
+    assert.equal(state.badges.size, 0);
+  });
+});
+
 describe('TRAIN_DATA integration', () => {
   it('matches the Excel-synced totals 37 / 30 / 17 / 33', () => {
     const { computeStats } = loadStats();
