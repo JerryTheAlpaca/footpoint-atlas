@@ -36,6 +36,7 @@
   var reunionTrains = [];
   var reunionVehicles = [];
   var reunionBadges = new Map();
+  var reunionExpanded = false;
   var hoverZrLine = null;
   var LINE_ZLEVEL = 2;
   var HOVER_ZLEVEL = 10;
@@ -1374,6 +1375,30 @@
     );
   }
 
+  function setReunionSummaryCount(el, count) {
+    if (!el) return;
+    el.hidden = count <= 0;
+    var value = el.querySelector('.reunion-summary-count');
+    if (value) value.textContent = String(count);
+  }
+
+  function setReunionExpanded(expanded) {
+    var next = !!expanded;
+    var wasExpanded = reunionExpanded;
+    reunionExpanded = next;
+    var block = document.getElementById('reunion-block');
+    if (!block) return;
+    var details = document.getElementById('reunion-details');
+    var toggle = block.querySelector('.reunion-toggle');
+    block.classList.toggle('is-expanded', reunionExpanded);
+    if (details) details.hidden = !reunionExpanded;
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', reunionExpanded ? 'true' : 'false');
+      toggle.setAttribute('aria-label', reunionExpanded ? '收起缘分重逢' : '展开缘分重逢');
+    }
+    if (wasExpanded && !reunionExpanded) clearReunionHover();
+  }
+
   function renderReunions() {
     var block = document.getElementById('reunion-block');
     if (!block) return;
@@ -1386,6 +1411,9 @@
     vehicleWrap.hidden = !hasVehicles;
     trainWrap.hidden = !hasTrains;
     block.hidden = !hasVehicles && !hasTrains;
+    setReunionSummaryCount(document.getElementById('reunion-vehicle-summary'), reunionVehicles.length);
+    setReunionSummaryCount(document.getElementById('reunion-train-summary'), reunionTrains.length);
+    setReunionExpanded(reunionExpanded);
     if (block.hidden) return;
     vehicleList.innerHTML = reunionVehicles
       .map(function (group, index) {
@@ -1442,6 +1470,28 @@
     return nodes;
   }
 
+  function clearReunionHover() {
+    var block = document.getElementById('reunion-block');
+    recordAreaActive = false;
+    if (block) {
+      Array.prototype.forEach.call(block.querySelectorAll('.reunion-item'), function (node) {
+        node.classList.remove('is-active');
+      });
+    }
+    var list = document.getElementById('record-list');
+    if (list) {
+      Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
+        node.classList.remove('is-active');
+      });
+    }
+    if (focusedRecordIndex != null || timelinePlaying) {
+      setLineLayerDimmed(false);
+      return;
+    }
+    highlightedRoute = null;
+    highlightRouteOnMap(null, false);
+  }
+
   function bindReunionEvents() {
     var block = document.getElementById('reunion-block');
     if (!block) return;
@@ -1466,36 +1516,24 @@
       }
       highlightRouteOnMap(highlightedRoute, true);
     });
-    block.addEventListener('mouseleave', function () {
-      recordAreaActive = false;
-      Array.prototype.forEach.call(block.querySelectorAll('.reunion-item'), function (node) {
-        node.classList.remove('is-active');
-      });
-      var list = document.getElementById('record-list');
-      if (list) {
-        Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
-          node.classList.remove('is-active');
-        });
-      }
-      if (focusedRecordIndex != null || timelinePlaying) {
-        setLineLayerDimmed(false);
-        return;
-      }
-      highlightedRoute = null;
-      highlightRouteOnMap(null, false);
-    });
+    block.addEventListener('mouseleave', clearReunionHover);
     block.addEventListener('click', function (event) {
       var item = event.target.closest('.reunion-item');
-      if (!item) return;
-      var group = reunionGroupOf(item);
-      if (!group) return;
-      var latest = group.rides[group.rides.length - 1];
-      var playIndex = latest.index;
-      markSelectedRecord(playIndex);
-      var list = document.getElementById('record-list');
-      if (!list) return;
-      var node = list.querySelector('.record-item[data-index="' + playIndex + '"]');
-      if (node) node.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      if (item) {
+        var group = reunionGroupOf(item);
+        if (!group) return;
+        var latest = group.rides[group.rides.length - 1];
+        var playIndex = latest.index;
+        markSelectedRecord(playIndex);
+        var list = document.getElementById('record-list');
+        if (!list) return;
+        var node = list.querySelector('.record-item[data-index="' + playIndex + '"]');
+        if (node) node.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return;
+      }
+      if (event.target.closest('.reunion-toggle, .reunion-summary, h2')) {
+        setReunionExpanded(!reunionExpanded);
+      }
     });
   }
 

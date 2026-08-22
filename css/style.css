@@ -449,7 +449,39 @@ body {
 }
 
 .reunion-block {
-  padding-bottom: 10px;
+  padding-bottom: 2px;
+}
+
+.reunion-block h2,
+.reunion-summary {
+  cursor: pointer;
+}
+
+.reunion-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 2px 0 6px;
+}
+
+.reunion-summary-item {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.reunion-summary-item[hidden] {
+  display: none;
+}
+
+.reunion-summary-count {
+  color: var(--cyan-dim);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.reunion-details[hidden] {
+  display: none;
 }
 
 .reunion-group-title {

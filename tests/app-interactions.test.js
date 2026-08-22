@@ -31,6 +31,28 @@ describe('timeline playback control', () => {
   });
 });
 
+describe('reunion collapse', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'css', 'style.css'), 'utf8');
+
+  it('keeps the reunion details collapsed by default and shows summary counts', () => {
+    assert.match(html, /id="reunion-summary"/);
+    assert.match(html, /id="reunion-vehicle-summary"/);
+    assert.match(html, /id="reunion-train-summary"/);
+    assert.match(html, /id="reunion-details" class="reunion-details" hidden/);
+    assert.match(html, /class="rank-toggle reunion-toggle"[^>]*aria-expanded="false"/);
+    assert.match(html, /id="reunion-details"[\s\S]*?id="reunion-vehicles"/);
+    assert.match(html, /id="reunion-details"[\s\S]*?id="reunion-trains"/);
+  });
+
+  it('hides reunion details until the block is expanded', () => {
+    const { code } = loadApp();
+    assert.match(code, /var reunionExpanded = false;/);
+    assert.match(code, /details\.hidden = !reunionExpanded/);
+    assert.match(css, /\.reunion-details\[hidden\]\s*\{\s*display:\s*none;/);
+  });
+});
+
 describe('reunion record highlighting', () => {
   it('clears the old group before activating the new group', () => {
     const { window } = loadApp();

@@ -90,14 +90,27 @@
         </section>
         <section id="reunion-block" class="chart-block reunion-block" hidden>
           <h2>缘分重逢</h2>
-          <div id="reunion-vehicles" class="reunion-group" hidden>
-            <h3 class="reunion-group-title">再遇车号</h3>
-            <ul id="reunion-vehicle-list" class="reunion-list"></ul>
+          <div id="reunion-summary" class="reunion-summary">
+            <span id="reunion-vehicle-summary" class="reunion-summary-item" hidden>
+              再遇车号 <strong class="reunion-summary-count">0</strong>
+            </span>
+            <span id="reunion-train-summary" class="reunion-summary-item" hidden>
+              再遇车次 <strong class="reunion-summary-count">0</strong>
+            </span>
           </div>
-          <div id="reunion-trains" class="reunion-group" hidden>
-            <h3 class="reunion-group-title">再遇车次</h3>
-            <ul id="reunion-train-list" class="reunion-list"></ul>
+          <div id="reunion-details" class="reunion-details" hidden>
+            <div id="reunion-vehicles" class="reunion-group" hidden>
+              <h3 class="reunion-group-title">再遇车号</h3>
+              <ul id="reunion-vehicle-list" class="reunion-list"></ul>
+            </div>
+            <div id="reunion-trains" class="reunion-group" hidden>
+              <h3 class="reunion-group-title">再遇车次</h3>
+              <ul id="reunion-train-list" class="reunion-list"></ul>
+            </div>
           </div>
+          <button type="button" class="rank-toggle reunion-toggle" aria-expanded="false" aria-label="展开缘分重逢">
+            <span class="rank-toggle-arrow" aria-hidden="true"></span>
+          </button>
         </section>
         <section class="record-panel">
           <h2>乘车记录</h2>
