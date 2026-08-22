@@ -29,7 +29,7 @@ body {
     radial-gradient(circle at 90% 10%, rgba(0, 80, 160, 0.16), transparent 38%),
     var(--bg);
   color: var(--text);
-  font-family: "Segoe UI", "Songti SC", "STSong", "SimSun", "NSimSun", serif;
+  font-family: "Segoe UI", "STFangsong", "FangSong", "华文仿宋", serif;
 }
 
 .scale-stage {
