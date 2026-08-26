@@ -1,0 +1,17 @@
+# Python generated files
+__pycache__/
+*.py[cod]
+
+# Local launcher shortcuts
+*.lnk
+
+# Personal source data and temporary Excel files
+*.xlsx
+~$*.xlsx
+*.xlsx.tmp
+
+# Common local/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
