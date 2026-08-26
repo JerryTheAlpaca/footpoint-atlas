@@ -164,6 +164,47 @@ describe('TrainSettings.unsavedExtra', () => {
   });
 });
 
+describe('TrainSettings.replaceRecord / removeRecord', () => {
+  it('replaces a record by object identity and keeps later siblings', () => {
+    const { replaceRecord, findRecordIndex } = loadSettings();
+    const first = Object.assign({}, validRecord, { train: 'G1' });
+    const second = Object.assign({}, validRecord, { train: 'G2' });
+    const next = replaceRecord(
+      { records: [first, second], stations: { 南京南: [118.81, 31.97] } },
+      second,
+      Object.assign({}, validRecord, { train: 'G3' }),
+      { 汉口: [114.26, 30.62] }
+    );
+    assert.equal(next.records[0].train, 'G1');
+    assert.equal(next.records[1].train, 'G3');
+    assert.equal(findRecordIndex(next.records, second), -1);
+    assert.deepEqual(next.stations['汉口'], [114.26, 30.62]);
+  });
+
+  it('falls back to field matching when the same object is not in the list', () => {
+    const { replaceRecord, removeRecord, recordKey } = loadSettings();
+    const stored = Object.assign({}, validRecord);
+    const copy = Object.assign({}, validRecord);
+    assert.equal(recordKey(stored), recordKey(copy));
+    const replaced = replaceRecord(
+      { records: [stored], stations: {} },
+      copy,
+      Object.assign({}, validRecord, { train: 'G9' })
+    );
+    assert.equal(replaced.records[0].train, 'G9');
+    const removed = removeRecord({ records: [stored], stations: {} }, copy);
+    assert.equal(removed.records.length, 0);
+  });
+
+  it('leaves records unchanged when the target cannot be found', () => {
+    const { removeRecord, replaceRecord } = loadSettings();
+    const original = { records: [validRecord], stations: {} };
+    const missing = Object.assign({}, validRecord, { train: 'Z1' });
+    assert.equal(removeRecord(original, missing).records.length, 1);
+    assert.equal(replaceRecord(original, missing, validRecord).records[0].train, 'G599');
+  });
+});
+
 describe('settings page structure', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 
@@ -185,5 +226,36 @@ describe('settings page structure', () => {
     const appAt = html.indexOf('js/app.js');
     assert.ok(settingsAt !== -1 && appAt !== -1);
     assert.ok(settingsAt < appAt);
+  });
+
+  it('uses a custom calendar instead of the native date popup', () => {
+    assert.match(html, /id="trip-date-picker"/);
+    assert.match(html, /id="trip-date-toggle"/);
+    assert.doesNotMatch(html, /id="trip-date"[^>]*type="date"/);
+  });
+});
+
+describe('TrainSettings date helpers', () => {
+  it('parses and pads ISO dates, and rejects invalid days', () => {
+    const { parseIsoDate, toIsoDate, normalizeDateInput } = loadSettings();
+    assert.deepEqual(parseIsoDate('2026-08-26'), { year: 2026, month: 8, day: 26 });
+    assert.equal(parseIsoDate('2026-02-31'), null);
+    assert.equal(toIsoDate(2026, 8, 6), '2026-08-06');
+    assert.equal(normalizeDateInput('2026/8/26'), '2026-08-26');
+    assert.equal(normalizeDateInput('20260826'), '2026-08-26');
+  });
+
+  it('builds a six-week calendar grid for August 2026', () => {
+    const { calendarCells, shiftMonth } = loadSettings();
+    assert.deepEqual(shiftMonth(2026, 1, -1), { year: 2025, month: 12 });
+    const cells = calendarCells(2026, 8);
+    assert.equal(cells.length, 42);
+    assert.equal(cells[0].iso, '2026-07-26');
+    assert.equal(cells[0].inMonth, false);
+    assert.equal(cells[6].iso, '2026-08-01');
+    assert.equal(cells[6].inMonth, true);
+    assert.equal(cells[36].iso, '2026-08-31');
+    assert.equal(cells[37].iso, '2026-09-01');
+    assert.equal(cells[41].iso, '2026-09-05');
   });
 });

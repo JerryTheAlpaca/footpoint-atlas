@@ -72,6 +72,27 @@ describe('reunion record highlighting', () => {
   });
 });
 
+describe('record context menu', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'css', 'style.css'), 'utf8');
+
+  it('adds a floating menu with edit and delete actions', () => {
+    assert.match(html, /id="record-context-menu"/);
+    assert.match(html, /data-action="edit"/);
+    assert.match(html, /data-action="delete"/);
+    assert.match(css, /\.record-context-menu/);
+  });
+
+  it('binds right-click on ride records to edit or delete', () => {
+    const { code } = loadApp();
+    assert.match(code, /list\.addEventListener\('contextmenu'/);
+    assert.match(code, /function startEditRecord\(/);
+    assert.match(code, /function deleteRideRecord\(/);
+    assert.match(code, /TrainSettings\.replaceRecord/);
+    assert.match(code, /TrainSettings\.removeRecord/);
+  });
+});
+
 describe('annual review train summary', () => {
   it('formats one and tied top train entries', () => {
     const { window, code } = loadApp();

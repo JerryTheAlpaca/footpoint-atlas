@@ -171,9 +171,27 @@
             <section id="settings-panel-trip" class="settings-panel" data-panel="trip">
               <form id="trip-form">
                 <div class="trip-grid">
-                  <label>日期
-                    <input id="trip-date" name="date" type="date" required>
-                  </label>
+                  <div class="trip-date-wrap">
+                    <label for="trip-date">日期</label>
+                    <div class="date-field">
+                      <input id="trip-date" name="date" type="text" inputmode="numeric" placeholder="年-月-日" required autocomplete="off" maxlength="10">
+                      <button id="trip-date-toggle" type="button" class="date-picker-toggle" aria-label="打开日历" aria-haspopup="dialog" aria-expanded="false">
+                        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                          <rect x="1.5" y="3" width="13" height="11.5" rx="2" fill="none" stroke="currentColor"></rect>
+                          <path d="M1.5 6.5h13M5 1.5v3M11 1.5v3" fill="none" stroke="currentColor"></path>
+                        </svg>
+                      </button>
+                      <div id="trip-date-picker" class="date-picker" hidden role="dialog" aria-label="选择日期">
+                        <div class="date-picker-head">
+                          <button type="button" class="date-picker-nav" data-cal-nav="-1" aria-label="上个月">‹</button>
+                          <span class="date-picker-title"></span>
+                          <button type="button" class="date-picker-nav" data-cal-nav="1" aria-label="下个月">›</button>
+                        </div>
+                        <div class="date-picker-weekdays"></div>
+                        <div class="date-picker-grid"></div>
+                      </div>
+                    </div>
+                  </div>
                   <label>车次
                     <input id="trip-train" name="train" type="text" required autocomplete="off">
                   </label>
@@ -216,6 +234,11 @@
   </div>
 
   <div class="scanlines" aria-hidden="true"></div>
+
+  <div id="record-context-menu" class="record-context-menu" hidden role="menu" aria-label="记录操作">
+    <button type="button" role="menuitem" data-action="edit">编辑</button>
+    <button type="button" role="menuitem" data-action="delete">删除</button>
+  </div>
 
   <script src="lib/echarts.min.js"></script>
   <script src="map/china.js"></script>

@@ -38,6 +38,9 @@
   var reunionVehicles = [];
   var reunionBadges = new Map();
   var reunionExpanded = false;
+  var tripDatePicker;
+  var editingRecord = null;
+  var recordMutating = false;
   var hoverZrLine = null;
   var LINE_ZLEVEL = 2;
   var HOVER_ZLEVEL = 10;
@@ -1285,6 +1288,7 @@
   }
 
   function renderRecords() {
+    hideRecordContextMenu();
     var list = document.getElementById('record-list');
     list.innerHTML = recordsForDisplay(playRecords)
       .map(function (item) {
@@ -1698,6 +1702,31 @@
     });
   }
 
+  function hideRecordContextMenu() {
+    var menu = document.getElementById('record-context-menu');
+    if (menu) menu.hidden = true;
+  }
+
+  function showRecordContextMenu(event, index) {
+    var menu = document.getElementById('record-context-menu');
+    if (!menu) return;
+    menu.setAttribute('data-index', String(index));
+    menu.hidden = false;
+    menu.style.visibility = 'hidden';
+    menu.style.left = '0px';
+    menu.style.top = '0px';
+    var width = menu.offsetWidth;
+    var height = menu.offsetHeight;
+    var pad = 8;
+    var x = event.clientX;
+    var y = event.clientY;
+    if (x + width > window.innerWidth - pad) x = Math.max(pad, window.innerWidth - width - pad);
+    if (y + height > window.innerHeight - pad) y = Math.max(pad, window.innerHeight - height - pad);
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    menu.style.visibility = '';
+  }
+
   function bindRecordListEvents() {
     var list = document.getElementById('record-list');
     var panel = list.closest('.record-panel') || list;
@@ -1706,6 +1735,13 @@
       if (!item) return;
       startTripPlay(Number(item.getAttribute('data-index')));
     });
+    list.addEventListener('contextmenu', function (event) {
+      var item = event.target.closest('.record-item');
+      if (!item) return;
+      event.preventDefault();
+      showRecordContextMenu(event, Number(item.getAttribute('data-index')));
+    });
+    list.addEventListener('scroll', hideRecordContextMenu);
     panel.addEventListener('mouseenter', function () {
       if (focusedRecordIndex != null || timelinePlaying) return;
       recordAreaActive = true;
@@ -1735,6 +1771,34 @@
       }
       highlightedRoute = null;
       highlightRouteOnMap(null, false);
+    });
+  }
+
+  function bindRecordContextMenu() {
+    var menu = document.getElementById('record-context-menu');
+    if (!menu) return;
+    menu.addEventListener('contextmenu', function (event) {
+      event.preventDefault();
+    });
+    menu.addEventListener('click', function (event) {
+      var btn = event.target.closest('[data-action]');
+      if (!btn) return;
+      var index = Number(menu.getAttribute('data-index'));
+      var action = btn.getAttribute('data-action');
+      hideRecordContextMenu();
+      var rec = playRecords[index];
+      if (!rec) return;
+      if (action === 'edit') startEditRecord(rec);
+      if (action === 'delete') deleteRideRecord(rec);
+    });
+    document.addEventListener('click', function (event) {
+      if (menu.hidden) return;
+      if (event.target.closest('#record-context-menu')) return;
+      hideRecordContextMenu();
+    });
+    document.addEventListener('contextmenu', function (event) {
+      if (event.target.closest('#record-context-menu, .record-item')) return;
+      hideRecordContextMenu();
     });
   }
 
@@ -2130,6 +2194,50 @@
     var form = document.getElementById('trip-form');
     if (form) form.reset();
     document.getElementById('trip-date').value = todayIso();
+    if (tripDatePicker) tripDatePicker.close();
+    syncUnknownStationFields();
+  }
+
+  function setTripFormMode(mode) {
+    var editing = mode === 'edit';
+    var submitBtn = document.getElementById('trip-submit');
+    var navBtn = document.querySelector('.settings-nav-btn[data-panel="trip"]');
+    if (submitBtn) submitBtn.textContent = editing ? '保存修改' : '添加行程';
+    if (navBtn) navBtn.textContent = editing ? '编辑行程' : '添加行程';
+  }
+
+  function clearTripEditMode() {
+    editingRecord = null;
+    setTripFormMode('add');
+  }
+
+  function readTripForm() {
+    var dateValue = document.getElementById('trip-date').value;
+    if (window.TrainSettings.normalizeDateInput) {
+      dateValue = window.TrainSettings.normalizeDateInput(dateValue) || dateValue;
+    }
+    return window.TrainSettings.normalizeRecord({
+      date: dateValue,
+      from: document.getElementById('trip-from').value,
+      to: document.getElementById('trip-to').value,
+      train: document.getElementById('trip-train').value,
+      vehicle: document.getElementById('trip-vehicle').value,
+      origin: document.getElementById('trip-origin').value,
+      terminal: document.getElementById('trip-terminal').value,
+      bureau: document.getElementById('trip-bureau').value,
+    });
+  }
+
+  function fillTripForm(record) {
+    document.getElementById('trip-date').value = (record && record.date) || todayIso();
+    document.getElementById('trip-from').value = (record && record.from) || '';
+    document.getElementById('trip-to').value = (record && record.to) || '';
+    document.getElementById('trip-train').value = (record && record.train) || '';
+    document.getElementById('trip-vehicle').value = (record && record.vehicle) || '';
+    document.getElementById('trip-origin').value = (record && record.origin) || '';
+    document.getElementById('trip-terminal').value = (record && record.terminal) || '';
+    document.getElementById('trip-bureau').value = (record && record.bureau) || '';
+    if (tripDatePicker) tripDatePicker.close();
     syncUnknownStationFields();
   }
 
@@ -2143,16 +2251,22 @@
   }
 
   function openSettings() {
+    hideRecordContextMenu();
     closeReview();
     fillSettingsLists();
-    if (!document.getElementById('trip-date').value) {
+    if (!editingRecord && !document.getElementById('trip-date').value) {
       document.getElementById('trip-date').value = todayIso();
     }
     document.getElementById('settings-modal').hidden = false;
   }
 
   function closeSettings() {
+    if (tripDatePicker) tripDatePicker.close();
     document.getElementById('settings-modal').hidden = true;
+    if (editingRecord) {
+      clearTripEditMode();
+      resetTripForm();
+    }
   }
 
   function extraStationsFromForm(record) {
@@ -2224,18 +2338,89 @@
     }
   }
 
+  function currentDataState() {
+    return {
+      records: allRecords.slice(),
+      stations: Object.assign({}, stations),
+    };
+  }
+
+  function extraOverlayFor(merged) {
+    return window.TrainSettings.unsavedExtra(
+      {
+        records: (window.TRAIN_DATA.records || []).slice(),
+        stations: Object.assign({}, window.TRAIN_DATA.stations || {}),
+      },
+      merged
+    );
+  }
+
+  function recordBelongsToFile(record) {
+    return (window.TRAIN_DATA.records || []).indexOf(record) !== -1;
+  }
+
+  function persistStatusMessage(wroteFile, missing, action) {
+    var verb = action === 'edit' ? '保存修改' : action === 'delete' ? '删除' : '添加行程';
+    if (wroteFile) {
+      if (missing && missing.length) {
+        return '已写入 data.js。缺坐标的车站（' + missing.join('、') + '）暂不显示在地图上。';
+      }
+      return action === 'edit'
+        ? '已保存修改，并写入 js/data.js。'
+        : action === 'delete'
+          ? '已删除记录，并写入 js/data.js。'
+          : '已添加行程，并写入 js/data.js。';
+    }
+    if (missing && missing.length) {
+      return '已暂存在本机。未能写入 data.js，请用 python tools/serve.py 打开本页。缺坐标：' + missing.join('、');
+    }
+    return '已暂存在本机。未能写入 data.js，请用 python tools/serve.py 打开本页后再' + verb + '。';
+  }
+
+  function startEditRecord(record) {
+    editingRecord = record;
+    setTripFormMode('edit');
+    fillTripForm(record);
+    setTripStatus('', '');
+    openSettings();
+  }
+
+  function deleteRideRecord(record) {
+    var summary = record.date + '  ' + record.from + ' → ' + record.to + '  ' + record.train;
+    if (!window.confirm('确定删除这条乘车记录？\n' + summary)) return;
+    if (recordMutating) return;
+    if (window.TrainSettings.findRecordIndex(allRecords, record) === -1) return;
+    var merged = window.TrainSettings.removeRecord(currentDataState(), record);
+    merged.records = sortRecords(merged.records);
+    var extra = extraOverlayFor(merged);
+    var allowLocalFallback = !recordBelongsToFile(record);
+    recordMutating = true;
+    persistTrainData(merged)
+      .then(function (result) {
+        if (result.wroteFile) {
+          rememberMergedFile(merged);
+        } else if (!allowLocalFallback) {
+          window.alert('未能写入 data.js，请用 python tools/serve.py 打开本页后再删除。');
+          return;
+        } else {
+          try {
+            window.TrainSettings.save(extra, window.localStorage);
+          } catch (err) {
+            window.alert('无法保存到本机存储，请检查浏览器是否允许本地存储。');
+            return;
+          }
+        }
+        refreshDashboard(false);
+      })
+      .finally(function () {
+        recordMutating = false;
+      });
+  }
+
   function submitTripForm(event) {
     event.preventDefault();
-    var record = window.TrainSettings.normalizeRecord({
-      date: document.getElementById('trip-date').value,
-      from: document.getElementById('trip-from').value,
-      to: document.getElementById('trip-to').value,
-      train: document.getElementById('trip-train').value,
-      vehicle: document.getElementById('trip-vehicle').value,
-      origin: document.getElementById('trip-origin').value,
-      terminal: document.getElementById('trip-terminal').value,
-      bureau: document.getElementById('trip-bureau').value,
-    });
+    if (recordMutating) return;
+    var record = readTripForm();
     var checked = window.TrainSettings.validateRecord(record);
     if (!checked.ok) {
       setTripStatus(Object.keys(checked.errors).map(function (key) {
@@ -2244,23 +2429,42 @@
       return;
     }
     var extraStations = extraStationsFromForm(record);
-    var base = {
-      records: (window.TRAIN_DATA.records || []).slice(),
-      stations: Object.assign({}, window.TRAIN_DATA.stations || {}),
-    };
-    var extra = window.TrainSettings.addRecord(
-      window.TrainSettings.unsavedExtra(base, window.TrainSettings.load(window.localStorage)),
-      record,
-      extraStations
-    );
-    var merged = window.TrainSettings.mergeTrainData(base, extra);
-    merged.records = sortRecords(merged.records);
+    var editing = editingRecord;
+    var extra;
+    var merged;
+    var allowLocalFallback = true;
+    if (editing) {
+      if (window.TrainSettings.findRecordIndex(allRecords, editing) === -1) {
+        setTripStatus('找不到要修改的记录，请刷新后重试。', 'error');
+        return;
+      }
+      merged = window.TrainSettings.replaceRecord(currentDataState(), editing, record, extraStations);
+      merged.records = sortRecords(merged.records);
+      extra = extraOverlayFor(merged);
+      allowLocalFallback = !recordBelongsToFile(editing);
+    } else {
+      var base = {
+        records: (window.TRAIN_DATA.records || []).slice(),
+        stations: Object.assign({}, window.TRAIN_DATA.stations || {}),
+      };
+      extra = window.TrainSettings.addRecord(
+        window.TrainSettings.unsavedExtra(base, window.TrainSettings.load(window.localStorage)),
+        record,
+        extraStations
+      );
+      merged = window.TrainSettings.mergeTrainData(base, extra);
+      merged.records = sortRecords(merged.records);
+    }
     var submitBtn = document.getElementById('trip-submit');
     if (submitBtn) submitBtn.disabled = true;
+    recordMutating = true;
     persistTrainData(merged)
       .then(function (result) {
         if (result.wroteFile) {
           rememberMergedFile(merged);
+        } else if (!allowLocalFallback) {
+          setTripStatus('未能写入 data.js，请用 python tools/serve.py 打开本页后再修改。', 'error');
+          return;
         } else {
           try {
             window.TrainSettings.save(extra, window.localStorage);
@@ -2270,32 +2474,26 @@
           }
         }
         refreshDashboard(false);
+        if (editing) clearTripEditMode();
         resetTripForm();
         var missing = missingStationNames(record, extraStations);
-        if (result.wroteFile) {
-          setTripStatus(
-            missing.length
-              ? '已写入 data.js。缺坐标的车站（' + missing.join('、') + '）暂不显示在地图上。'
-              : '已添加行程，并写入 js/data.js。',
-            'ok'
-          );
-        } else if (missing.length) {
-          setTripStatus(
-            '已暂存在本机。未能写入 data.js，请用 python tools/serve.py 打开本页。缺坐标：' +
-              missing.join('、'),
-            'ok'
-          );
-        } else {
-          setTripStatus('已暂存在本机。未能写入 data.js，请用 python tools/serve.py 打开本页后再添加。', 'ok');
-        }
+        var action = editing ? 'edit' : 'add';
+        setTripStatus(persistStatusMessage(result.wroteFile, missing, action), 'ok');
       })
       .finally(function () {
+        recordMutating = false;
         if (submitBtn) submitBtn.disabled = false;
       });
   }
 
   function bindSettingsEvents() {
-    document.getElementById('settings-btn').addEventListener('click', openSettings);
+    document.getElementById('settings-btn').addEventListener('click', function () {
+      if (editingRecord) {
+        clearTripEditMode();
+        resetTripForm();
+      }
+      openSettings();
+    });
     document.getElementById('settings-close').addEventListener('click', closeSettings);
     document.querySelector('#settings-modal .settings-backdrop').addEventListener('click', closeSettings);
     document.getElementById('settings-nav').addEventListener('click', function (event) {
@@ -2306,6 +2504,12 @@
     document.getElementById('trip-from').addEventListener('input', syncUnknownStationFields);
     document.getElementById('trip-to').addEventListener('input', syncUnknownStationFields);
     document.getElementById('trip-form').addEventListener('submit', submitTripForm);
+    tripDatePicker = window.TrainSettings.bindDatePicker({
+      input: document.getElementById('trip-date'),
+      toggle: document.getElementById('trip-date-toggle'),
+      picker: document.getElementById('trip-date-picker'),
+      document: document,
+    });
   }
 
   function boot() {
@@ -2337,6 +2541,7 @@
     rebuildRankCharts();
     renderRecords();
     bindRecordListEvents();
+    bindRecordContextMenu();
     renderReunions();
     bindReunionEvents();
     fillSettingsLists();
@@ -2387,6 +2592,11 @@
     });
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Escape') return;
+      var menu = document.getElementById('record-context-menu');
+      if (menu && !menu.hidden) {
+        hideRecordContextMenu();
+        return;
+      }
       if (focusedRecordIndex != null) {
         restoreFullMap();
         return;
