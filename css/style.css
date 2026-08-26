@@ -786,6 +786,19 @@ body {
   display: none;
 }
 
+.settings-modal.is-edit .settings-nav {
+  display: none;
+}
+
+.settings-modal.is-edit .settings-body {
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+
+.settings-modal.is-edit .settings-dialog {
+  width: 760px;
+}
+
 .settings-backdrop {
   position: absolute;
   inset: 0;

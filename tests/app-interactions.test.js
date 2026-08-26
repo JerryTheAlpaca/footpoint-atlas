@@ -91,6 +91,13 @@ describe('record context menu', () => {
     assert.match(code, /TrainSettings\.replaceRecord/);
     assert.match(code, /TrainSettings\.removeRecord/);
   });
+
+  it('opens only the trip form when editing a record', () => {
+    const { code } = loadApp();
+    assert.match(code, /modal\.classList\.toggle\('is-edit', editing\)/);
+    assert.match(code, /title\.textContent = editing \? '编辑行程' : '设置'/);
+    assert.match(css, /\.settings-modal\.is-edit \.settings-nav\s*\{\s*display:\s*none;/);
+  });
 });
 
 describe('annual review train summary', () => {

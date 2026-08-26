@@ -2208,10 +2208,14 @@
 
   function setTripFormMode(mode) {
     var editing = mode === 'edit';
+    var modal = document.getElementById('settings-modal');
+    var title = document.getElementById('settings-title');
+    var closeBtn = document.getElementById('settings-close');
     var submitBtn = document.getElementById('trip-submit');
-    var navBtn = document.querySelector('.settings-nav-btn[data-panel="trip"]');
+    if (modal) modal.classList.toggle('is-edit', editing);
+    if (title) title.textContent = editing ? '编辑行程' : '设置';
+    if (closeBtn) closeBtn.setAttribute('aria-label', editing ? '关闭编辑' : '关闭设置');
     if (submitBtn) submitBtn.textContent = editing ? '保存修改' : '添加行程';
-    if (navBtn) navBtn.textContent = editing ? '编辑行程' : '添加行程';
   }
 
   function clearTripEditMode() {
@@ -2482,11 +2486,15 @@
           }
         }
         refreshDashboard(false);
-        if (editing) clearTripEditMode();
-        resetTripForm();
         var missing = missingStationNames(record, extraStations);
-        var action = editing ? 'edit' : 'add';
-        setTripStatus(persistStatusMessage(result.wroteFile, missing, action), 'ok');
+        if (editing) {
+          clearTripEditMode();
+          resetTripForm();
+          closeSettings();
+          return;
+        }
+        resetTripForm();
+        setTripStatus(persistStatusMessage(result.wroteFile, missing, 'add'), 'ok');
       })
       .finally(function () {
         recordMutating = false;
