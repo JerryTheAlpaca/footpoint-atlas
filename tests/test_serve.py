@@ -3,6 +3,7 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
+from unittest import mock
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -163,6 +164,35 @@ class ServeApiTests(unittest.TestCase):
                     "stations": {"A": [float("nan"), 0]},
                 }
             )
+
+
+class ServeArgTests(unittest.TestCase):
+    def test_default_port_does_not_open_browser(self):
+        args = serve.parse_args([])
+        self.assertEqual(args.port, 8765)
+        self.assertFalse(args.open_browser)
+
+    def test_positional_port_and_open_flag(self):
+        args = serve.parse_args(["9000", "--open"])
+        self.assertEqual(args.port, 9000)
+        self.assertTrue(args.open_browser)
+
+    def test_open_flag_without_port(self):
+        args = serve.parse_args(["--open"])
+        self.assertEqual(args.port, 8765)
+        self.assertTrue(args.open_browser)
+
+    def test_port_in_use_opens_existing_page(self):
+        with mock.patch.object(serve, "ThreadingHTTPServer", side_effect=OSError):
+            with mock.patch.object(serve.webbrowser, "open") as opener:
+                serve.main(["8765", "--open"])
+        opener.assert_called_once_with("http://127.0.0.1:8765/")
+
+    def test_port_in_use_without_open_does_not_launch_browser(self):
+        with mock.patch.object(serve, "ThreadingHTTPServer", side_effect=OSError):
+            with mock.patch.object(serve.webbrowser, "open") as opener:
+                serve.main(["8765"])
+        opener.assert_not_called()
 
 
 if __name__ == "__main__":

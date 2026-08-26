@@ -4,6 +4,7 @@
 
     python tools/serve.py
     python tools/serve.py 8765
+    python tools/serve.py 8765 --open
 
 然后打开提示的地址。直接双击 index.html 或使用普通静态服务器时，
 浏览器写不了磁盘，行程会先暂存在本机。
@@ -11,12 +12,14 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import hashlib
 import math
 import re
 import sys
 import threading
+import webbrowser
 from datetime import date
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -160,11 +163,32 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_json(200, {"ok": True, "version": next_version})
 
 
-def main() -> None:
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
-    httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"打开 http://127.0.0.1:{port}/")
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="本地预览火车足迹")
+    parser.add_argument("port", nargs="?", type=int, default=8765)
+    parser.add_argument(
+        "--open",
+        dest="open_browser",
+        action="store_true",
+        help="端口就绪后再打开浏览器",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
+    url = f"http://127.0.0.1:{args.port}/"
+    try:
+        httpd = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+    except OSError:
+        print(f"端口 {args.port} 已在使用，打开已有页面：{url}")
+        if args.open_browser:
+            webbrowser.open(url)
+        return
+    print(f"打开 {url}")
     print("新增 / 编辑 / 删除行程会写入 js/data.js 和 Excel")
+    if args.open_browser:
+        threading.Thread(target=webbrowser.open, args=(url,), daemon=True).start()
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
