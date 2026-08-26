@@ -5,8 +5,7 @@ __pycache__/
 # Local launcher shortcuts
 *.lnk
 
-# Personal source data and temporary Excel files
-*.xlsx
+# Temporary Excel files
 ~$*.xlsx
 *.xlsx.tmp
 
