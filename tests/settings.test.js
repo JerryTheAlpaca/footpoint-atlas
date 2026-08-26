@@ -130,6 +130,40 @@ describe('TrainSettings storage', () => {
   });
 });
 
+describe('TrainSettings.serializeDataFile', () => {
+  it('writes a window.TRAIN_DATA assignment in the Excel export format', () => {
+    const { serializeDataFile } = loadSettings();
+    const text = serializeDataFile({
+      records: [validRecord],
+      stations: { 南京南: [118.81, 31.97], 汉口: [114.26, 30.62] },
+    });
+    assert.ok(text.startsWith('window.TRAIN_DATA = '));
+    assert.ok(text.endsWith(';\n'));
+    const parsed = JSON.parse(text.slice('window.TRAIN_DATA = '.length, -2));
+    assert.deepEqual(parsed.records, [validRecord]);
+    assert.deepEqual(parsed.stations['汉口'], [114.26, 30.62]);
+  });
+});
+
+describe('TrainSettings.unsavedExtra', () => {
+  it('keeps only extra records and stations that are not already in the file data', () => {
+    const { unsavedExtra } = loadSettings();
+    const extra = unsavedExtra(
+      {
+        records: [validRecord],
+        stations: { 南京南: [118.81, 31.97], 汉口: [114.26, 30.62] },
+      },
+      {
+        records: [validRecord, Object.assign({}, validRecord, { train: 'G1' })],
+        stations: { 汉口: [114.26, 30.62], 武汉: [114.42, 30.61] },
+      }
+    );
+    assert.equal(extra.records.length, 1);
+    assert.equal(extra.records[0].train, 'G1');
+    assert.deepEqual(Object.keys(extra.stations), ['武汉']);
+  });
+});
+
 describe('settings page structure', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 

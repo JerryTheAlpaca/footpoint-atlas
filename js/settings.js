@@ -91,8 +91,49 @@
     };
   }
 
+  function recordKey(record) {
+    if (!record) return '';
+    return [
+      record.date,
+      record.from,
+      record.to,
+      record.train,
+      record.vehicle,
+      record.origin,
+      record.terminal,
+      record.bureau,
+    ].join('\0');
+  }
+
+  function unsavedExtra(base, extra) {
+    var fileData = base || emptyState();
+    var local = extra || emptyState();
+    var seen = {};
+    (fileData.records || []).forEach(function (rec) {
+      seen[recordKey(rec)] = true;
+    });
+    var records = (local.records || []).filter(function (rec) {
+      return !seen[recordKey(rec)];
+    });
+    var fileStations = fileData.stations || {};
+    var stations = {};
+    Object.keys(local.stations || {}).forEach(function (name) {
+      if (!fileStations[name]) stations[name] = local.stations[name];
+    });
+    return { records: records, stations: stations };
+  }
+
+  function serializeDataFile(trainData) {
+    var payload = {
+      records: (trainData && trainData.records) || [],
+      stations: (trainData && trainData.stations) || {},
+    };
+    return 'window.TRAIN_DATA = ' + JSON.stringify(payload, null, 2) + ';\n';
+  }
+
   root.TrainSettings = {
     STORAGE_KEY: STORAGE_KEY,
+    SAVE_API: '/api/save-train-data',
     emptyState: emptyState,
     normalizeRecord: normalizeRecord,
     validateRecord: validateRecord,
@@ -101,5 +142,7 @@
     load: load,
     save: save,
     addRecord: addRecord,
+    unsavedExtra: unsavedExtra,
+    serializeDataFile: serializeDataFile,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

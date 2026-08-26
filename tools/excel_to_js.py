@@ -114,6 +114,15 @@ def stations_for(records: list[dict]) -> dict[str, list[float]]:
     return {name: STATION_COORDS[name] for name in names}
 
 
+def write_data_js(records: list[dict], stations: dict, path: Path = OUTPUT_PATH) -> None:
+    payload = {
+        "records": records,
+        "stations": {name: stations[name] for name in sorted(stations)},
+    }
+    body = json.dumps(payload, ensure_ascii=False, indent=2)
+    path.write_text("window.TRAIN_DATA = " + body + ";\n", encoding="utf-8")
+
+
 def main() -> None:
     if not EXCEL_PATH.exists():
         sys.stderr.write(f"找不到 Excel：{EXCEL_PATH}\n")
@@ -125,8 +134,7 @@ def main() -> None:
         sys.exit(1)
 
     payload = {"records": records, "stations": stations_for(records)}
-    body = json.dumps(payload, ensure_ascii=False, indent=2)
-    OUTPUT_PATH.write_text("window.TRAIN_DATA = " + body + ";\n", encoding="utf-8")
+    write_data_js(payload["records"], payload["stations"])
     print(f"已写入 {OUTPUT_PATH.relative_to(ROOT)}：{len(records)} 条记录，{len(payload['stations'])} 个车站。")
 
 

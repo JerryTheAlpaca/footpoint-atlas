@@ -1985,14 +1985,12 @@
   }
 
   function loadMergedData() {
-    var extra = window.TrainSettings.load(window.localStorage);
-    return window.TrainSettings.mergeTrainData(
-      {
-        records: (window.TRAIN_DATA.records || []).slice(),
-        stations: Object.assign({}, window.TRAIN_DATA.stations || {}),
-      },
-      extra
-    );
+    var base = {
+      records: (window.TRAIN_DATA.records || []).slice(),
+      stations: Object.assign({}, window.TRAIN_DATA.stations || {}),
+    };
+    var extra = window.TrainSettings.unsavedExtra(base, window.TrainSettings.load(window.localStorage));
+    return window.TrainSettings.mergeTrainData(base, extra);
   }
 
   function adoptMergedData(merged) {
@@ -2197,6 +2195,35 @@
     });
   }
 
+  function persistTrainData(merged) {
+    var payload = {
+      records: merged.records,
+      stations: merged.stations,
+    };
+    return fetch(window.TrainSettings.SAVE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('save-api');
+        return { wroteFile: true };
+      })
+      .catch(function () {
+        return { wroteFile: false };
+      });
+  }
+
+  function rememberMergedFile(merged) {
+    window.TRAIN_DATA.records = (merged.records || []).slice();
+    window.TRAIN_DATA.stations = Object.assign({}, merged.stations || {});
+    try {
+      window.localStorage.removeItem(window.TrainSettings.STORAGE_KEY);
+    } catch (err) {
+      /* ignore */
+    }
+  }
+
   function submitTripForm(event) {
     event.preventDefault();
     var record = window.TrainSettings.normalizeRecord({
@@ -2217,25 +2244,54 @@
       return;
     }
     var extraStations = extraStationsFromForm(record);
-    var next = window.TrainSettings.addRecord(
-      window.TrainSettings.load(window.localStorage),
+    var base = {
+      records: (window.TRAIN_DATA.records || []).slice(),
+      stations: Object.assign({}, window.TRAIN_DATA.stations || {}),
+    };
+    var extra = window.TrainSettings.addRecord(
+      window.TrainSettings.unsavedExtra(base, window.TrainSettings.load(window.localStorage)),
       record,
       extraStations
     );
-    try {
-      window.TrainSettings.save(next, window.localStorage);
-    } catch (err) {
-      setTripStatus('无法保存到本机存储，请检查浏览器是否允许本地存储。', 'error');
-      return;
-    }
-    refreshDashboard(false);
-    resetTripForm();
-    var missing = missingStationNames(record, extraStations);
-    if (missing.length) {
-      setTripStatus('已添加行程。缺坐标的车站（' + missing.join('、') + '）暂不显示在地图上。', 'ok');
-    } else {
-      setTripStatus('已添加行程，记录保存在本机浏览器中。', 'ok');
-    }
+    var merged = window.TrainSettings.mergeTrainData(base, extra);
+    merged.records = sortRecords(merged.records);
+    var submitBtn = document.getElementById('trip-submit');
+    if (submitBtn) submitBtn.disabled = true;
+    persistTrainData(merged)
+      .then(function (result) {
+        if (result.wroteFile) {
+          rememberMergedFile(merged);
+        } else {
+          try {
+            window.TrainSettings.save(extra, window.localStorage);
+          } catch (err) {
+            setTripStatus('无法保存到本机存储，请检查浏览器是否允许本地存储。', 'error');
+            return;
+          }
+        }
+        refreshDashboard(false);
+        resetTripForm();
+        var missing = missingStationNames(record, extraStations);
+        if (result.wroteFile) {
+          setTripStatus(
+            missing.length
+              ? '已写入 data.js。缺坐标的车站（' + missing.join('、') + '）暂不显示在地图上。'
+              : '已添加行程，并写入 js/data.js。',
+            'ok'
+          );
+        } else if (missing.length) {
+          setTripStatus(
+            '已暂存在本机。未能写入 data.js，请用 python tools/serve.py 打开本页。缺坐标：' +
+              missing.join('、'),
+            'ok'
+          );
+        } else {
+          setTripStatus('已暂存在本机。未能写入 data.js，请用 python tools/serve.py 打开本页后再添加。', 'ok');
+        }
+      })
+      .finally(function () {
+        if (submitBtn) submitBtn.disabled = false;
+      });
   }
 
   function bindSettingsEvents() {
