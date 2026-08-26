@@ -41,6 +41,12 @@ class ExcelWriteTests(unittest.TestCase):
         self.assertEqual(excel_to_js.format_excel_date("2023-07-27"), "2023.7.27")
         self.assertEqual(excel_to_js.format_excel_date("2026-08-16"), "2026.8.16")
 
+    def test_data_paths_use_a_separate_deployment_directory(self):
+        data_dir = Path(self.temp_dir.name) / "persistent-data"
+        excel_path, output_path = excel_to_js.data_paths(data_dir)
+        self.assertEqual(excel_path, data_dir.resolve() / "火车乘车记录.xlsx")
+        self.assertEqual(output_path, data_dir.resolve() / "data.js")
+
     def test_write_then_read_roundtrip_and_shrinks_rows(self):
         excel_to_js.write_records(SAMPLE_RECORDS, self.excel_path)
         self.assertEqual(excel_to_js.read_records(self.excel_path), SAMPLE_RECORDS)

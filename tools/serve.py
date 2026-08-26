@@ -16,6 +16,7 @@ import argparse
 import json
 import hashlib
 import math
+import os
 import re
 import sys
 import threading
@@ -167,6 +168,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="本地预览火车足迹")
     parser.add_argument("port", nargs="?", type=int, default=8765)
     parser.add_argument(
+        "--host",
+        default=os.environ.get("TRAIN_BIND_HOST", "127.0.0.1"),
+        help="监听地址；容器部署时使用 0.0.0.0",
+    )
+    parser.add_argument(
         "--open",
         dest="open_browser",
         action="store_true",
@@ -177,9 +183,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
-    url = f"http://127.0.0.1:{args.port}/"
+    display_host = "127.0.0.1" if args.host == "0.0.0.0" else args.host
+    url = f"http://{display_host}:{args.port}/"
     try:
-        httpd = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+        httpd = ThreadingHTTPServer((args.host, args.port), Handler)
     except OSError:
         print(f"端口 {args.port} 已在使用，打开已有页面：{url}")
         if args.open_browser:

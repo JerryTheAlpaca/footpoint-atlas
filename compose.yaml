@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+    environment:
+      TRAIN_DATA_DIR: /data
+    volumes:
+      - ${HOST_DATA_DIR:-/opt/footpoint-atlas-data}:/data
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/train-data', timeout=3).read()"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    image: nginx:stable-alpine
+    environment:
+      ALLOWED_IP: ${ALLOWED_IP:?Set ALLOWED_IP to the single client IPv4 address}
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/srv/site:ro
+      - ${HOST_DATA_DIR:-/opt/footpoint-atlas-data}:/data:ro
+      - ./deploy/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - -O
+        - /dev/null
+        - http://127.0.0.1/
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    security_opt:
+      - no-new-privileges:true

@@ -170,6 +170,7 @@ class ServeArgTests(unittest.TestCase):
     def test_default_port_does_not_open_browser(self):
         args = serve.parse_args([])
         self.assertEqual(args.port, 8765)
+        self.assertEqual(args.host, "127.0.0.1")
         self.assertFalse(args.open_browser)
 
     def test_positional_port_and_open_flag(self):
@@ -181,6 +182,10 @@ class ServeArgTests(unittest.TestCase):
         args = serve.parse_args(["--open"])
         self.assertEqual(args.port, 8765)
         self.assertTrue(args.open_browser)
+
+    def test_host_can_be_set_for_container_deployment(self):
+        args = serve.parse_args(["8765", "--host", "0.0.0.0"])
+        self.assertEqual(args.host, "0.0.0.0")
 
     def test_port_in_use_opens_existing_page(self):
         with mock.patch.object(serve, "ThreadingHTTPServer", side_effect=OSError):

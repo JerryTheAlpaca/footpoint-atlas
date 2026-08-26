@@ -32,8 +32,18 @@ except ImportError:
     sys.exit(1)
 
 ROOT = Path(__file__).resolve().parents[1]
-EXCEL_PATH = ROOT / "火车乘车记录.xlsx"
-OUTPUT_PATH = ROOT / "js" / "data.js"
+
+
+def data_paths(data_dir: str | os.PathLike[str] | None = None) -> tuple[Path, Path]:
+    """Return the Excel and JavaScript data paths for local or deployed use."""
+    configured = data_dir if data_dir is not None else os.environ.get("TRAIN_DATA_DIR")
+    if configured:
+        directory = Path(configured).expanduser().resolve()
+        return directory / "火车乘车记录.xlsx", directory / "data.js"
+    return ROOT / "火车乘车记录.xlsx", ROOT / "js" / "data.js"
+
+
+EXCEL_PATH, OUTPUT_PATH = data_paths()
 SHEET_TITLE = "乘车记录"
 HEADERS = ("日期", "发站", "到站", "车次", "车号", "始发站", "终到站", "担当路局")
 RECORD_KEYS = ("date", "from", "to", "train", "vehicle", "origin", "terminal", "bureau")
