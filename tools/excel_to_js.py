@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import sys
 import tempfile
 from datetime import datetime
@@ -160,6 +161,7 @@ def write_data_js(records: list[dict], stations: dict, path: Path = OUTPUT_PATH)
     }
     body = json.dumps(payload, ensure_ascii=False, indent=2)
     temp_path: Path | None = None
+    existing_mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else None
     try:
         with tempfile.NamedTemporaryFile(
             mode="w",
@@ -173,6 +175,8 @@ def write_data_js(records: list[dict], stations: dict, path: Path = OUTPUT_PATH)
             handle.write("window.TRAIN_DATA = " + body + ";\n")
             handle.flush()
             os.fsync(handle.fileno())
+        if existing_mode is not None:
+            os.chmod(temp_path, existing_mode)
         os.replace(temp_path, path)
         temp_path = None
     finally:

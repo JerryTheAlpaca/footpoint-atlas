@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+import stat
 from pathlib import Path
 
 from tools import excel_to_js
@@ -46,6 +47,14 @@ class ExcelWriteTests(unittest.TestCase):
         excel_path, output_path = excel_to_js.data_paths(data_dir)
         self.assertEqual(excel_path, data_dir.resolve() / "火车乘车记录.xlsx")
         self.assertEqual(output_path, data_dir.resolve() / "data.js")
+
+    def test_write_data_js_preserves_existing_file_mode(self):
+        output_path = Path(self.temp_dir.name) / "data.js"
+        output_path.write_text("old", encoding="utf-8")
+        output_path.chmod(0o644)
+        existing_mode = stat.S_IMODE(output_path.stat().st_mode)
+        excel_to_js.write_data_js(SAMPLE_RECORDS, {}, output_path)
+        self.assertEqual(stat.S_IMODE(output_path.stat().st_mode), existing_mode)
 
     def test_write_then_read_roundtrip_and_shrinks_rows(self):
         excel_to_js.write_records(SAMPLE_RECORDS, self.excel_path)
