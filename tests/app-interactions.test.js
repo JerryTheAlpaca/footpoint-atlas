@@ -98,6 +98,41 @@ describe('record context menu', () => {
     assert.match(code, /title\.textContent = editing \? '编辑行程' : '设置'/);
     assert.match(css, /\.settings-modal\.is-edit \.settings-nav\s*\{\s*display:\s*none;/);
   });
+
+  it('escapes untrusted record fields in list, reunion and map tooltip HTML', () => {
+    const { window } = loadApp();
+    window.TrainStats = { trainTypeOf: () => 'emu' };
+    const evil = '<img src=x onerror=alert(1)>';
+    const item = window.TrainRecords.recordItemHtml(
+      {
+        rec: {
+          date: '2026-08-26',
+          from: evil,
+          to: '汉口',
+          train: evil,
+          vehicle: evil,
+          bureau: evil,
+        },
+        index: 0,
+      },
+      []
+    );
+    const reunion = window.TrainRecords.reunionItemHtml('train', 0, evil, 2, false, [evil]);
+    const tooltip = window.TrainMap.lineTooltip({
+      data: { from: evil, to: '汉口', count: 1, records: [{ date: '2026-08-26', train: evil, vehicle: evil, bureau: evil }] },
+    });
+    for (const html of [item, reunion, tooltip]) {
+      assert.doesNotMatch(html, /<img\b/i);
+      assert.match(html, /&lt;img/);
+    }
+  });
+
+  it('uses the server version and refuses stale saves', () => {
+    const { code } = loadApp();
+    assert.match(code, /baseVersion: trainDataVersion/);
+    assert.match(code, /result\.conflict \|\| result\.serverError/);
+    assert.match(code, /loadServerData\(\)\.then/);
+  });
 });
 
 describe('annual review train summary', () => {

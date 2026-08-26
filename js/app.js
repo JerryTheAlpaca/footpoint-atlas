@@ -43,6 +43,7 @@
   var rangeEndPicker;
   var editingRecord = null;
   var recordMutating = false;
+  var trainDataVersion = null;
   var hoverZrLine = null;
   var LINE_ZLEVEL = 2;
   var HOVER_ZLEVEL = 10;
@@ -223,6 +224,7 @@
     lineLayerOpacity: lineLayerOpacity,
     hoverLineDrawStyle: hoverLineDrawStyle,
     shouldDimMapLines: shouldDimMapLines,
+    lineTooltip: lineTooltip,
   };
 
   root.TrainRank = {
@@ -490,6 +492,9 @@
 
   root.TrainRecords = {
     recordsForDisplay: recordsForDisplay,
+    escapeHtml: escapeHtml,
+    recordItemHtml: recordItemHtml,
+    reunionItemHtml: reunionItemHtml,
     syncActiveRecordNodes: function (nodes, activeNodes) {
       var active = activeNodes || [];
       (nodes || []).forEach(function (node) {
@@ -672,21 +677,21 @@
     if (!data || !data.records) return '';
     var rows = data.records
       .map(function (rec) {
-        var vehiclePart = rec.vehicle ? '<br/>车型：' + rec.vehicle : '';
+        var vehiclePart = rec.vehicle ? '<br/>车型：' + escapeHtml(rec.vehicle) : '';
         return (
-          rec.date +
+          escapeHtml(rec.date) +
           '　' +
-          rec.train +
+          escapeHtml(rec.train) +
           vehiclePart +
           '<br/>路局：' +
-          rec.bureau
+          escapeHtml(rec.bureau)
         );
       })
       .join('<br/><br/>');
     return (
-      data.from +
+      escapeHtml(data.from) +
       ' → ' +
-      data.to +
+      escapeHtml(data.to) +
       '<br/>该线路乘坐次数：' +
       data.count +
       '<br/><br/>' +
@@ -753,7 +758,7 @@
       label: { show: false },
       tooltip: {
         formatter: function (params) {
-          return params.name + '<br/>到访次数：' + params.data.visits;
+          return escapeHtml(params.name) + '<br/>到访次数：' + escapeHtml(params.data.visits);
         },
       },
       data: data,
@@ -942,7 +947,7 @@
     var effectColor = frame.effectColor || GOLD;
     var stationTooltip = {
       formatter: function (params) {
-        return params.name;
+        return escapeHtml(params.name);
       },
     };
     return [
@@ -1294,56 +1299,58 @@
     var list = document.getElementById('record-list');
     list.innerHTML = recordsForDisplay(playRecords)
       .map(function (item) {
-        var rec = item.rec;
-        var index = item.index;
-        var type = window.TrainStats.trainTypeOf(rec);
-        var metaParts = [rec.train];
-        if (rec.vehicle) metaParts.push(rec.vehicle);
-        metaParts.push(rec.bureau);
-        var badgeHtml = (reunionBadges.get(rec) || [])
-          .map(function (badge) {
-            return (
-              '<span class="reunion-badge reunion-badge-' +
-              badge.kind +
-              '">' +
-              (badge.kind === 'vehicle' ? '车号重逢' : '车次重逢') +
-              '×' +
-              badge.count +
-              '</span>'
-            );
-          })
-          .join('');
-        var lineKeyValue = lineKey(rec.from, rec.to, type);
+        return recordItemHtml(item, reunionBadges.get(item.rec) || []);
+      })
+      .join('');
+  }
+
+  function recordItemHtml(item, badges) {
+    var rec = item.rec;
+    var index = item.index;
+    var type = window.TrainStats.trainTypeOf(rec);
+    var metaParts = [rec.train];
+    if (rec.vehicle) metaParts.push(rec.vehicle);
+    if (rec.bureau) metaParts.push(rec.bureau);
+    var badgeHtml = (badges || [])
+      .map(function (badge) {
         return (
-          '<li class="record-item is-' +
-          type +
-          '" data-index="' +
-          index +
-          '" data-route="' +
-          rec.from +
-          '→' +
-          rec.to +
-          '" data-type="' +
-          type +
-          '" data-line-key="' +
-          lineKeyValue +
+          '<span class="reunion-badge reunion-badge-' +
+          escapeHtml(badge.kind) +
           '">' +
-          '<div class="record-date">' +
-          rec.date +
-          '</div>' +
-          '<div class="record-route">' +
-          rec.from +
-          ' → ' +
-          rec.to +
-          '</div>' +
-          '<div class="record-meta">' +
-          metaParts.join(' · ') +
-          badgeHtml +
-          '</div>' +
-          '</li>'
+          (badge.kind === 'vehicle' ? '车号重逢' : '车次重逢') +
+          '×' +
+          escapeHtml(badge.count) +
+          '</span>'
         );
       })
       .join('');
+    var lineKeyValue = lineKey(rec.from, rec.to, type);
+    return (
+      '<li class="record-item is-' +
+      escapeHtml(type) +
+      '" data-index="' +
+      escapeHtml(index) +
+      '" data-route="' +
+      escapeHtml(rec.from + '→' + rec.to) +
+      '" data-type="' +
+      escapeHtml(type) +
+      '" data-line-key="' +
+      escapeHtml(lineKeyValue) +
+      '">' +
+      '<div class="record-date">' +
+      escapeHtml(rec.date) +
+      '</div>' +
+      '<div class="record-route">' +
+      escapeHtml(rec.from) +
+      ' → ' +
+      escapeHtml(rec.to) +
+      '</div>' +
+      '<div class="record-meta">' +
+      metaParts.map(escapeHtml).join(' · ') +
+      badgeHtml +
+      '</div>' +
+      '</li>'
+    );
   }
 
   function clearRecordSelection() {
@@ -1380,17 +1387,17 @@
       '">' +
       '<div class="reunion-item-head">' +
       '<span class="reunion-item-name">' +
-      name +
+      escapeHtml(name) +
       '</span>' +
       '<span class="reunion-item-count">×' +
-      count +
+      escapeHtml(count) +
       '</span>' +
       (sameTrainAndVehicle ? '<span class="reunion-item-tag">同车重逢</span>' : '') +
       '</div>' +
       '<div class="reunion-item-rides">' +
       rideLines
         .map(function (text) {
-          return '<span>' + text + '</span>';
+          return '<span>' + escapeHtml(text) + '</span>';
         })
         .join('') +
       '</div>' +
@@ -1951,7 +1958,7 @@
     var prevYear = yearSelect.value;
     yearSelect.innerHTML = years
       .map(function (y) {
-        return '<option value="' + y + '">' + y + ' 年</option>';
+        return '<option value="' + escapeHtml(y) + '">' + escapeHtml(y) + ' 年</option>';
       })
       .join('');
     if (prevYear && years.indexOf(prevYear) !== -1) yearSelect.value = prevYear;
@@ -2007,7 +2014,7 @@
         return (
           '<button type="button" class="review-year-btn' +
           (y === reviewYear ? ' is-active' : '') +
-          '" data-year="' + y + '">' + y + '</button>'
+          '" data-year="' + escapeHtml(y) + '">' + escapeHtml(y) + '</button>'
         );
       })
       .join('');
@@ -2065,6 +2072,28 @@
     return window.TrainSettings.mergeTrainData(base, extra);
   }
 
+  function loadServerData() {
+    if (typeof fetch !== 'function') return Promise.resolve(false);
+    return fetch(window.TrainSettings.DATA_API, { cache: 'no-store' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('data-api');
+        return res.json();
+      })
+      .then(function (payload) {
+        if (!payload || !payload.version || !Array.isArray(payload.records) || !payload.stations) {
+          throw new Error('data-api-payload');
+        }
+        window.TRAIN_DATA.records = payload.records;
+        window.TRAIN_DATA.stations = payload.stations;
+        trainDataVersion = payload.version;
+        return true;
+      })
+      .catch(function () {
+        trainDataVersion = null;
+        return false;
+      });
+  }
+
   function adoptMergedData(merged) {
     stations = merged.stations || {};
     allRecords = sortRecords(merged.records || []);
@@ -2119,7 +2148,8 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   function fillDatalist(id, values) {
@@ -2323,6 +2353,7 @@
 
   function persistTrainData(merged) {
     var payload = {
+      baseVersion: trainDataVersion,
       records: merged.records,
       stations: merged.stations,
     };
@@ -2332,11 +2363,37 @@
       body: JSON.stringify(payload),
     })
       .then(function (res) {
-        if (!res.ok) throw new Error('save-api');
-        return { wroteFile: true };
+        return res.text().then(function (text) {
+          var body = {};
+          try {
+            body = text ? JSON.parse(text) : {};
+          } catch (err) {
+            body = {};
+          }
+          if (res.status === 409 || res.status === 428 || body.conflict) {
+            return {
+              wroteFile: false,
+              conflict: true,
+              error: body.error || '数据已在其他标签页更新，请刷新后重试。',
+            };
+          }
+          if (res.status === 404 || res.status === 405) {
+            return { wroteFile: false, offline: true };
+          }
+          if (!res.ok) {
+            return {
+              wroteFile: false,
+              serverError: true,
+              error: body.error || '保存接口返回错误。',
+            };
+          }
+          if (!body.version) throw new Error('save-api-payload');
+          trainDataVersion = body.version;
+          return { wroteFile: true };
+        });
       })
       .catch(function () {
-        return { wroteFile: false };
+        return { wroteFile: false, offline: true };
       });
   }
 
@@ -2411,6 +2468,9 @@
       .then(function (result) {
         if (result.wroteFile) {
           rememberMergedFile(merged);
+        } else if (result.conflict || result.serverError) {
+          window.alert(result.error || '保存失败，请刷新后重试。');
+          return;
         } else if (!allowLocalFallback) {
           window.alert('未能写入 data.js，请用 python tools/serve.py 打开本页后再删除。');
           return;
@@ -2474,6 +2534,9 @@
       .then(function (result) {
         if (result.wroteFile) {
           rememberMergedFile(merged);
+        } else if (result.conflict || result.serverError) {
+          setTripStatus(result.error || '保存失败，请刷新后重试。', 'error');
+          return;
         } else if (!allowLocalFallback) {
           setTripStatus('未能写入 data.js，请用 python tools/serve.py 打开本页后再修改。', 'error');
           return;
@@ -2557,10 +2620,11 @@
       return;
     }
 
-    adoptMergedData(loadMergedData());
-    playRecords = allRecords;
-    computeReunions(playRecords);
-    setStatCards(stats, true);
+    loadServerData().then(function () {
+      adoptMergedData(loadMergedData());
+      playRecords = allRecords;
+      computeReunions(playRecords);
+      setStatCards(stats, true);
 
     if (window.TrainScale) window.TrainScale.applyPageScale();
 
@@ -2650,7 +2714,7 @@
       chart.resize();
     });
 
-    window.addEventListener('resize', function () {
+      window.addEventListener('resize', function () {
       if (window.TrainScale) window.TrainScale.applyPageScale();
       rankLayouts.forEach(function (rank) {
         rank.relayout();
@@ -2659,6 +2723,7 @@
         chart.resize();
       });
       refreshHoverOverlay();
+      });
     });
   }
 

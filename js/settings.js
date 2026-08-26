@@ -24,8 +24,8 @@
 
   function validateRecord(record) {
     var errors = {};
-    if (!record || !/^\d{4}-\d{2}-\d{2}$/.test(record.date || '')) {
-      errors.date = '请填写日期';
+    if (!record || !parseIsoDate(record.date || '')) {
+      errors.date = '请填写有效日期';
     }
     if (!record || !record.from) errors.from = '请填写出发站';
     if (!record || !record.to) errors.to = '请填写到达站';
@@ -37,8 +37,11 @@
   }
 
   function parseCoord(lng, lat) {
-    var x = Number(String(lng == null ? '' : lng).trim());
-    var y = Number(String(lat == null ? '' : lat).trim());
+    var lngText = String(lng == null ? '' : lng).trim();
+    var latText = String(lat == null ? '' : lat).trim();
+    if (!lngText || !latText) return null;
+    var x = Number(lngText);
+    var y = Number(latText);
     if (!isFinite(x) || !isFinite(y)) return null;
     if (x < -180 || x > 180 || y < -90 || y > 90) return null;
     return [Math.round(x * 100) / 100, Math.round(y * 100) / 100];
@@ -386,6 +389,7 @@
 
   root.TrainSettings = {
     STORAGE_KEY: STORAGE_KEY,
+    DATA_API: '/api/train-data',
     SAVE_API: '/api/save-train-data',
     emptyState: emptyState,
     normalizeRecord: normalizeRecord,

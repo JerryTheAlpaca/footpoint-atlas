@@ -14,7 +14,9 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -120,7 +122,25 @@ def write_data_js(records: list[dict], stations: dict, path: Path = OUTPUT_PATH)
         "stations": {name: stations[name] for name in sorted(stations)},
     }
     body = json.dumps(payload, ensure_ascii=False, indent=2)
-    path.write_text("window.TRAIN_DATA = " + body + ";\n", encoding="utf-8")
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as handle:
+            temp_path = Path(handle.name)
+            handle.write("window.TRAIN_DATA = " + body + ";\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temp_path, path)
+        temp_path = None
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
 
 
 def main() -> None:

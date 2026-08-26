@@ -97,6 +97,24 @@ describe('TrainSettings.normalizeRecord / validateRecord', () => {
     const { validateRecord } = loadSettings();
     assert.deepEqual(validateRecord(validRecord), { ok: true, errors: {} });
   });
+
+  it('rejects impossible calendar dates', () => {
+    const { validateRecord } = loadSettings();
+    assert.equal(validateRecord(Object.assign({}, validRecord, { date: '2026-99-99' })).ok, false);
+    assert.equal(validateRecord(Object.assign({}, validRecord, { date: '2025-02-29' })).ok, false);
+    assert.equal(validateRecord(Object.assign({}, validRecord, { date: '2024-02-29' })).ok, true);
+  });
+});
+
+describe('TrainSettings.parseCoord', () => {
+  it('does not turn blank coordinate fields into zero', () => {
+    const { parseCoord } = loadSettings();
+    assert.equal(parseCoord('', ''), null);
+    assert.equal(parseCoord('120.2', ''), null);
+    assert.deepEqual(parseCoord('0', '0'), [0, 0]);
+    assert.equal(parseCoord('181', '0'), null);
+    assert.equal(parseCoord('abc', '0'), null);
+  });
 });
 
 describe('TrainSettings storage', () => {
