@@ -782,7 +782,7 @@ body {
 .settings-body {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  gap: 20px;
+  gap: 16px 20px;
   margin-top: 18px;
   align-items: start;
 }
@@ -794,6 +794,12 @@ body {
   min-width: 148px;
   padding-right: 16px;
   border-right: 1px solid var(--line);
+}
+
+.settings-panels,
+.settings-panel,
+#trip-form {
+  display: contents;
 }
 
 .settings-nav-btn {
@@ -831,8 +837,15 @@ body {
 
 .trip-grid {
   display: grid;
+  grid-column: 2;
   grid-template-columns: 1fr 1fr;
   gap: 12px 16px;
+}
+
+.trip-grid-more,
+.trip-unknown,
+.trip-actions {
+  grid-column: 1 / -1;
 }
 
 .trip-grid > label,
@@ -863,7 +876,7 @@ body {
 }
 
 .trip-unknown {
-  margin-top: 16px;
+  margin-top: 0;
   padding: 12px 14px;
   border: 1px dashed var(--line);
   border-radius: var(--radius-md);
@@ -888,7 +901,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 18px;
+  margin-top: 2px;
 }
 
 #trip-submit {
