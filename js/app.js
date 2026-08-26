@@ -39,6 +39,8 @@
   var reunionBadges = new Map();
   var reunionExpanded = false;
   var tripDatePicker;
+  var rangeStartPicker;
+  var rangeEndPicker;
   var editingRecord = null;
   var recordMutating = false;
   var hoverZrLine = null;
@@ -1906,8 +1908,7 @@
   function syncRangeControls() {
     var mode = document.getElementById('range-mode').value;
     document.getElementById('range-year').hidden = mode !== 'year';
-    document.getElementById('range-start').hidden = mode !== 'custom';
-    document.getElementById('range-end').hidden = mode !== 'custom';
+    document.getElementById('range-custom').hidden = mode !== 'custom';
   }
 
   function currentFilteredRecords() {
@@ -1962,12 +1963,19 @@
     var end = document.getElementById('range-end');
     var prevStart = start.value;
     var prevEnd = end.value;
-    start.min = first;
-    start.max = last;
-    end.min = first;
-    end.max = last;
-    start.value = prevStart && prevStart >= first && prevStart <= last ? prevStart : first;
-    end.value = prevEnd && prevEnd >= first && prevEnd <= last ? prevEnd : last;
+    start.setAttribute('data-min', first);
+    start.setAttribute('data-max', last);
+    end.setAttribute('data-min', first);
+    end.setAttribute('data-max', last);
+    function clampDate(value, min, max) {
+      if (!value || value < min) return min;
+      if (value > max) return max;
+      return value;
+    }
+    start.value = clampDate(prevStart, first, last);
+    end.value = clampDate(prevEnd, first, last);
+    if (rangeStartPicker) rangeStartPicker.refresh();
+    if (rangeEndPicker) rangeEndPicker.refresh();
   }
 
   var reviewYear = null;
@@ -2486,6 +2494,21 @@
       });
   }
 
+  function bindRangeDatePickers() {
+    rangeStartPicker = window.TrainSettings.bindDatePicker({
+      input: document.getElementById('range-start'),
+      toggle: document.getElementById('range-start-toggle'),
+      picker: document.getElementById('range-start-picker'),
+      document: document,
+    });
+    rangeEndPicker = window.TrainSettings.bindDatePicker({
+      input: document.getElementById('range-end'),
+      toggle: document.getElementById('range-end-toggle'),
+      picker: document.getElementById('range-end-picker'),
+      document: document,
+    });
+  }
+
   function bindSettingsEvents() {
     document.getElementById('settings-btn').addEventListener('click', function () {
       if (editingRecord) {
@@ -2548,6 +2571,7 @@
     bindSettingsEvents();
 
     populateRangeControls();
+    bindRangeDatePickers();
     syncRangeControls();
     document.getElementById('range-mode').addEventListener('change', function () {
       syncRangeControls();

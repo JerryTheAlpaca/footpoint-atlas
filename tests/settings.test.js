@@ -232,6 +232,10 @@ describe('settings page structure', () => {
     assert.match(html, /id="trip-date-picker"/);
     assert.match(html, /id="trip-date-toggle"/);
     assert.doesNotMatch(html, /id="trip-date"[^>]*type="date"/);
+    assert.match(html, /id="range-start-picker"/);
+    assert.match(html, /id="range-end-picker"/);
+    assert.doesNotMatch(html, /id="range-start"[^>]*type="date"/);
+    assert.doesNotMatch(html, /id="range-end"[^>]*type="date"/);
   });
 });
 

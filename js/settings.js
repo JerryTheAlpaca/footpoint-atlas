@@ -301,6 +301,14 @@
       if (event.key === 'Escape') close();
     }
 
+    function isDateDisabled(iso) {
+      var min = input.getAttribute('data-min');
+      var max = input.getAttribute('data-max');
+      if (min && iso < min) return true;
+      if (max && iso > max) return true;
+      return false;
+    }
+
     function render() {
       if (titleEl) titleEl.textContent = view.year + '年' + view.month + '月';
       if (!gridEl) return;
@@ -313,12 +321,15 @@
           if (!cell.inMonth) cls += ' is-outside';
           if (cell.iso === today) cls += ' is-today';
           if (cell.iso === selectedIso) cls += ' is-selected';
+          if (isDateDisabled(cell.iso)) cls += ' is-disabled';
           return (
             '<button type="button" class="' +
             cls +
             '" data-date="' +
             cell.iso +
-            '">' +
+            '"' +
+            (isDateDisabled(cell.iso) ? ' disabled' : '') +
+            '>' +
             cell.day +
             '</button>'
           );
@@ -362,7 +373,7 @@
         return;
       }
       var day = event.target.closest('[data-date]');
-      if (!day) return;
+      if (!day || day.disabled || day.classList.contains('is-disabled')) return;
       input.value = day.getAttribute('data-date');
       if (typeof Event === 'function') {
         input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -370,7 +381,7 @@
       close();
     });
 
-    return { open: open, close: close };
+    return { open: open, close: close, refresh: render };
   }
 
   root.TrainSettings = {

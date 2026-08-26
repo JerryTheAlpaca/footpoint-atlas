@@ -284,6 +284,43 @@ body {
   color-scheme: dark;
 }
 
+.range-custom {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.range-custom[hidden] {
+  display: none;
+}
+
+.range-custom-sep {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.timeline-filter .range-date-field {
+  width: 118px;
+}
+
+.timeline-filter .range-date-field input {
+  width: 100%;
+  padding-right: 28px;
+  font-size: 12px;
+}
+
+.timeline-filter .date-picker-toggle {
+  width: 24px;
+  height: 24px;
+  right: 4px;
+}
+
+.timeline-filter .date-picker {
+  top: auto;
+  bottom: calc(100% + 6px);
+  z-index: 8;
+}
+
 .type-filter {
   display: inline-flex;
   align-items: center;
@@ -1047,6 +1084,16 @@ body {
 .date-picker-day.is-selected {
   background: rgba(0, 229, 255, 0.22);
   color: var(--cyan);
+}
+
+.date-picker-day.is-disabled {
+  color: rgba(136, 168, 192, 0.35);
+  cursor: not-allowed;
+}
+
+.date-picker-day.is-disabled:hover {
+  background: transparent;
+  color: rgba(136, 168, 192, 0.35);
 }
 
 .trip-status {

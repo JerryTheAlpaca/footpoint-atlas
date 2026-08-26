@@ -47,8 +47,45 @@
               <option value="custom">自定义时间段</option>
             </select>
             <select id="range-year" hidden></select>
-            <input id="range-start" type="date" hidden>
-            <input id="range-end" type="date" hidden>
+            <div id="range-custom" class="range-custom" hidden>
+              <div class="date-field range-date-field">
+                <input id="range-start" type="text" inputmode="numeric" placeholder="年-月-日" autocomplete="off" maxlength="10" aria-label="开始日期">
+                <button id="range-start-toggle" type="button" class="date-picker-toggle" aria-label="打开日历" aria-haspopup="dialog" aria-expanded="false">
+                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                    <rect x="1.5" y="3" width="13" height="11.5" rx="2" fill="none" stroke="currentColor"></rect>
+                    <path d="M1.5 6.5h13M5 1.5v3M11 1.5v3" fill="none" stroke="currentColor"></path>
+                  </svg>
+                </button>
+                <div id="range-start-picker" class="date-picker" hidden role="dialog" aria-label="选择开始日期">
+                  <div class="date-picker-head">
+                    <button type="button" class="date-picker-nav" data-cal-nav="-1" aria-label="上个月">‹</button>
+                    <span class="date-picker-title"></span>
+                    <button type="button" class="date-picker-nav" data-cal-nav="1" aria-label="下个月">›</button>
+                  </div>
+                  <div class="date-picker-weekdays"></div>
+                  <div class="date-picker-grid"></div>
+                </div>
+              </div>
+              <span class="range-custom-sep" aria-hidden="true">→</span>
+              <div class="date-field range-date-field">
+                <input id="range-end" type="text" inputmode="numeric" placeholder="年-月-日" autocomplete="off" maxlength="10" aria-label="结束日期">
+                <button id="range-end-toggle" type="button" class="date-picker-toggle" aria-label="打开日历" aria-haspopup="dialog" aria-expanded="false">
+                  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                    <rect x="1.5" y="3" width="13" height="11.5" rx="2" fill="none" stroke="currentColor"></rect>
+                    <path d="M1.5 6.5h13M5 1.5v3M11 1.5v3" fill="none" stroke="currentColor"></path>
+                  </svg>
+                </button>
+                <div id="range-end-picker" class="date-picker" hidden role="dialog" aria-label="选择结束日期">
+                  <div class="date-picker-head">
+                    <button type="button" class="date-picker-nav" data-cal-nav="-1" aria-label="上个月">‹</button>
+                    <span class="date-picker-title"></span>
+                    <button type="button" class="date-picker-nav" data-cal-nav="1" aria-label="下个月">›</button>
+                  </div>
+                  <div class="date-picker-weekdays"></div>
+                  <div class="date-picker-grid"></div>
+                </div>
+              </div>
+            </div>
             <div class="type-filter" role="group" aria-label="列车类别筛选">
               <button type="button" class="type-filter-btn" data-type="all">全部</button>
               <button type="button" class="type-filter-btn" data-type="emu"><span class="swatch swatch-emu"></span>动车</button>
