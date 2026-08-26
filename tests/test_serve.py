@@ -29,8 +29,26 @@ class ServeApiTests(unittest.TestCase):
             {"南京南": [118.81, 31.97], "汉口": [114.26, 30.62]},
             self.data_path,
         )
+        self.excel_path = Path(self.temp_dir.name) / "rides.xlsx"
+        serve.write_records(
+            [
+                {
+                    "date": "2026-08-26",
+                    "from": "南京南",
+                    "to": "汉口",
+                    "train": "G599",
+                    "vehicle": "",
+                    "origin": "",
+                    "terminal": "",
+                    "bureau": "",
+                }
+            ],
+            self.excel_path,
+        )
         self.old_output = serve.OUTPUT_PATH
+        self.old_excel = serve.EXCEL_PATH
         serve.OUTPUT_PATH = self.data_path
+        serve.EXCEL_PATH = self.excel_path
         self.httpd = serve.ThreadingHTTPServer(("127.0.0.1", 0), serve.Handler)
         self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
         self.thread.start()
@@ -41,6 +59,7 @@ class ServeApiTests(unittest.TestCase):
         self.httpd.server_close()
         self.thread.join(timeout=2)
         serve.OUTPUT_PATH = self.old_output
+        serve.EXCEL_PATH = self.old_excel
         self.temp_dir.cleanup()
 
     def get_snapshot(self):
@@ -90,6 +109,42 @@ class ServeApiTests(unittest.TestCase):
         self.assertEqual(status, 409)
         self.assertTrue(conflict["conflict"])
         self.assertEqual(self.data_path.read_bytes(), changed_bytes)
+
+    def test_save_writes_excel_and_edit_replaces_row(self):
+        from tools import excel_to_js
+
+        snapshot = self.get_snapshot()
+        added = {
+            "date": "2026-08-27",
+            "from": "汉口",
+            "to": "武汉",
+            "train": "G1",
+            "vehicle": "CR400AF",
+            "origin": "北京西",
+            "terminal": "武汉",
+            "bureau": "武汉局",
+        }
+        status, saved = self.post(
+            {
+                "baseVersion": snapshot["version"],
+                "records": snapshot["records"] + [added],
+                "stations": dict(snapshot["stations"], 武汉=[114.42, 30.61]),
+            }
+        )
+        self.assertEqual(status, 200)
+        self.assertTrue(saved["version"])
+        self.assertEqual(excel_to_js.read_records(self.excel_path)[-1], added)
+
+        edited = dict(added, train="G2", vehicle="CR400BF")
+        status, _ = self.post(
+            {
+                "baseVersion": saved["version"],
+                "records": [snapshot["records"][0], edited],
+                "stations": dict(snapshot["stations"], 武汉=[114.42, 30.61]),
+            }
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(excel_to_js.read_records(self.excel_path), [snapshot["records"][0], edited])
 
     def test_server_rejects_invalid_dates_and_coordinates(self):
         with self.assertRaises(ValueError):

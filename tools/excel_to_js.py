@@ -7,6 +7,9 @@
 
 然后刷新浏览器即可。
 
+用 python tools/serve.py 打开网页后，添加 / 编辑 / 删除行程会同时写回
+js/data.js 和本表。
+
 如果出现尚未收录坐标的新车站，脚本会列出站名并退出；
 把该站的 [经度, 纬度] 补进 STATION_COORDS 后再跑一次。
 """
@@ -22,6 +25,8 @@ from pathlib import Path
 
 try:
     import openpyxl
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+    from openpyxl.utils import get_column_letter
 except ImportError:
     sys.stderr.write("需要 openpyxl：pip install openpyxl\n")
     sys.exit(1)
@@ -29,6 +34,23 @@ except ImportError:
 ROOT = Path(__file__).resolve().parents[1]
 EXCEL_PATH = ROOT / "火车乘车记录.xlsx"
 OUTPUT_PATH = ROOT / "js" / "data.js"
+SHEET_TITLE = "乘车记录"
+HEADERS = ("日期", "发站", "到站", "车次", "车号", "始发站", "终到站", "担当路局")
+RECORD_KEYS = ("date", "from", "to", "train", "vehicle", "origin", "terminal", "bureau")
+COLUMN_WIDTHS = (12, 14, 12, 10, 38, 14, 14, 12)
+HEADER_ROW_HEIGHT = 25
+DATA_ROW_HEIGHT = 20
+_THIN = Border(
+    left=Side(style="thin"),
+    right=Side(style="thin"),
+    top=Side(style="thin"),
+    bottom=Side(style="thin"),
+)
+_CENTER = Alignment(horizontal="center", vertical="center")
+_HEADER_FONT = Font(name="微软雅黑", size=11, bold=True, color="FFFFFF")
+_DATA_FONT = Font(name="微软雅黑", size=10)
+_HEADER_FILL = PatternFill("solid", fgColor="4472C4")
+_DATA_FILL = PatternFill("solid", fgColor="FFFFFF")
 
 # 与现有 data.js 同一精度（约 1km），足够全国地图展示。
 STATION_COORDS = {
@@ -83,8 +105,13 @@ def cell_text(value) -> str:
     return str(value).strip()
 
 
-def read_records() -> list[dict]:
-    workbook = openpyxl.load_workbook(EXCEL_PATH, data_only=True)
+def format_excel_date(iso: str) -> str:
+    year, month, day = (int(part) for part in iso.split("-"))
+    return f"{year}.{month}.{day}"
+
+
+def read_records(path: Path | None = None) -> list[dict]:
+    workbook = openpyxl.load_workbook(path or EXCEL_PATH, data_only=True)
     sheet = workbook[workbook.sheetnames[0]]
     records = []
     for row in sheet.iter_rows(min_row=2, values_only=True):
@@ -141,6 +168,87 @@ def write_data_js(records: list[dict], stations: dict, path: Path = OUTPUT_PATH)
     finally:
         if temp_path is not None:
             temp_path.unlink(missing_ok=True)
+
+
+def _style_header_cell(cell) -> None:
+    cell.font = _HEADER_FONT
+    cell.fill = _HEADER_FILL
+    cell.alignment = _CENTER
+    cell.border = _THIN
+
+
+def _style_data_cell(cell) -> None:
+    cell.font = _DATA_FONT
+    cell.fill = _DATA_FILL
+    cell.alignment = _CENTER
+    cell.border = _THIN
+
+
+def _write_header(sheet) -> None:
+    sheet.row_dimensions[1].height = HEADER_ROW_HEIGHT
+    for index, title in enumerate(HEADERS, start=1):
+        cell = sheet.cell(1, index, title)
+        _style_header_cell(cell)
+    for index, width in enumerate(COLUMN_WIDTHS, start=1):
+        sheet.column_dimensions[get_column_letter(index)].width = width
+
+
+def _record_row_values(record: dict) -> list:
+    values = []
+    for key in RECORD_KEYS:
+        if key == "date":
+            values.append(format_excel_date(record["date"]))
+            continue
+        text = str(record.get(key, "") or "").strip()
+        values.append(text or None)
+    return values
+
+
+def _atomic_save_workbook(workbook, path: Path) -> None:
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".xlsx.tmp",
+            delete=False,
+        ) as handle:
+            temp_path = Path(handle.name)
+        workbook.save(temp_path)
+        try:
+            os.replace(temp_path, path)
+        except PermissionError as exc:
+            raise PermissionError("无法写入 Excel，请先关闭「火车乘车记录.xlsx」后再保存。") from exc
+        temp_path = None
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
+
+
+def write_records(records: list[dict], path: Path | None = None) -> None:
+    target = path or EXCEL_PATH
+    if target.exists():
+        workbook = openpyxl.load_workbook(target)
+        sheet = workbook[workbook.sheetnames[0]]
+    else:
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.title = SHEET_TITLE
+
+    if sheet.max_row < 1 or not cell_text(sheet.cell(1, 1).value):
+        _write_header(sheet)
+
+    for index, record in enumerate(records, start=2):
+        sheet.row_dimensions[index].height = DATA_ROW_HEIGHT
+        for col, value in enumerate(_record_row_values(record), start=1):
+            cell = sheet.cell(index, col, value)
+            _style_data_cell(cell)
+
+    leftover = sheet.max_row - (len(records) + 1)
+    if leftover > 0:
+        sheet.delete_rows(len(records) + 2, leftover)
+
+    _atomic_save_workbook(workbook, target)
 
 
 def main() -> None:

@@ -1,4 +1,4 @@
-"""本地预览，并把设置页新增的行程写回 js/data.js。
+"""本地预览，并把设置页的行程写回 js/data.js 和 Excel。
 
 在项目根目录运行：
 
@@ -24,7 +24,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from excel_to_js import OUTPUT_PATH, write_data_js  # noqa: E402
+from excel_to_js import EXCEL_PATH, OUTPUT_PATH, write_data_js, write_records  # noqa: E402
 
 RECORD_FIELDS = ("date", "from", "to", "train", "vehicle", "origin", "terminal", "bureau")
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -151,6 +151,7 @@ class Handler(SimpleHTTPRequestHandler):
                         },
                     )
                     return
+                write_records(records, EXCEL_PATH)
                 write_data_js(records, stations, OUTPUT_PATH)
                 next_version = data_version(OUTPUT_PATH)
         except Exception as exc:
@@ -163,7 +164,7 @@ def main() -> None:
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
     httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     print(f"打开 http://127.0.0.1:{port}/")
-    print("新增行程会写入 js/data.js")
+    print("新增 / 编辑 / 删除行程会写入 js/data.js 和 Excel")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

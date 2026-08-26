@@ -2432,13 +2432,13 @@
     var verb = action === 'edit' ? '保存修改' : action === 'delete' ? '删除' : '添加行程';
     if (wroteFile) {
       if (missing && missing.length) {
-        return '已写入 data.js。缺坐标的车站（' + missing.join('、') + '）暂不显示在地图上。';
+        return '已写入 data.js 和 Excel。缺坐标的车站（' + missing.join('、') + '）暂不显示在地图上。';
       }
       return action === 'edit'
-        ? '已保存修改，并写入 js/data.js。'
+        ? '已保存修改，并写入 js/data.js 和 Excel。'
         : action === 'delete'
-          ? '已删除记录，并写入 js/data.js。'
-          : '已添加行程，并写入 js/data.js。';
+          ? '已删除记录，并写入 js/data.js 和 Excel。'
+          : '已添加行程，并写入 js/data.js 和 Excel。';
     }
     if (missing && missing.length) {
       return '已暂存在本机。未能写入 data.js，请用 python tools/serve.py 打开本页。缺坐标：' + missing.join('、');

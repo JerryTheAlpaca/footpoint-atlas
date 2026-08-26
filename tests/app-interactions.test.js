@@ -132,6 +132,7 @@ describe('record context menu', () => {
     assert.match(code, /baseVersion: trainDataVersion/);
     assert.match(code, /result\.conflict \|\| result\.serverError/);
     assert.match(code, /loadServerData\(\)\.then/);
+    assert.match(code, /并写入 js\/data\.js 和 Excel/);
   });
 });
 
