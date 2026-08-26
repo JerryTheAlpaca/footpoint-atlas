@@ -17,6 +17,7 @@
   var GEO_ZOOM_MIN = 0.8;
   var GEO_ZOOM_MAX = 100;
   var charts = [];
+  var rankLayouts = [];
   var mapChart;
   var timelinePlaying = false;
   var tripPlayRaf = null;
@@ -1154,6 +1155,17 @@
     var clip = el.parentElement;
     var block = el.closest('.chart-block');
     var toggle = block ? block.querySelector('.rank-toggle') : null;
+    if (toggle) {
+      var freshToggle = toggle.cloneNode(true);
+      toggle.parentNode.replaceChild(freshToggle, toggle);
+      toggle = freshToggle;
+      block.classList.remove('is-expanded');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+    var existing = window.echarts && typeof window.echarts.getInstanceByDom === 'function'
+      ? window.echarts.getInstanceByDom(el)
+      : null;
+    if (existing) existing.dispose();
     var expanded = false;
     var paintSeq = 0;
     var growRaf = 0;
@@ -1259,10 +1271,15 @@
 
     paint(false);
     return {
+      chart: chart,
       relayout: function () {
         var visible = visibleRankEntries(entries, expanded);
         layoutForCount(visible.length);
         clip.style.height = rankChartHeight(visible.length) + 'px';
+      },
+      dispose: function () {
+        cancelGrow();
+        chart.dispose();
       },
     };
   }
@@ -1866,22 +1883,27 @@
   function populateRangeControls() {
     var years = window.TrainStats.listYears(allRecords);
     var yearSelect = document.getElementById('range-year');
+    var prevYear = yearSelect.value;
     yearSelect.innerHTML = years
       .map(function (y) {
         return '<option value="' + y + '">' + y + ' 年</option>';
       })
       .join('');
-    yearSelect.value = years[years.length - 1];
+    if (prevYear && years.indexOf(prevYear) !== -1) yearSelect.value = prevYear;
+    else yearSelect.value = years[years.length - 1] || '';
+    if (!allRecords.length) return;
     var first = allRecords[0].date;
     var last = allRecords[allRecords.length - 1].date;
     var start = document.getElementById('range-start');
     var end = document.getElementById('range-end');
+    var prevStart = start.value;
+    var prevEnd = end.value;
     start.min = first;
     start.max = last;
-    start.value = first;
     end.min = first;
     end.max = last;
-    end.value = last;
+    start.value = prevStart && prevStart >= first && prevStart <= last ? prevStart : first;
+    end.value = prevEnd && prevEnd >= first && prevEnd <= last ? prevEnd : last;
   }
 
   var reviewYear = null;
@@ -1955,41 +1977,55 @@
     startPlay();
   }
 
-  function boot() {
-    if (!window.echarts) {
-      showBootError('未能加载 ECharts 库（lib/echarts.min.js），请确认文件存在后刷新页面。');
-      return;
-    }
-    if (!window.CHINA_GEOJSON) {
-      showBootError('未能加载中国地图数据（map/china.json），请确认文件存在后刷新页面。');
-      return;
-    }
-    if (!window.TRAIN_DATA || !window.TrainStats) {
-      showBootError('未能加载乘车数据或统计脚本，请确认 js/data.js 与 js/stats.js 存在后刷新页面。');
-      return;
-    }
-
-    stations = window.TRAIN_DATA.stations || {};
-    allRecords = (window.TRAIN_DATA.records || []).slice().sort(function (a, b) {
+  function sortRecords(records) {
+    return (records || []).slice().sort(function (a, b) {
       if (a.date === b.date) return 0;
       return a.date < b.date ? -1 : 1;
     });
-    playRecords = allRecords;
-    stats = window.TrainStats.computeStats(window.TRAIN_DATA);
-    computeReunions(playRecords);
+  }
 
-    animateNumber(document.getElementById('stat-rides'), stats.totalRides);
-    animateNumber(document.getElementById('stat-stations'), stats.stationCount);
-    animateNumber(document.getElementById('stat-vehicles'), stats.vehicleTypeCount);
+  function loadMergedData() {
+    var extra = window.TrainSettings.load(window.localStorage);
+    return window.TrainSettings.mergeTrainData(
+      {
+        records: (window.TRAIN_DATA.records || []).slice(),
+        stations: Object.assign({}, window.TRAIN_DATA.stations || {}),
+      },
+      extra
+    );
+  }
 
-    if (window.TrainScale) window.TrainScale.applyPageScale();
+  function adoptMergedData(merged) {
+    stations = merged.stations || {};
+    allRecords = sortRecords(merged.records || []);
+    stats = window.TrainStats.computeStats({ records: allRecords, stations: stations });
+  }
 
-    echarts.registerMap('china', window.CHINA_GEOJSON);
-    mapChart = echarts.init(document.getElementById('map-chart'));
-    charts.push(mapChart);
-    mapChart.on('georoam', refreshHoverOverlay);
+  function setStatCards(nextStats, animate) {
+    if (animate) {
+      animateNumber(document.getElementById('stat-rides'), nextStats.totalRides);
+      animateNumber(document.getElementById('stat-stations'), nextStats.stationCount);
+      animateNumber(document.getElementById('stat-vehicles'), nextStats.vehicleTypeCount);
+      return;
+    }
+    document.getElementById('stat-rides').textContent = nextStats.totalRides.toLocaleString('zh-CN');
+    document.getElementById('stat-stations').textContent = nextStats.stationCount.toLocaleString('zh-CN');
+    document.getElementById('stat-vehicles').textContent = nextStats.vehicleTypeCount.toLocaleString('zh-CN');
+  }
 
-    var rankLayouts = [
+  function disposeRankCharts() {
+    rankLayouts.forEach(function (rank) {
+      if (rank && typeof rank.dispose === 'function') rank.dispose();
+    });
+    rankLayouts = [];
+    charts = charts.filter(function (chart) {
+      return chart === mapChart;
+    });
+  }
+
+  function rebuildRankCharts() {
+    disposeRankCharts();
+    rankLayouts = [
       bindRankChart(
         document.getElementById('vehicle-chart'),
         window.TrainStats.sortedEntries(stats.vehicleTypes),
@@ -2006,10 +2042,249 @@
         80
       ),
     ];
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function fillDatalist(id, values) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = values
+      .map(function (value) {
+        return '<option value="' + escapeHtml(value) + '"></option>';
+      })
+      .join('');
+  }
+
+  function fillSettingsLists() {
+    fillDatalist(
+      'station-list',
+      Object.keys(stations).sort(function (a, b) {
+        return a.localeCompare(b, 'zh-CN');
+      })
+    );
+    var bureaus = {};
+    allRecords.forEach(function (rec) {
+      if (rec.bureau) bureaus[rec.bureau] = true;
+    });
+    fillDatalist(
+      'bureau-list',
+      Object.keys(bureaus).sort(function (a, b) {
+        return a.localeCompare(b, 'zh-CN');
+      })
+    );
+  }
+
+  function todayIso() {
+    var now = new Date();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    return now.getFullYear() + '-' + month + '-' + day;
+  }
+
+  function setTripStatus(message, kind) {
+    var el = document.getElementById('trip-form-status');
+    if (!el) return;
+    el.textContent = message || '';
+    el.className = 'trip-status' + (kind ? ' is-' + kind : '');
+  }
+
+  function syncUnknownStationFields() {
+    var from = document.getElementById('trip-from').value.trim();
+    var to = document.getElementById('trip-to').value.trim();
+    var unknown = [];
+    if (from && !stations[from]) unknown.push({ field: 'from', name: from });
+    if (to && !stations[to] && to !== from) unknown.push({ field: 'to', name: to });
+    var wrap = document.getElementById('trip-unknown-stations');
+    var fields = document.getElementById('trip-unknown-fields');
+    if (!unknown.length) {
+      wrap.hidden = true;
+      fields.innerHTML = '';
+      return;
+    }
+    wrap.hidden = false;
+    fields.innerHTML = unknown
+      .map(function (item) {
+        return (
+          '<div class="trip-coord-row">' +
+          '<span>' +
+          escapeHtml(item.name) +
+          ' 坐标</span>' +
+          '<input id="trip-' +
+          item.field +
+          '-lng" type="number" step="0.01" placeholder="经度">' +
+          '<input id="trip-' +
+          item.field +
+          '-lat" type="number" step="0.01" placeholder="纬度">' +
+          '</div>'
+        );
+      })
+      .join('');
+  }
+
+  function resetTripForm() {
+    var form = document.getElementById('trip-form');
+    if (form) form.reset();
+    document.getElementById('trip-date').value = todayIso();
+    syncUnknownStationFields();
+  }
+
+  function showSettingsPanel(name) {
+    Array.prototype.forEach.call(document.querySelectorAll('.settings-nav-btn'), function (btn) {
+      btn.classList.toggle('is-active', btn.getAttribute('data-panel') === name);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.settings-panel'), function (panel) {
+      panel.hidden = panel.getAttribute('data-panel') !== name;
+    });
+  }
+
+  function openSettings() {
+    closeReview();
+    fillSettingsLists();
+    if (!document.getElementById('trip-date').value) {
+      document.getElementById('trip-date').value = todayIso();
+    }
+    document.getElementById('settings-modal').hidden = false;
+  }
+
+  function closeSettings() {
+    document.getElementById('settings-modal').hidden = true;
+  }
+
+  function extraStationsFromForm(record) {
+    var extra = {};
+    ['from', 'to'].forEach(function (field) {
+      var name = record[field];
+      if (!name || stations[name]) return;
+      var lng = document.getElementById('trip-' + field + '-lng');
+      var lat = document.getElementById('trip-' + field + '-lat');
+      if (!lng || !lat) return;
+      var coord = window.TrainSettings.parseCoord(lng.value, lat.value);
+      if (coord) extra[name] = coord;
+    });
+    return extra;
+  }
+
+  function missingStationNames(record, extraStations) {
+    var names = [];
+    [record.from, record.to].forEach(function (name) {
+      if (!name) return;
+      if (stations[name] || (extraStations && extraStations[name])) return;
+      if (names.indexOf(name) === -1) names.push(name);
+    });
+    return names;
+  }
+
+  function refreshDashboard(animateStats) {
+    adoptMergedData(loadMergedData());
+    setStatCards(stats, !!animateStats);
+    rebuildRankCharts();
+    fillSettingsLists();
+    populateRangeControls();
+    applyRangeFilter();
+    if (window.TrainScale) window.TrainScale.applyPageScale();
+    rankLayouts.forEach(function (rank) {
+      rank.relayout();
+    });
+    charts.forEach(function (chart) {
+      chart.resize();
+    });
+  }
+
+  function submitTripForm(event) {
+    event.preventDefault();
+    var record = window.TrainSettings.normalizeRecord({
+      date: document.getElementById('trip-date').value,
+      from: document.getElementById('trip-from').value,
+      to: document.getElementById('trip-to').value,
+      train: document.getElementById('trip-train').value,
+      vehicle: document.getElementById('trip-vehicle').value,
+      origin: document.getElementById('trip-origin').value,
+      terminal: document.getElementById('trip-terminal').value,
+      bureau: document.getElementById('trip-bureau').value,
+    });
+    var checked = window.TrainSettings.validateRecord(record);
+    if (!checked.ok) {
+      setTripStatus(Object.keys(checked.errors).map(function (key) {
+        return checked.errors[key];
+      }).join('；'), 'error');
+      return;
+    }
+    var extraStations = extraStationsFromForm(record);
+    var next = window.TrainSettings.addRecord(
+      window.TrainSettings.load(window.localStorage),
+      record,
+      extraStations
+    );
+    try {
+      window.TrainSettings.save(next, window.localStorage);
+    } catch (err) {
+      setTripStatus('无法保存到本机存储，请检查浏览器是否允许本地存储。', 'error');
+      return;
+    }
+    refreshDashboard(false);
+    resetTripForm();
+    var missing = missingStationNames(record, extraStations);
+    if (missing.length) {
+      setTripStatus('已添加行程。缺坐标的车站（' + missing.join('、') + '）暂不显示在地图上。', 'ok');
+    } else {
+      setTripStatus('已添加行程，记录保存在本机浏览器中。', 'ok');
+    }
+  }
+
+  function bindSettingsEvents() {
+    document.getElementById('settings-btn').addEventListener('click', openSettings);
+    document.getElementById('settings-close').addEventListener('click', closeSettings);
+    document.querySelector('#settings-modal .settings-backdrop').addEventListener('click', closeSettings);
+    document.getElementById('settings-nav').addEventListener('click', function (event) {
+      var btn = event.target.closest('.settings-nav-btn');
+      if (!btn) return;
+      showSettingsPanel(btn.getAttribute('data-panel'));
+    });
+    document.getElementById('trip-from').addEventListener('input', syncUnknownStationFields);
+    document.getElementById('trip-to').addEventListener('input', syncUnknownStationFields);
+    document.getElementById('trip-form').addEventListener('submit', submitTripForm);
+  }
+
+  function boot() {
+    if (!window.echarts) {
+      showBootError('未能加载 ECharts 库（lib/echarts.min.js），请确认文件存在后刷新页面。');
+      return;
+    }
+    if (!window.CHINA_GEOJSON) {
+      showBootError('未能加载中国地图数据（map/china.json），请确认文件存在后刷新页面。');
+      return;
+    }
+    if (!window.TRAIN_DATA || !window.TrainStats || !window.TrainSettings) {
+      showBootError('未能加载乘车数据或脚本，请确认 js/data.js、js/stats.js 与 js/settings.js 存在后刷新页面。');
+      return;
+    }
+
+    adoptMergedData(loadMergedData());
+    playRecords = allRecords;
+    computeReunions(playRecords);
+    setStatCards(stats, true);
+
+    if (window.TrainScale) window.TrainScale.applyPageScale();
+
+    echarts.registerMap('china', window.CHINA_GEOJSON);
+    mapChart = echarts.init(document.getElementById('map-chart'));
+    charts.push(mapChart);
+    mapChart.on('georoam', refreshHoverOverlay);
+
+    rebuildRankCharts();
     renderRecords();
     bindRecordListEvents();
     renderReunions();
     bindReunionEvents();
+    fillSettingsLists();
+    bindSettingsEvents();
 
     populateRangeControls();
     syncRangeControls();
@@ -2041,7 +2316,10 @@
       else startPlay();
     });
 
-    document.getElementById('review-btn').addEventListener('click', openReview);
+    document.getElementById('review-btn').addEventListener('click', function () {
+      closeSettings();
+      openReview();
+    });
     document.getElementById('review-close').addEventListener('click', closeReview);
     document.getElementById('review-play').addEventListener('click', replayReviewYear);
     document.querySelector('#review-modal .review-backdrop').addEventListener('click', closeReview);
@@ -2052,13 +2330,16 @@
       renderReview();
     });
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') {
-        if (focusedRecordIndex != null) {
-          restoreFullMap();
-          return;
-        }
-        closeReview();
+      if (event.key !== 'Escape') return;
+      if (focusedRecordIndex != null) {
+        restoreFullMap();
+        return;
       }
+      if (!document.getElementById('settings-modal').hidden) {
+        closeSettings();
+        return;
+      }
+      closeReview();
     });
 
     setVisibleCount(playRecords.length);

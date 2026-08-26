@@ -14,7 +14,10 @@
     <header class="header">
       <div class="title-wrap">
         <h1>我的火车足迹</h1>
-        <button id="review-btn" type="button">年度回顾</button>
+        <div class="title-actions">
+          <button id="review-btn" type="button">年度回顾</button>
+          <button id="settings-btn" type="button">设置</button>
+        </div>
       </div>
       <div class="stat-cards">
         <article class="stat-card">
@@ -92,19 +95,19 @@
           <h2>缘分重逢</h2>
           <div id="reunion-summary" class="reunion-summary">
             <span id="reunion-vehicle-summary" class="reunion-summary-item" hidden>
-              再遇车号 <strong class="reunion-summary-count">0</strong>
+              同一列车 <strong class="reunion-summary-count">0</strong>
             </span>
             <span id="reunion-train-summary" class="reunion-summary-item" hidden>
-              再遇车次 <strong class="reunion-summary-count">0</strong>
+              同一车次 <strong class="reunion-summary-count">0</strong>
             </span>
           </div>
           <div id="reunion-details" class="reunion-details" hidden>
             <div id="reunion-vehicles" class="reunion-group" hidden>
-              <h3 class="reunion-group-title">再遇车号</h3>
+              <h3 class="reunion-group-title">同一列车</h3>
               <ul id="reunion-vehicle-list" class="reunion-list"></ul>
             </div>
             <div id="reunion-trains" class="reunion-group" hidden>
-              <h3 class="reunion-group-title">再遇车次</h3>
+              <h3 class="reunion-group-title">同一车次</h3>
               <ul id="reunion-train-list" class="reunion-list"></ul>
             </div>
           </div>
@@ -152,6 +155,64 @@
         </div>
       </div>
     </div>
+
+    <div id="settings-modal" class="settings-modal" hidden>
+      <div class="settings-backdrop" data-settings-close></div>
+      <div class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="settings-header">
+          <h2 id="settings-title">设置</h2>
+          <button id="settings-close" type="button" aria-label="关闭设置">×</button>
+        </div>
+        <div class="settings-body">
+          <nav id="settings-nav" class="settings-nav" aria-label="设置分类">
+            <button type="button" class="settings-nav-btn is-active" data-panel="trip">添加行程</button>
+          </nav>
+          <div class="settings-panels">
+            <section id="settings-panel-trip" class="settings-panel" data-panel="trip">
+              <p class="settings-hint">新增行程保存在本机浏览器中，刷新后仍在；不影响 Excel / data.js。以后其他设置也会放在左侧分类里。</p>
+              <form id="trip-form">
+                <div class="trip-grid">
+                  <label>日期
+                    <input id="trip-date" name="date" type="date" required>
+                  </label>
+                  <label>车次
+                    <input id="trip-train" name="train" type="text" required autocomplete="off">
+                  </label>
+                  <label>出发站
+                    <input id="trip-from" name="from" type="text" list="station-list" required autocomplete="off">
+                  </label>
+                  <label>到达站
+                    <input id="trip-to" name="to" type="text" list="station-list" required autocomplete="off">
+                  </label>
+                  <label>车型 / 车号
+                    <input id="trip-vehicle" name="vehicle" type="text" autocomplete="off">
+                  </label>
+                  <label>担当路局
+                    <input id="trip-bureau" name="bureau" type="text" list="bureau-list" autocomplete="off">
+                  </label>
+                  <label>车次始发
+                    <input id="trip-origin" name="origin" type="text" list="station-list" autocomplete="off">
+                  </label>
+                  <label>车次终到
+                    <input id="trip-terminal" name="terminal" type="text" list="station-list" autocomplete="off">
+                  </label>
+                </div>
+                <div id="trip-unknown-stations" class="trip-unknown" hidden>
+                  <p class="settings-hint">以下车站尚未收录坐标，补上后才能画到地图上；也可先不填，记录仍会保存。</p>
+                  <div id="trip-unknown-fields"></div>
+                </div>
+                <div class="trip-actions">
+                  <p id="trip-form-status" class="trip-status" role="status"></p>
+                  <button id="trip-submit" type="submit">添加行程</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+    <datalist id="station-list"></datalist>
+    <datalist id="bureau-list"></datalist>
     </div>
   </div>
 
@@ -161,6 +222,7 @@
   <script src="map/china.js"></script>
   <script src="js/data.js"></script>
   <script src="js/stats.js"></script>
+  <script src="js/settings.js"></script>
   <script src="js/scale.js"></script>
   <script src="js/app.js"></script>
 </body>

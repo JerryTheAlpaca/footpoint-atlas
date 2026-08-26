@@ -74,8 +74,15 @@ body {
   text-shadow: 0 0 18px rgba(0, 229, 255, 0.45);
 }
 
+.title-actions {
+  display: flex;
+  gap: 10px;
+}
+
 #review-btn,
-#review-play {
+#review-play,
+#settings-btn,
+#trip-submit {
   height: 32px;
   padding: 0 18px;
   border: 1px solid var(--cyan);
@@ -87,7 +94,9 @@ body {
 }
 
 #review-btn:hover,
-#review-play:hover {
+#review-play:hover,
+#settings-btn:hover,
+#trip-submit:hover {
   background: rgba(0, 229, 255, 0.18);
 }
 
@@ -621,7 +630,8 @@ body {
   letter-spacing: 0.16em;
 }
 
-#review-close {
+#review-close,
+#settings-close {
   border: none;
   background: none;
   color: var(--muted);
@@ -629,7 +639,8 @@ body {
   cursor: pointer;
 }
 
-#review-close:hover {
+#review-close:hover,
+#settings-close:hover {
   color: var(--cyan);
 }
 
@@ -684,6 +695,168 @@ body {
 .review-actions {
   margin-top: 22px;
   text-align: center;
+}
+
+.settings-modal {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  display: grid;
+  place-items: center;
+}
+
+.settings-modal[hidden] {
+  display: none;
+}
+
+.settings-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 6, 16, 0.82);
+}
+
+.settings-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 920px;
+  max-height: 860px;
+  padding: 26px 30px 24px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-header h2 {
+  margin: 0;
+  color: var(--cyan-dim);
+  letter-spacing: 0.16em;
+}
+
+.settings-body {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 20px;
+  margin-top: 18px;
+  min-height: 420px;
+}
+
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 12px;
+  border-right: 1px solid var(--line);
+}
+
+.settings-nav-btn {
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+
+.settings-nav-btn:hover {
+  color: var(--cyan-dim);
+}
+
+.settings-nav-btn.is-active {
+  border-color: var(--cyan);
+  background: rgba(0, 229, 255, 0.14);
+  color: var(--cyan);
+}
+
+.settings-hint {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.trip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+
+.trip-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.trip-grid input,
+.trip-coord-row input {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 20, 40, 0.45);
+  color: var(--text);
+  font: inherit;
+}
+
+.trip-grid input:focus,
+.trip-coord-row input:focus {
+  outline: none;
+  border-color: var(--cyan);
+}
+
+.trip-unknown {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+}
+
+.trip-unknown[hidden] {
+  display: none;
+}
+
+.trip-coord-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px 140px;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.trip-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.trip-status {
+  margin: 0;
+  min-height: 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.trip-status.is-ok {
+  color: var(--cyan);
+}
+
+.trip-status.is-error {
+  color: var(--danger);
 }
 
 .boot-error {
