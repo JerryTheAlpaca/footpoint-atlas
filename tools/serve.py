@@ -191,7 +191,6 @@ def login_page(return_to: str = "/", error: str = "") -> bytes:
       border-radius: 22px; background: rgba(4,20,32,.88); box-shadow: 0 28px 80px rgba(0,0,0,.45), 0 0 36px rgba(0,229,255,.08); }}
     .mark {{ width: 46px; height: 4px; border-radius: 9px; background: #00e5ff; box-shadow: 0 0 18px #00e5ff; }}
     h1 {{ margin: 22px 0 8px; font-size: 28px; letter-spacing: .04em; }}
-    .intro {{ margin: 0 0 28px; color: #8fb2c7; line-height: 1.6; }}
     label {{ display: block; margin: 15px 0 7px; color: #bad6e5; font-size: 14px; }}
     input {{ width: 100%; padding: 12px 13px; border: 1px solid #28536d; border-radius: 10px; color: #fff;
       background: #071827; outline: none; font: inherit; }}
@@ -200,14 +199,12 @@ def login_page(return_to: str = "/", error: str = "") -> bytes:
       color: #00141c; background: #00e5ff; font: 700 15px inherit; box-shadow: 0 8px 28px rgba(0,229,255,.2); }}
     button:hover {{ background: #4cefff; }}
     .error {{ margin: 0 0 12px; padding: 10px 12px; border-radius: 9px; color: #ffd9d9; background: rgba(239,68,68,.18); }}
-    .privacy {{ margin: 22px 0 0; color: #64869a; font-size: 12px; text-align: center; }}
   </style>
 </head>
 <body>
   <main>
     <div class="mark" aria-hidden="true"></div>
     <h1>我的火车足迹</h1>
-    <p class="intro">登录后查看和维护你的乘车记录。</p>
     {error_html}
     <form method="post" action="/login">
       <input type="hidden" name="return_to" value="{escaped_return}">
@@ -217,7 +214,6 @@ def login_page(return_to: str = "/", error: str = "") -> bytes:
       <input id="password" name="password" type="password" autocomplete="current-password" required>
       <button type="submit">登录</button>
     </form>
-    <p class="privacy">账号信息仅用于访问这台服务器。</p>
   </main>
 </body>
 </html>"""
