@@ -25,6 +25,8 @@
   var savedGeoView = null;
   var focusedRecordIndex = null;
   var highlightedRoute = null;
+  var mapExploreMode = false;
+  var mapRoamEnabled = true;
   var visibleCount = 0;
   var allRecords = [];
   var playRecords = [];
@@ -45,13 +47,18 @@
   var recordMutating = false;
   var trainDataVersion = null;
   var hoverZrLine = null;
+  var layoutRefreshRaf = null;
+  var actionSheetRecordIndex = null;
   var LINE_ZLEVEL = 2;
   var HOVER_ZLEVEL = 10;
 
-  function buildGeoOption(view) {
+  function buildGeoOption(view, interaction) {
+    var roam = true;
+    if (interaction && typeof interaction.roam === 'boolean') roam = interaction.roam;
+    if (interaction === false) roam = false;
     return {
       map: 'china',
-      roam: true,
+      roam: roam,
       zoom: view && typeof view.zoom === 'number' ? view.zoom : DEFAULT_GEO_ZOOM,
       center: view && Array.isArray(view.center) ? view.center : DEFAULT_GEO_CENTER,
       scaleLimit: { min: GEO_ZOOM_MIN, max: GEO_ZOOM_MAX },
@@ -526,7 +533,29 @@
     document.querySelector('.app').hidden = true;
   }
 
+  function prefersReducedMotion() {
+    return !!(
+      root &&
+      typeof root.matchMedia === 'function' &&
+      root.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
+  }
+
+  function isCompactLayout() {
+    if (root.TrainScale && typeof root.TrainScale.isCompactLayout === 'function') {
+      var size = root.TrainScale.readViewportSize
+        ? root.TrainScale.readViewportSize(root)
+        : { width: root.innerWidth };
+      return root.TrainScale.isCompactLayout(size.width);
+    }
+    return Number(root.innerWidth) > 0 && Number(root.innerWidth) <= 1024;
+  }
+
   function animateNumber(el, target, suffix) {
+    if (prefersReducedMotion()) {
+      el.textContent = Math.round(target).toLocaleString('zh-CN') + (suffix || '');
+      return;
+    }
     var start = performance.now();
     var duration = 1200;
     function tick(now) {
@@ -860,6 +889,35 @@
     if (shouldDimMapLines() && highlightedRoute) highlightRouteOnMap(highlightedRoute, true);
   }
 
+  function syncMapExploreButton() {
+    var button = document.getElementById('map-explore-btn');
+    var viewport = document.querySelector('.map-viewport');
+    var compact = isCompactLayout();
+    if (button) {
+      button.hidden = !compact;
+      button.textContent = mapExploreMode ? '退出地图' : '探索地图';
+      button.setAttribute('aria-pressed', mapExploreMode ? 'true' : 'false');
+      button.setAttribute('aria-label', mapExploreMode ? '退出地图探索模式' : '进入地图探索模式');
+    }
+    if (viewport) viewport.classList.toggle('is-exploring', mapExploreMode);
+  }
+
+  function setMapExploreMode(enabled) {
+    mapExploreMode = isCompactLayout() && !!enabled;
+    syncMapExploreButton();
+    if (!mapChart) return;
+    mapChart.setOption({ geo: { roam: mapRoamEnabled || mapExploreMode } }, false);
+  }
+
+  function bindMapExplore() {
+    var button = document.getElementById('map-explore-btn');
+    if (!button) return;
+    button.addEventListener('click', function () {
+      setMapExploreMode(!mapExploreMode);
+    });
+    syncMapExploreButton();
+  }
+
   function tripLineSeries(name, zlevel, lineStyle, data, showEffect, effectColor) {
     var trailColor = effectColor || GOLD;
     return {
@@ -1033,10 +1091,10 @@
     recordLinesDimmed = false;
     mapChart.setOption(
       {
-        animation: animateMap !== false,
+        animation: animateMap !== false && !prefersReducedMotion(),
         backgroundColor: 'transparent',
         tooltip: mapTooltipStyle(),
-        geo: buildGeoOption(geoView),
+        geo: buildGeoOption(geoView, { roam: mapRoamEnabled || mapExploreMode }),
         series: [
           mapLineSeries('emu', split.emu),
           mapLineSeries('conv', split.conv),
@@ -1177,6 +1235,7 @@
       : null;
     if (existing) existing.dispose();
     var expanded = false;
+    var motionEnabled = !prefersReducedMotion();
     var paintSeq = 0;
     var growRaf = 0;
     var growTimer = 0;
@@ -1229,11 +1288,12 @@
 
     function paint(animateHeight) {
       var seq = (paintSeq += 1);
+      motionEnabled = !prefersReducedMotion();
       cancelGrow();
       var visible = visibleRankEntries(entries, expanded);
       var layout = rankExpandLayout(entries.length);
 
-      if (animateHeight && expanded) {
+      if (animateHeight && motionEnabled && expanded) {
         layoutForCount(visible.length);
         chart.setOption(barOption(visible, delayBase, false, 0, false));
         chart.resize();
@@ -1248,7 +1308,7 @@
         return;
       }
 
-      if (animateHeight && !expanded) {
+      if (animateHeight && motionEnabled && !expanded) {
         animateClipHeight(clip, layout.fromClip, true, function () {
           if (seq !== paintSeq) return;
           chart.setOption(barOption(visible, delayBase, true, undefined, false));
@@ -1257,7 +1317,7 @@
         return;
       }
 
-      chart.setOption(barOption(visible, delayBase, true));
+      chart.setOption(barOption(visible, delayBase, true, undefined, motionEnabled));
       layoutForCount(visible.length);
       clip.style.height = rankChartHeight(visible.length) + 'px';
       chart.resize();
@@ -1330,6 +1390,8 @@
       escapeHtml(type) +
       '" data-index="' +
       escapeHtml(index) +
+      '" tabindex="0" aria-label="' +
+      escapeHtml(rec.date + ' ' + rec.from + ' 到 ' + rec.to + '，' + rec.train) +
       '" data-route="' +
       escapeHtml(rec.from + '→' + rec.to) +
       '" data-type="' +
@@ -1349,6 +1411,7 @@
       metaParts.map(escapeHtml).join(' · ') +
       badgeHtml +
       '</div>' +
+      '<button type="button" class="record-more" data-record-action="more" aria-label="打开此记录的更多操作">更多</button>' +
       '</li>'
     );
   }
@@ -1432,6 +1495,7 @@
   function renderReunions() {
     var block = document.getElementById('reunion-block');
     if (!block) return;
+    var scene = block.closest('.reunion-scene');
     var vehicleWrap = document.getElementById('reunion-vehicles');
     var trainWrap = document.getElementById('reunion-trains');
     var vehicleList = document.getElementById('reunion-vehicle-list');
@@ -1441,6 +1505,7 @@
     vehicleWrap.hidden = !hasVehicles;
     trainWrap.hidden = !hasTrains;
     block.hidden = !hasVehicles && !hasTrains;
+    if (scene) scene.hidden = block.hidden;
     setReunionSummaryCount(document.getElementById('reunion-vehicle-summary'), reunionVehicles.length);
     setReunionSummaryCount(document.getElementById('reunion-train-summary'), reunionTrains.length);
     setReunionExpanded(reunionExpanded);
@@ -1716,6 +1781,24 @@
     if (menu) menu.hidden = true;
   }
 
+  function closeRecordActionSheet() {
+    var sheet = document.getElementById('record-action-sheet');
+    if (sheet) sheet.hidden = true;
+    actionSheetRecordIndex = null;
+  }
+
+  function openRecordActionSheet(index) {
+    var sheet = document.getElementById('record-action-sheet');
+    var rec = playRecords[index];
+    if (!sheet || !rec) return;
+    actionSheetRecordIndex = index;
+    var title = document.getElementById('record-action-title');
+    if (title) title.textContent = rec.date + ' · ' + rec.from + ' → ' + rec.to;
+    sheet.hidden = false;
+    var edit = sheet.querySelector('[data-action="edit"]');
+    if (edit && typeof edit.focus === 'function') edit.focus({ preventScroll: true });
+  }
+
   function showRecordContextMenu(event, index) {
     var menu = document.getElementById('record-context-menu');
     if (!menu) return;
@@ -1739,18 +1822,60 @@
   function bindRecordListEvents() {
     var list = document.getElementById('record-list');
     var panel = list.closest('.record-panel') || list;
+    function activateRecordItem(item) {
+      if (!item || focusedRecordIndex != null || timelinePlaying) return;
+      var lineKeyValue = item.getAttribute('data-line-key');
+      if (lineKeyValue === highlightedRoute && recordAreaActive) return;
+      highlightedRoute = lineKeyValue;
+      recordAreaActive = true;
+      Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
+        node.classList.toggle('is-active', node === item);
+      });
+      highlightRouteOnMap(lineKeyValue, true);
+    }
     list.addEventListener('click', function (event) {
+      var more = event.target.closest('.record-more');
+      if (more) {
+        event.preventDefault();
+        event.stopPropagation();
+        openRecordActionSheet(Number(more.closest('.record-item').getAttribute('data-index')));
+        return;
+      }
       var item = event.target.closest('.record-item');
       if (!item) return;
+      startTripPlay(Number(item.getAttribute('data-index')));
+    });
+    list.addEventListener('keydown', function (event) {
+      if (event.target.closest('.record-more')) return;
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      var item = event.target.closest('.record-item');
+      if (!item) return;
+      event.preventDefault();
       startTripPlay(Number(item.getAttribute('data-index')));
     });
     list.addEventListener('contextmenu', function (event) {
       var item = event.target.closest('.record-item');
       if (!item) return;
       event.preventDefault();
+      if (isCompactLayout()) {
+        openRecordActionSheet(Number(item.getAttribute('data-index')));
+        return;
+      }
       showRecordContextMenu(event, Number(item.getAttribute('data-index')));
     });
     list.addEventListener('scroll', hideRecordContextMenu);
+    list.addEventListener('pointerdown', function (event) {
+      var item = event.target.closest('.record-item');
+      if (item) item.classList.add('is-touching');
+    }, { passive: true });
+    list.addEventListener('pointerup', function (event) {
+      var item = event.target.closest('.record-item');
+      if (item) item.classList.remove('is-touching');
+    }, { passive: true });
+    list.addEventListener('pointercancel', function (event) {
+      var item = event.target.closest('.record-item');
+      if (item) item.classList.remove('is-touching');
+    }, { passive: true });
     panel.addEventListener('mouseenter', function () {
       if (focusedRecordIndex != null || timelinePlaying) return;
       recordAreaActive = true;
@@ -1760,14 +1885,12 @@
       if (focusedRecordIndex != null || timelinePlaying) return;
       var item = event.target.closest('.record-item');
       if (!item) return;
-      var lineKeyValue = item.getAttribute('data-line-key');
-      if (lineKeyValue === highlightedRoute && recordAreaActive) return;
-      highlightedRoute = lineKeyValue;
-      recordAreaActive = true;
-      Array.prototype.forEach.call(list.querySelectorAll('.record-item'), function (node) {
-        node.classList.toggle('is-active', node === item);
-      });
-      highlightRouteOnMap(lineKeyValue, true);
+      activateRecordItem(item);
+    });
+    list.addEventListener('focusin', function (event) {
+      var item = event.target.closest('.record-item');
+      if (!item || event.target.closest('.record-more')) return;
+      activateRecordItem(item);
     });
     panel.addEventListener('mouseleave', function () {
       recordAreaActive = false;
@@ -1808,6 +1931,25 @@
     document.addEventListener('contextmenu', function (event) {
       if (event.target.closest('#record-context-menu, .record-item')) return;
       hideRecordContextMenu();
+    });
+  }
+
+  function bindRecordActionSheet() {
+    var sheet = document.getElementById('record-action-sheet');
+    if (!sheet) return;
+    sheet.addEventListener('click', function (event) {
+      if (event.target.closest('[data-record-action-close]')) {
+        closeRecordActionSheet();
+        return;
+      }
+      var btn = event.target.closest('[data-action]');
+      if (!btn) return;
+      var record = playRecords[actionSheetRecordIndex];
+      var action = btn.getAttribute('data-action');
+      closeRecordActionSheet();
+      if (!record) return;
+      if (action === 'edit') startEditRecord(record);
+      if (action === 'delete') deleteRideRecord(record);
     });
   }
 
@@ -2039,10 +2181,12 @@
     reviewYear = null;
     renderReview();
     document.getElementById('review-modal').hidden = false;
+    scheduleLayoutRefresh();
   }
 
   function closeReview() {
     document.getElementById('review-modal').hidden = true;
+    scheduleLayoutRefresh();
   }
 
   function replayReviewYear() {
@@ -2141,6 +2285,40 @@
         80
       ),
     ];
+  }
+
+  function resizeDashboardCharts() {
+    rankLayouts.forEach(function (rank) {
+      rank.relayout();
+    });
+    charts.forEach(function (chart) {
+      chart.resize();
+    });
+    refreshHoverOverlay();
+  }
+
+  function scheduleLayoutRefresh() {
+    if (layoutRefreshRaf) return;
+    var callback = function () {
+      layoutRefreshRaf = null;
+      resizeDashboardCharts();
+    };
+    layoutRefreshRaf = window.requestAnimationFrame
+      ? window.requestAnimationFrame(callback)
+      : window.setTimeout(callback, 16);
+  }
+
+  function handleLayoutChange(event) {
+    var compact = event && event.detail && typeof event.detail.compact === 'boolean'
+      ? event.detail.compact
+      : isCompactLayout();
+    mapRoamEnabled = !compact;
+    if (!compact) mapExploreMode = false;
+    syncMapExploreButton();
+    if (mapChart) {
+      mapChart.setOption({ geo: { roam: mapRoamEnabled || mapExploreMode } }, false);
+    }
+    scheduleLayoutRefresh();
   }
 
   function escapeHtml(text) {
@@ -2300,6 +2478,7 @@
       document.getElementById('trip-date').value = todayIso();
     }
     document.getElementById('settings-modal').hidden = false;
+    scheduleLayoutRefresh();
   }
 
   function closeSettings() {
@@ -2309,6 +2488,7 @@
       clearTripEditMode();
       resetTripForm();
     }
+    scheduleLayoutRefresh();
   }
 
   function extraStationsFromForm(record) {
@@ -2620,6 +2800,14 @@
       return;
     }
 
+    mapRoamEnabled = !isCompactLayout();
+    window.addEventListener('train-layout-change', handleLayoutChange);
+    window.addEventListener('resize', function () {
+      if (window.TrainScale) window.TrainScale.applyPageScale();
+      scheduleLayoutRefresh();
+    }, { passive: true });
+    window.addEventListener('orientationchange', scheduleLayoutRefresh, { passive: true });
+
     loadServerData().then(function () {
       adoptMergedData(loadMergedData());
       playRecords = allRecords;
@@ -2634,9 +2822,11 @@
     mapChart.on('georoam', refreshHoverOverlay);
 
     rebuildRankCharts();
+    bindMapExplore();
     renderRecords();
     bindRecordListEvents();
     bindRecordContextMenu();
+    bindRecordActionSheet();
     renderReunions();
     bindReunionEvents();
     fillSettingsLists();
@@ -2688,6 +2878,11 @@
     });
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Escape') return;
+      var sheet = document.getElementById('record-action-sheet');
+      if (sheet && !sheet.hidden) {
+        closeRecordActionSheet();
+        return;
+      }
       var menu = document.getElementById('record-context-menu');
       if (menu && !menu.hidden) {
         hideRecordContextMenu();
@@ -2707,23 +2902,7 @@
     setVisibleCount(playRecords.length);
 
     if (window.TrainScale) window.TrainScale.applyPageScale();
-    rankLayouts.forEach(function (rank) {
-      rank.relayout();
-    });
-    charts.forEach(function (chart) {
-      chart.resize();
-    });
-
-      window.addEventListener('resize', function () {
-      if (window.TrainScale) window.TrainScale.applyPageScale();
-      rankLayouts.forEach(function (rank) {
-        rank.relayout();
-      });
-      charts.forEach(function (chart) {
-        chart.resize();
-      });
-      refreshHoverOverlay();
-      });
+    resizeDashboardCharts();
     });
   }
 

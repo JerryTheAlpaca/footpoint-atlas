@@ -11,7 +11,7 @@
 
   <div class="scale-stage">
     <div class="app">
-    <header class="header">
+    <header class="header mobile-scene" data-scene="overview">
       <div class="title-wrap">
         <h1>我的火车足迹</h1>
         <div class="title-actions">
@@ -36,8 +36,11 @@
     </header>
 
     <main class="main">
-      <section class="map-panel">
-        <div id="map-chart" class="chart map-chart"></div>
+      <section class="map-panel mobile-scene" data-scene="map">
+        <div class="map-viewport">
+          <div id="map-chart" class="chart map-chart"></div>
+          <button id="map-explore-btn" class="map-explore-btn" type="button" aria-pressed="false">探索地图</button>
+        </div>
         <div class="timeline">
           <div class="timeline-filter">
             <label for="range-mode">回放范围</label>
@@ -101,6 +104,7 @@
       </section>
 
       <aside class="side-panel">
+        <section class="ranking-scene mobile-scene" data-scene="ranking">
         <section class="chart-block">
           <h2>车型排行</h2>
           <div class="rank-clip">
@@ -128,6 +132,8 @@
             <span class="rank-toggle-arrow" aria-hidden="true"></span>
           </button>
         </section>
+        </section>
+        <section class="reunion-scene mobile-scene" data-scene="reunion" hidden>
         <section id="reunion-block" class="chart-block reunion-block" hidden>
           <h2>缘分重逢</h2>
           <div id="reunion-summary" class="reunion-summary">
@@ -152,9 +158,12 @@
             <span class="rank-toggle-arrow" aria-hidden="true"></span>
           </button>
         </section>
+        </section>
+        <section class="record-scene mobile-scene" data-scene="records">
         <section class="record-panel">
           <h2>乘车记录</h2>
           <ol id="record-list" class="record-list"></ol>
+        </section>
         </section>
       </aside>
     </main>
@@ -274,6 +283,17 @@
 
   <div class="scanlines" aria-hidden="true"></div>
 
+  <div id="record-action-sheet" class="record-action-sheet" hidden>
+    <div class="record-action-backdrop" data-record-action-close></div>
+    <div class="record-action-dialog" role="dialog" aria-modal="true" aria-labelledby="record-action-title">
+      <div class="record-action-handle" aria-hidden="true"></div>
+      <h2 id="record-action-title">记录操作</h2>
+      <button type="button" data-action="edit">编辑</button>
+      <button type="button" data-action="delete">删除</button>
+      <button type="button" class="record-action-cancel" data-record-action-close>取消</button>
+    </div>
+  </div>
+
   <div id="record-context-menu" class="record-context-menu" hidden role="menu" aria-label="记录操作">
     <button type="button" role="menuitem" data-action="edit">编辑</button>
     <button type="button" role="menuitem" data-action="delete">删除</button>
@@ -285,6 +305,7 @@
   <script src="js/stats.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/scale.js"></script>
+  <script src="js/mobile-animations.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

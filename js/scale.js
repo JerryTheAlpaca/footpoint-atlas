@@ -1,6 +1,7 @@
 (function (root) {
   var DESIGN_WIDTH = 1920;
   var DESIGN_HEIGHT = 1080;
+  var COMPACT_BREAKPOINT = 1024;
 
   function computeFitScale(viewportWidth, viewportHeight, designWidth, designHeight) {
     var dw = designWidth == null ? DESIGN_WIDTH : designWidth;
@@ -13,6 +14,12 @@
 
   function buildFitTransform(scale) {
     return 'translate(-50%, -50%) scale(' + scale + ')';
+  }
+
+  function isCompactLayout(viewportWidth, breakpoint) {
+    var width = Number(viewportWidth);
+    var limit = breakpoint == null ? COMPACT_BREAKPOINT : Number(breakpoint);
+    return width > 0 && width <= limit;
   }
 
   function readViewportSize(win) {
@@ -33,7 +40,31 @@
     if (!app) return 1;
     var size = readViewportSize(win);
     var scale = computeFitScale(size.width, size.height);
-    app.style.transform = buildFitTransform(scale);
+    var compact = isCompactLayout(size.width);
+    if (compact) {
+      app.style.removeProperty('position');
+      app.style.removeProperty('left');
+      app.style.removeProperty('top');
+      app.style.removeProperty('width');
+      app.style.removeProperty('height');
+      app.style.removeProperty('transform');
+    } else {
+      app.style.transform = buildFitTransform(scale);
+    }
+    var previousLayout = app.getAttribute('data-layout-mode');
+    var nextLayout = compact ? 'compact' : 'desktop';
+    app.setAttribute('data-layout-mode', nextLayout);
+    if (previousLayout !== nextLayout && win && typeof win.dispatchEvent === 'function') {
+      var event;
+      var detail = { compact: compact, width: size.width, height: size.height };
+      if (typeof win.CustomEvent === 'function') {
+        event = new win.CustomEvent('train-layout-change', { detail: detail });
+      } else if (document.createEvent) {
+        event = document.createEvent('CustomEvent');
+        event.initCustomEvent('train-layout-change', false, false, detail);
+      }
+      if (event) win.dispatchEvent(event);
+    }
     return scale;
   }
 
@@ -42,6 +73,9 @@
     applyPageScale(target);
     if (!target || typeof target.addEventListener !== 'function') return;
     target.addEventListener('resize', function () {
+      applyPageScale(target);
+    });
+    target.addEventListener('orientationchange', function () {
       applyPageScale(target);
     });
     if (target.visualViewport) {
@@ -54,8 +88,12 @@
   root.TrainScale = {
     DESIGN_WIDTH: DESIGN_WIDTH,
     DESIGN_HEIGHT: DESIGN_HEIGHT,
+    COMPACT_BREAKPOINT: COMPACT_BREAKPOINT,
     computeFitScale: computeFitScale,
     buildFitTransform: buildFitTransform,
+    isCompactLayout: isCompactLayout,
+    isCompactViewport: isCompactLayout,
+    readViewportSize: readViewportSize,
     applyPageScale: applyPageScale,
     bindPageScale: bindPageScale,
   };
