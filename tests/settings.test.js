@@ -226,8 +226,9 @@ describe('TrainSettings.replaceRecord / removeRecord', () => {
 describe('settings page structure', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 
-  it('adds a settings entry next to yearly review and a sectioned settings page', () => {
-    assert.match(html, /id="settings-btn"/);
+  it('keeps desktop settings and adds a shared add-trip entry', () => {
+    assert.match(html, /<button id="settings-btn" type="button">设置<\/button>/);
+    assert.match(html, /id="add-trip-btn"[^>]*>添加行程<\/button>/);
     assert.match(html, /id="settings-modal"/);
     assert.match(html, /id="settings-nav"/);
     assert.match(html, /data-panel="trip"/);

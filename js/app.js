@@ -1411,7 +1411,7 @@
       metaParts.map(escapeHtml).join(' · ') +
       badgeHtml +
       '</div>' +
-      '<button type="button" class="record-more" data-record-action="more" aria-label="打开此记录的更多操作">更多</button>' +
+      '<button type="button" class="record-more" data-record-action="more" aria-label="打开此记录的操作菜单"><span aria-hidden="true">···</span></button>' +
       '</li>'
     );
   }
@@ -1487,7 +1487,7 @@
     if (details) details.hidden = !reunionExpanded;
     if (toggle) {
       toggle.setAttribute('aria-expanded', reunionExpanded ? 'true' : 'false');
-      toggle.setAttribute('aria-label', reunionExpanded ? '收起缘分重逢' : '展开缘分重逢');
+      toggle.setAttribute('aria-label', reunionExpanded ? '收起相遇重逢' : '展开相遇重逢');
     }
     if (wasExpanded && !reunionExpanded) clearReunionHover();
   }
@@ -2416,19 +2416,28 @@
 
   function setTripFormMode(mode) {
     var editing = mode === 'edit';
+    var adding = mode === 'add';
     var modal = document.getElementById('settings-modal');
     var title = document.getElementById('settings-title');
     var closeBtn = document.getElementById('settings-close');
     var submitBtn = document.getElementById('trip-submit');
-    if (modal) modal.classList.toggle('is-edit', editing);
-    if (title) title.textContent = editing ? '编辑行程' : '设置';
-    if (closeBtn) closeBtn.setAttribute('aria-label', editing ? '关闭编辑' : '关闭设置');
+    if (modal) modal.classList.toggle('is-edit', editing || adding);
+    if (title) title.textContent = editing ? '编辑行程' : adding ? '添加行程' : '设置';
+    if (closeBtn) closeBtn.setAttribute('aria-label', editing ? '关闭编辑' : adding ? '关闭添加行程' : '关闭设置');
     if (submitBtn) submitBtn.textContent = editing ? '保存修改' : '添加行程';
   }
 
   function clearTripEditMode() {
     editingRecord = null;
+    setTripFormMode('settings');
+  }
+
+  function openAddTripForm() {
+    editingRecord = null;
     setTripFormMode('add');
+    resetTripForm();
+    showSettingsPanel('trip');
+    openSettings();
   }
 
   function readTripForm() {
@@ -2766,8 +2775,10 @@
         clearTripEditMode();
         resetTripForm();
       }
+      setTripFormMode('settings');
       openSettings();
     });
+    document.getElementById('add-trip-btn').addEventListener('click', openAddTripForm);
     document.getElementById('settings-close').addEventListener('click', closeSettings);
     document.querySelector('#settings-modal .settings-backdrop').addEventListener('click', closeSettings);
     document.getElementById('settings-nav').addEventListener('click', function (event) {

@@ -8,6 +8,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'css', 'style.css'), 'utf8');
 const appCode = fs.readFileSync(path.join(root, 'js', 'app.js'), 'utf8');
 const motionCode = fs.readFileSync(path.join(root, 'js', 'mobile-animations.js'), 'utf8');
+const layoutCode = fs.readFileSync(path.join(root, 'js', 'mobile-layout.js'), 'utf8');
 
 function loadScale() {
   const code = fs.readFileSync(path.join(root, 'js', 'scale.js'), 'utf8');
@@ -90,10 +91,22 @@ describe('compact responsive scaling', () => {
 });
 
 describe('mobile scroll story structure', () => {
-  it('orders five scenes for the compact reading flow', () => {
+  it('orders three pages for the compact reading flow', () => {
     const scenes = [...html.matchAll(/class="[^"]*mobile-scene[^"]*"[^>]*data-scene="([^"]+)"/g)]
       .map((match) => match[1]);
-    assert.deepEqual(scenes, ['overview', 'map', 'ranking', 'reunion', 'records']);
+    assert.deepEqual(scenes, ['footprint', 'insights', 'records']);
+  });
+
+  it('groups title and map, summary and rankings, then trip records on compact screens', () => {
+    assert.match(layoutCode, /pageFootprint\.appendChild\(nodes\.header\)/);
+    assert.match(layoutCode, /pageFootprint\.appendChild\(nodes\.map\)/);
+    assert.match(layoutCode, /pageInsights\.appendChild\(nodes\.stats\)/);
+    assert.match(layoutCode, /pageInsights\.appendChild\(nodes\.ranking\)/);
+    assert.match(layoutCode, /pageInsights\.appendChild\(nodes\.reunion\)/);
+    assert.match(layoutCode, /pageRecords\.appendChild\(nodes\.records\)/);
+    assert.match(html, /<h2>行程数据<\/h2>/);
+    assert.match(html, /<h2>相遇重逢<\/h2>/);
+    assert.doesNotMatch(appCode, /缘分重逢/);
   });
 
   it('restores page scrolling, proximity snap, safe areas, and natural long-content flow', () => {
@@ -113,8 +126,24 @@ describe('mobile scroll story structure', () => {
     assert.match(html, /data-action="edit"/);
     assert.match(html, /data-action="delete"/);
     assert.match(appCode, /class="record-more"/);
+    assert.match(appCode, />···<\/span>/);
+    assert.doesNotMatch(appCode, />更多<\/button>/);
     assert.match(appCode, /event\.stopPropagation\(\)/);
     assert.match(appCode, /openRecordActionSheet/);
+  });
+
+  it('keeps compact controls unobtrusive and aligned', () => {
+    assert.match(html, /<button id="settings-btn" type="button">设置<\/button>/);
+    assert.match(html, /class="map-frame">[\s\S]*?class="map-viewport">[\s\S]*?<\/div>\s*<\/div>\s*<button id="map-explore-btn"/);
+    assert.match(html, /class="record-panel-head">[\s\S]*?<h2>行程数据<\/h2>[\s\S]*?id="add-trip-btn"/);
+    assert.match(css, /@media\s*\(max-width:\s*1024px\)[\s\S]*?#settings-btn\s*\{\s*display:\s*none;/);
+    assert.match(css, /\.title-wrap\s*\{[\s\S]*?align-items:\s*center;/);
+    assert.match(css, /\.title-actions\s*\{[\s\S]*?justify-content:\s*center;/);
+    assert.match(css, /\.map-frame\s*\{[\s\S]*?border-radius:\s*var\(--radius-lg\);/);
+    assert.match(css, /\.map-explore-btn\s*\{[\s\S]*?position:\s*static;/);
+    assert.match(css, /grid-template-areas:\s*"label mode types";/);
+    assert.match(css, /\.record-more\s*\{[\s\S]*?width:\s*32px;[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
+    assert.match(appCode, /getElementById\('add-trip-btn'\)\.addEventListener\('click', openAddTripForm\)/);
   });
 });
 

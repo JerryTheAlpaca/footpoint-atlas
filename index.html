@@ -11,7 +11,7 @@
 
   <div class="scale-stage">
     <div class="app">
-    <header class="header mobile-scene" data-scene="overview">
+    <header class="header">
       <div class="title-wrap">
         <h1>我的火车足迹</h1>
         <div class="title-actions">
@@ -36,11 +36,13 @@
     </header>
 
     <main class="main">
-      <section class="map-panel mobile-scene" data-scene="map">
-        <div class="map-viewport">
-          <div id="map-chart" class="chart map-chart"></div>
-          <button id="map-explore-btn" class="map-explore-btn" type="button" aria-pressed="false">探索地图</button>
+      <section class="map-panel">
+        <div class="map-frame">
+          <div class="map-viewport">
+            <div id="map-chart" class="chart map-chart"></div>
+          </div>
         </div>
+        <button id="map-explore-btn" class="map-explore-btn" type="button" aria-pressed="false">探索地图</button>
         <div class="timeline">
           <div class="timeline-filter">
             <label for="range-mode">回放范围</label>
@@ -104,7 +106,7 @@
       </section>
 
       <aside class="side-panel">
-        <section class="ranking-scene mobile-scene" data-scene="ranking">
+        <section class="ranking-scene">
         <section class="chart-block">
           <h2>车型排行</h2>
           <div class="rank-clip">
@@ -133,9 +135,9 @@
           </button>
         </section>
         </section>
-        <section class="reunion-scene mobile-scene" data-scene="reunion" hidden>
+        <section class="reunion-scene" hidden>
         <section id="reunion-block" class="chart-block reunion-block" hidden>
-          <h2>缘分重逢</h2>
+          <h2>相遇重逢</h2>
           <div id="reunion-summary" class="reunion-summary">
             <span id="reunion-vehicle-summary" class="reunion-summary-item" hidden>
               同一列车 <strong class="reunion-summary-count">0</strong>
@@ -154,19 +156,26 @@
               <ul id="reunion-train-list" class="reunion-list"></ul>
             </div>
           </div>
-          <button type="button" class="rank-toggle reunion-toggle" aria-expanded="false" aria-label="展开缘分重逢">
+          <button type="button" class="rank-toggle reunion-toggle" aria-expanded="false" aria-label="展开相遇重逢">
             <span class="rank-toggle-arrow" aria-hidden="true"></span>
           </button>
         </section>
         </section>
-        <section class="record-scene mobile-scene" data-scene="records">
+        <section class="record-scene">
         <section class="record-panel">
-          <h2>乘车记录</h2>
+          <div class="record-panel-head">
+            <h2>行程数据</h2>
+            <button id="add-trip-btn" type="button">添加行程</button>
+          </div>
           <ol id="record-list" class="record-list"></ol>
         </section>
         </section>
       </aside>
     </main>
+
+    <section id="mobile-page-footprint" class="mobile-story-page mobile-story-page-footprint mobile-scene" data-scene="footprint" hidden></section>
+    <section id="mobile-page-insights" class="mobile-story-page mobile-story-page-insights mobile-scene" data-scene="insights" hidden></section>
+    <section id="mobile-page-records" class="mobile-story-page mobile-story-page-records mobile-scene" data-scene="records" hidden></section>
 
     <div id="review-modal" class="review-modal" hidden>
       <div class="review-backdrop" data-review-close></div>
@@ -305,6 +314,7 @@
   <script src="js/stats.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/scale.js"></script>
+  <script src="js/mobile-layout.js"></script>
   <script src="js/mobile-animations.js"></script>
   <script src="js/app.js"></script>
 </body>
