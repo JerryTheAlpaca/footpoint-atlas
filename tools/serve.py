@@ -13,17 +13,27 @@
 from __future__ import annotations
 
 import argparse
-import json
+import base64
+import binascii
+import html
 import hashlib
+import hmac
+import json
 import math
 import os
 import re
+import secrets
+import shutil
 import sys
 import threading
+import time
 import webbrowser
+from dataclasses import dataclass
 from datetime import date
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from http.cookies import SimpleCookie
 from pathlib import Path
+from urllib.parse import parse_qs, quote, unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -33,11 +43,201 @@ from excel_to_js import EXCEL_PATH, OUTPUT_PATH, write_data_js, write_records  #
 RECORD_FIELDS = ("date", "from", "to", "train", "vehicle", "origin", "terminal", "bureau")
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 DATA_LOCK = threading.Lock()
+AUTH_LOCK = threading.Lock()
+AUTH_FAILURES: dict[str, list[float]] = {}
+PASSWORD_HASH_PATTERN = re.compile(r"^pbkdf2_sha256\.(\d+)\.([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)$")
+PUBLIC_PATHS = frozenset({"/login", "/healthz"})
+STATIC_PREFIXES = ("/css/", "/js/", "/lib/", "/map/")
+STATIC_FILES = frozenset({"/", "/index.html", "/favicon.ico", "/图标.ico", "/图标.png"})
+MAX_REQUEST_BYTES = 1024 * 1024
+
+
+@dataclass(frozen=True)
+class AuthConfig:
+    enabled: bool
+    username: str = ""
+    password_hash: str = ""
+    session_secret: bytes = b""
+    session_ttl: int = 12 * 60 * 60
+    cookie_secure: bool = False
+    trust_proxy: bool = False
+
+
+def env_flag(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def load_auth_config() -> AuthConfig:
+    if not env_flag("TRAIN_AUTH_ENABLED"):
+        return AuthConfig(enabled=False)
+
+    username = os.environ.get("TRAIN_AUTH_USERNAME", "").strip()
+    password_hash = os.environ.get("TRAIN_AUTH_PASSWORD_HASH", "").strip()
+    secret = os.environ.get("TRAIN_SESSION_SECRET", "").encode("utf-8")
+    if not username:
+        raise ValueError("启用登录后必须设置 TRAIN_AUTH_USERNAME")
+    if not PASSWORD_HASH_PATTERN.fullmatch(password_hash):
+        raise ValueError("TRAIN_AUTH_PASSWORD_HASH 格式无效，请使用 tools/make_password_hash.py 生成")
+    if len(secret) < 32:
+        raise ValueError("TRAIN_SESSION_SECRET 至少需要 32 个字符")
+    try:
+        session_ttl = int(os.environ.get("TRAIN_SESSION_TTL_SECONDS", str(12 * 60 * 60)))
+    except ValueError as exc:
+        raise ValueError("TRAIN_SESSION_TTL_SECONDS 必须是整数") from exc
+    if not 300 <= session_ttl <= 30 * 24 * 60 * 60:
+        raise ValueError("TRAIN_SESSION_TTL_SECONDS 必须在 300 到 2592000 之间")
+    return AuthConfig(
+        enabled=True,
+        username=username,
+        password_hash=password_hash,
+        session_secret=secret,
+        session_ttl=session_ttl,
+        cookie_secure=env_flag("TRAIN_COOKIE_SECURE", True),
+        trust_proxy=env_flag("TRAIN_TRUST_PROXY"),
+    )
+
+
+def b64encode(raw: bytes) -> str:
+    return base64.urlsafe_b64encode(raw).rstrip(b"=").decode("ascii")
+
+
+def b64decode(value: str) -> bytes:
+    return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+
+
+def make_password_hash(password: str, *, iterations: int = 600_000, salt: bytes | None = None) -> str:
+    if not password:
+        raise ValueError("密码不能为空")
+    actual_salt = salt or secrets.token_bytes(18)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), actual_salt, iterations)
+    return f"pbkdf2_sha256.{iterations}.{b64encode(actual_salt)}.{b64encode(digest)}"
+
+
+def verify_password(password: str, encoded: str) -> bool:
+    match = PASSWORD_HASH_PATTERN.fullmatch(encoded)
+    if not match:
+        return False
+    try:
+        iterations = int(match.group(1))
+        salt = b64decode(match.group(2))
+        expected = b64decode(match.group(3))
+        actual = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, iterations)
+    except (ValueError, TypeError, binascii.Error):
+        return False
+    return hmac.compare_digest(actual, expected)
+
+
+def make_session(config: AuthConfig, username: str, now: int | None = None) -> str:
+    payload = {
+        "u": username,
+        "exp": (int(time.time()) if now is None else now) + config.session_ttl,
+        "n": secrets.token_urlsafe(12),
+    }
+    encoded = b64encode(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+    signature = b64encode(hmac.new(config.session_secret, encoded.encode("ascii"), hashlib.sha256).digest())
+    return f"{encoded}.{signature}"
+
+
+def session_username(config: AuthConfig, token: str, now: int | None = None) -> str | None:
+    try:
+        encoded, supplied_signature = token.split(".", 1)
+        expected_signature = b64encode(
+            hmac.new(config.session_secret, encoded.encode("ascii"), hashlib.sha256).digest()
+        )
+        if not hmac.compare_digest(supplied_signature, expected_signature):
+            return None
+        payload = json.loads(b64decode(encoded).decode("utf-8"))
+        current = int(time.time()) if now is None else now
+        if payload.get("u") != config.username or int(payload.get("exp", 0)) <= current:
+            return None
+        return config.username
+    except (ValueError, TypeError, KeyError, json.JSONDecodeError, UnicodeDecodeError, binascii.Error):
+        return None
+
+
+def safe_return_to(value: str | None) -> str:
+    target = value or "/"
+    parsed = urlsplit(target)
+    if (
+        not target.startswith("/")
+        or target.startswith("//")
+        or parsed.scheme
+        or parsed.netloc
+        or "\\" in target
+        or any(ord(char) < 32 or ord(char) == 127 for char in target)
+    ):
+        return "/"
+    return target
+
+
+def login_page(return_to: str = "/", error: str = "") -> bytes:
+    escaped_return = html.escape(safe_return_to(return_to), quote=True)
+    error_html = f'<p class="error" role="alert">{html.escape(error)}</p>' if error else ""
+    document = f"""<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登录 · 我的火车足迹</title>
+  <style>
+    :root {{ color-scheme: dark; font-family: Inter, "Microsoft YaHei", system-ui, sans-serif; }}
+    * {{ box-sizing: border-box; }}
+    body {{ margin: 0; min-height: 100vh; display: grid; place-items: center; color: #eafcff;
+      background: radial-gradient(circle at 50% 15%, #123c5c 0, #071725 38%, #030b12 75%); }}
+    main {{ width: min(92vw, 410px); padding: 38px 34px; border: 1px solid rgba(0,229,255,.32);
+      border-radius: 22px; background: rgba(4,20,32,.88); box-shadow: 0 28px 80px rgba(0,0,0,.45), 0 0 36px rgba(0,229,255,.08); }}
+    .mark {{ width: 46px; height: 4px; border-radius: 9px; background: #00e5ff; box-shadow: 0 0 18px #00e5ff; }}
+    h1 {{ margin: 22px 0 8px; font-size: 28px; letter-spacing: .04em; }}
+    .intro {{ margin: 0 0 28px; color: #8fb2c7; line-height: 1.6; }}
+    label {{ display: block; margin: 15px 0 7px; color: #bad6e5; font-size: 14px; }}
+    input {{ width: 100%; padding: 12px 13px; border: 1px solid #28536d; border-radius: 10px; color: #fff;
+      background: #071827; outline: none; font: inherit; }}
+    input:focus {{ border-color: #00e5ff; box-shadow: 0 0 0 3px rgba(0,229,255,.12); }}
+    button {{ width: 100%; margin-top: 24px; padding: 13px; border: 0; border-radius: 10px; cursor: pointer;
+      color: #00141c; background: #00e5ff; font: 700 15px inherit; box-shadow: 0 8px 28px rgba(0,229,255,.2); }}
+    button:hover {{ background: #4cefff; }}
+    .error {{ margin: 0 0 12px; padding: 10px 12px; border-radius: 9px; color: #ffd9d9; background: rgba(239,68,68,.18); }}
+    .privacy {{ margin: 22px 0 0; color: #64869a; font-size: 12px; text-align: center; }}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark" aria-hidden="true"></div>
+    <h1>我的火车足迹</h1>
+    <p class="intro">登录后查看和维护你的乘车记录。</p>
+    {error_html}
+    <form method="post" action="/login">
+      <input type="hidden" name="return_to" value="{escaped_return}">
+      <label for="username">账号</label>
+      <input id="username" name="username" autocomplete="username" required autofocus>
+      <label for="password">密码</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button type="submit">登录</button>
+    </form>
+    <p class="privacy">账号信息仅用于访问这台服务器。</p>
+  </main>
+</body>
+</html>"""
+    return document.encode("utf-8")
 
 
 def data_version(path: Path | None = None) -> str:
     target = path or OUTPUT_PATH
     return hashlib.sha256(target.read_bytes()).hexdigest()
+
+
+def initialize_deployment_data() -> None:
+    """Seed an empty deployment volume from the repository's current data."""
+    if not os.environ.get("TRAIN_DATA_DIR"):
+        return
+    EXCEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    initial_files = ((ROOT / "火车乘车记录.xlsx", EXCEL_PATH), (ROOT / "js" / "data.js", OUTPUT_PATH))
+    for source, target in initial_files:
+        if not target.exists():
+            shutil.copy2(source, target)
 
 
 def read_data_file(path: Path | None = None) -> tuple[bytes, list[dict], dict]:
@@ -97,17 +297,178 @@ class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
-    def send_json(self, status: int, payload: object) -> None:
+    @property
+    def auth_config(self) -> AuthConfig:
+        configured = getattr(self.server, "auth_config", None)
+        return configured if configured is not None else load_auth_config()
+
+    def end_headers(self) -> None:
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Content-Security-Policy", "frame-ancestors 'none'; base-uri 'none'; object-src 'none'")
+        super().end_headers()
+
+    def send_json(self, status: int, payload: object, *, cache: str = "no-store") -> None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", cache)
         self.end_headers()
         self.wfile.write(body)
 
+    def send_html(self, status: int, body: bytes) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def redirect(self, location: str, status: int = 303) -> None:
+        self.send_response(status)
+        self.send_header("Location", location)
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def cookie_value(self, name: str) -> str:
+        try:
+            cookie = SimpleCookie(self.headers.get("Cookie", ""))
+            morsel = cookie.get(name)
+            return morsel.value if morsel else ""
+        except Exception:
+            return ""
+
+    def current_user(self) -> str | None:
+        config = self.auth_config
+        if not config.enabled:
+            return "local"
+        return session_username(config, self.cookie_value("train_session"))
+
+    def client_key(self) -> str:
+        if self.auth_config.trust_proxy:
+            forwarded = self.headers.get("X-Real-IP", "").strip()
+            if forwarded:
+                return forwarded
+        return self.client_address[0]
+
+    def login_blocked(self) -> tuple[bool, int]:
+        now = time.monotonic()
+        key = self.client_key()
+        with AUTH_LOCK:
+            recent = [stamp for stamp in AUTH_FAILURES.get(key, []) if now - stamp < 10 * 60]
+            AUTH_FAILURES[key] = recent
+            if len(recent) < 5:
+                return False, 0
+            retry_after = max(1, int(10 * 60 - (now - recent[0])))
+            return True, retry_after
+
+    def record_login_failure(self) -> None:
+        with AUTH_LOCK:
+            AUTH_FAILURES.setdefault(self.client_key(), []).append(time.monotonic())
+
+    def clear_login_failures(self) -> None:
+        with AUTH_LOCK:
+            AUTH_FAILURES.pop(self.client_key(), None)
+
+    def is_api_path(self, path: str) -> bool:
+        return path.startswith("/api/")
+
+    def require_auth(self, path: str) -> bool:
+        config = self.auth_config
+        if not config.enabled or path in PUBLIC_PATHS:
+            return True
+        if self.current_user():
+            return True
+        if self.is_api_path(path):
+            self.send_json(401, {"ok": False, "error": "请先登录"})
+        else:
+            target = quote(safe_return_to(self.path), safe="/?=&%")
+            self.redirect(f"/login?return_to={target}", 302)
+        return False
+
+    def request_origin_is_same(self) -> bool:
+        if not self.auth_config.enabled:
+            return True
+        origin = self.headers.get("Origin", "").strip()
+        referer = self.headers.get("Referer", "").strip()
+        candidate = origin or referer
+        if not candidate:
+            return False
+        parsed = urlsplit(candidate)
+        return parsed.netloc == self.headers.get("Host", "") and parsed.scheme in {"http", "https"}
+
+    def read_body(self, maximum: int = MAX_REQUEST_BYTES) -> bytes:
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except ValueError as exc:
+            raise ValueError("Content-Length 无效") from exc
+        if length < 0 or length > maximum:
+            raise ValueError("请求内容过大")
+        return self.rfile.read(length)
+
+    def translate_path(self, path: str) -> str:
+        if unquote(path.split("?", 1)[0]) == "/js/data.js":
+            return str(OUTPUT_PATH)
+        return super().translate_path(path)
+
+    def static_path_allowed(self, path: str) -> bool:
+        decoded = unquote(path)
+        if "\x00" in decoded or "\\" in decoded or ".." in decoded.split("/"):
+            return False
+        if decoded in STATIC_FILES:
+            return True
+        return any(decoded.startswith(prefix) for prefix in STATIC_PREFIXES)
+
+    def do_HEAD(self) -> None:
+        path = self.path.split("?", 1)[0]
+        if path == "/healthz":
+            self.send_response(204)
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            return
+        if path == "/login":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            return
+        if not self.require_auth(path):
+            return
+        if not self.static_path_allowed(path):
+            self.send_error(404)
+            return
+        super().do_HEAD()
+
     def do_GET(self) -> None:
         path = self.path.split("?", 1)[0]
+        if path == "/healthz":
+            self.send_json(200, {"ok": True})
+            return
+        if path == "/login":
+            if self.auth_config.enabled and self.current_user():
+                self.redirect(safe_return_to(parse_qs(urlsplit(self.path).query).get("return_to", ["/"])[0]))
+                return
+            return_to = parse_qs(urlsplit(self.path).query).get("return_to", ["/"])[0]
+            self.send_html(200, login_page(return_to))
+            return
+        if path == "/api/auth-status":
+            config = self.auth_config
+            username = self.current_user() if config.enabled else None
+            self.send_json(
+                200,
+                {"ok": True, "enabled": config.enabled, "authenticated": bool(username), "username": username},
+            )
+            return
+        if not self.require_auth(path):
+            return
         if path != "/api/train-data":
+            if not self.static_path_allowed(path):
+                self.send_error(404)
+                return
             super().do_GET()
             return
         try:
@@ -124,12 +485,31 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self) -> None:
         path = self.path.split("?", 1)[0]
+        if path == "/login":
+            self.handle_login()
+            return
+        if not self.require_auth(path):
+            return
+        if not self.request_origin_is_same():
+            self.send_json(403, {"ok": False, "error": "请求来源无效"})
+            return
+        if path == "/logout":
+            self.send_response(303)
+            self.send_header("Location", "/login")
+            self.send_header(
+                "Set-Cookie",
+                "train_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0"
+                + ("; Secure" if self.auth_config.cookie_secure else ""),
+            )
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         if path != "/api/save-train-data":
             self.send_error(404)
             return
         try:
-            length = int(self.headers.get("Content-Length", "0"))
-            raw = self.rfile.read(max(0, length)).decode("utf-8")
+            raw = self.read_body().decode("utf-8")
             payload = json.loads(raw)
             if not isinstance(payload, dict):
                 raise ValueError("payload 必须是对象")
@@ -163,6 +543,49 @@ class Handler(SimpleHTTPRequestHandler):
             return
         self.send_json(200, {"ok": True, "version": next_version})
 
+    def handle_login(self) -> None:
+        config = self.auth_config
+        if not config.enabled:
+            self.redirect("/")
+            return
+        blocked, retry_after = self.login_blocked()
+        try:
+            form = parse_qs(self.read_body(16 * 1024).decode("utf-8"), keep_blank_values=True)
+        except (ValueError, UnicodeDecodeError):
+            self.send_html(400, login_page("/", "登录请求无效。"))
+            return
+        return_to = safe_return_to(form.get("return_to", ["/"])[0])
+        if blocked:
+            body = login_page(return_to, "尝试次数过多，请稍后再试。")
+            self.send_response(429)
+            self.send_header("Retry-After", str(retry_after))
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        username = form.get("username", [""])[0]
+        password = form.get("password", [""])[0]
+        username_ok = hmac.compare_digest(username.encode("utf-8"), config.username.encode("utf-8"))
+        password_ok = verify_password(password, config.password_hash)
+        if not (username_ok and password_ok):
+            self.record_login_failure()
+            self.send_html(401, login_page(return_to, "账号或密码不正确。"))
+            return
+        self.clear_login_failures()
+        token = make_session(config, config.username)
+        self.send_response(303)
+        self.send_header("Location", return_to)
+        self.send_header(
+            "Set-Cookie",
+            f"train_session={token}; Path=/; HttpOnly; SameSite=Strict; Max-Age={config.session_ttl}"
+            + ("; Secure" if config.cookie_secure else ""),
+        )
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="本地预览火车足迹")
@@ -186,13 +609,22 @@ def main(argv: list[str] | None = None) -> None:
     display_host = "127.0.0.1" if args.host == "0.0.0.0" else args.host
     url = f"http://{display_host}:{args.port}/"
     try:
+        auth_config = load_auth_config()
+        initialize_deployment_data()
+    except ValueError as exc:
+        raise SystemExit(f"登录配置错误：{exc}") from exc
+    except OSError as exc:
+        raise SystemExit(f"无法初始化部署数据：{exc}") from exc
+    try:
         httpd = ThreadingHTTPServer((args.host, args.port), Handler)
+        httpd.auth_config = auth_config
     except OSError:
         print(f"端口 {args.port} 已在使用，打开已有页面：{url}")
         if args.open_browser:
             webbrowser.open(url)
         return
     print(f"打开 {url}")
+    print("登录保护已启用" if auth_config.enabled else "本地模式：未启用登录")
     print("新增 / 编辑 / 删除行程会写入 js/data.js 和 Excel")
     if args.open_browser:
         threading.Thread(target=webbrowser.open, args=(url,), daemon=True).start()

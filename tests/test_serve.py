@@ -1,17 +1,22 @@
 import json
+import os
 import tempfile
 import threading
 import unittest
+from http.cookiejar import CookieJar
 from pathlib import Path
 from unittest import mock
 from urllib.error import HTTPError
-from urllib.request import Request, urlopen
+from urllib.parse import urlencode
+from urllib.request import HTTPCookieProcessor, Request, build_opener, urlopen
 
 from tools import serve
 
 
 class ServeApiTests(unittest.TestCase):
     def setUp(self):
+        self.auth_env = mock.patch.dict(os.environ, {"TRAIN_AUTH_ENABLED": "0"})
+        self.auth_env.start()
         self.temp_dir = tempfile.TemporaryDirectory()
         self.data_path = Path(self.temp_dir.name) / "data.js"
         serve.write_data_js(
@@ -61,6 +66,7 @@ class ServeApiTests(unittest.TestCase):
         self.thread.join(timeout=2)
         serve.OUTPUT_PATH = self.old_output
         serve.EXCEL_PATH = self.old_excel
+        self.auth_env.stop()
         self.temp_dir.cleanup()
 
     def get_snapshot(self):
@@ -198,6 +204,131 @@ class ServeArgTests(unittest.TestCase):
             with mock.patch.object(serve.webbrowser, "open") as opener:
                 serve.main(["8765"])
         opener.assert_not_called()
+
+    def test_empty_deployment_data_directory_is_seeded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            excel_path = Path(directory) / "火车乘车记录.xlsx"
+            data_path = Path(directory) / "data.js"
+            with mock.patch.dict(os.environ, {"TRAIN_DATA_DIR": directory}):
+                with mock.patch.object(serve, "EXCEL_PATH", excel_path):
+                    with mock.patch.object(serve, "OUTPUT_PATH", data_path):
+                        serve.initialize_deployment_data()
+            self.assertEqual(excel_path.read_bytes(), (serve.ROOT / "火车乘车记录.xlsx").read_bytes())
+            self.assertEqual(data_path.read_bytes(), (serve.ROOT / "js" / "data.js").read_bytes())
+
+
+class ServeAuthenticationTests(unittest.TestCase):
+    def setUp(self):
+        serve.AUTH_FAILURES.clear()
+        password_hash = serve.make_password_hash(
+            "a-long-test-password", iterations=2_000, salt=b"0123456789abcdef"
+        )
+        self.auth_env = mock.patch.dict(
+            os.environ,
+            {
+                "TRAIN_AUTH_ENABLED": "1",
+                "TRAIN_AUTH_USERNAME": "traveller",
+                "TRAIN_AUTH_PASSWORD_HASH": password_hash,
+                "TRAIN_SESSION_SECRET": "test-session-secret-that-is-long-enough",
+                "TRAIN_COOKIE_SECURE": "0",
+            },
+        )
+        self.auth_env.start()
+        self.httpd = serve.ThreadingHTTPServer(("127.0.0.1", 0), serve.Handler)
+        self.httpd.auth_config = serve.load_auth_config()
+        self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
+        self.thread.start()
+        self.base_url = f"http://127.0.0.1:{self.httpd.server_port}"
+        self.cookies = CookieJar()
+        self.opener = build_opener(HTTPCookieProcessor(self.cookies))
+
+    def tearDown(self):
+        self.httpd.shutdown()
+        self.httpd.server_close()
+        self.thread.join(timeout=2)
+        self.auth_env.stop()
+        serve.AUTH_FAILURES.clear()
+
+    def request_status(self, request):
+        try:
+            with self.opener.open(request) as response:
+                return response.status, response.read()
+        except HTTPError as error:
+            return error.code, error.read()
+
+    def login(self):
+        body = urlencode(
+            {"username": "traveller", "password": "a-long-test-password", "return_to": "/"}
+        ).encode("utf-8")
+        return self.request_status(
+            Request(
+                self.base_url + "/login",
+                data=body,
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                method="POST",
+            )
+        )
+
+    def test_page_redirects_to_login_and_api_returns_401(self):
+        status, page = self.request_status(self.base_url + "/")
+        self.assertEqual(status, 200)
+        self.assertIn("登录 · 我的火车足迹", page.decode("utf-8"))
+
+        status, payload = self.request_status(self.base_url + "/api/train-data")
+        self.assertEqual(status, 401)
+        self.assertEqual(json.loads(payload)["error"], "请先登录")
+
+    def test_login_sets_session_and_allows_the_dashboard(self):
+        status, page = self.login()
+        self.assertEqual(status, 200)
+        self.assertIn("<title>我的火车足迹</title>", page.decode("utf-8"))
+        self.assertTrue(any(cookie.name == "train_session" for cookie in self.cookies))
+
+        status, payload = self.request_status(self.base_url + "/api/auth-status")
+        self.assertEqual(status, 200)
+        auth_status = json.loads(payload)
+        self.assertTrue(auth_status["authenticated"])
+        self.assertEqual(auth_status["username"], "traveller")
+
+    def test_authenticated_server_does_not_expose_repository_files(self):
+        self.login()
+        status, _ = self.request_status(self.base_url + "/README.md")
+        self.assertEqual(status, 404)
+
+    def test_cross_origin_write_is_rejected_and_same_origin_logout_clears_cookie(self):
+        self.login()
+        status, payload = self.request_status(
+            Request(
+                self.base_url + "/api/save-train-data",
+                data=b"{}",
+                headers={"Content-Type": "application/json", "Origin": "https://example.com"},
+                method="POST",
+            )
+        )
+        self.assertEqual(status, 403)
+        self.assertEqual(json.loads(payload)["error"], "请求来源无效")
+
+        status, page = self.request_status(
+            Request(
+                self.base_url + "/logout",
+                data=b"",
+                headers={"Origin": self.base_url},
+                method="POST",
+            )
+        )
+        self.assertEqual(status, 200)
+        self.assertIn("登录 · 我的火车足迹", page.decode("utf-8"))
+        self.assertFalse(any(cookie.name == "train_session" for cookie in self.cookies))
+
+    def test_session_signature_and_safe_return_path(self):
+        config = self.httpd.auth_config
+        token = serve.make_session(config, config.username, now=100)
+        self.assertEqual(serve.session_username(config, token, now=101), config.username)
+        self.assertIsNone(serve.session_username(config, token + "x", now=101))
+        self.assertIsNone(serve.session_username(config, token, now=100 + config.session_ttl + 1))
+        self.assertEqual(serve.safe_return_to("https://example.com/steal"), "/")
+        self.assertEqual(serve.safe_return_to("//example.com/steal"), "/")
+        self.assertEqual(serve.safe_return_to("/records?year=2026"), "/records?year=2026")
 
 
 if __name__ == "__main__":

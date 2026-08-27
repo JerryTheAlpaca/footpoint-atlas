@@ -9,6 +9,7 @@
 - 支持新增、编辑、删除乘车记录，并同步维护站点坐标。
 - 桌面端保留大屏数据看板布局，手机端适配为纵向滚动的故事线界面。
 - 支持触摸反馈、地图探索模式、底部操作面板和减少动态效果设置。
+- 部署模式提供服务端登录、会话过期、登录限流和退出登录。
 - 可使用 Docker Compose 部署到自己的服务器。
 
 ## 本地运行
@@ -38,4 +39,40 @@ python -m unittest discover -s tests -p "test_*.py"
 
 ## 部署
 
-项目提供 `Dockerfile`、`compose.yaml` 和 `deploy/` 下的部署配置，可按实际环境补充 `.env` 后使用 Docker Compose 启动。
+项目提供 `Dockerfile`、`compose.yaml` 和 `deploy/` 下的部署配置。容器部署会强制启用登录；本地直接运行 `tools/serve.py` 时默认免登录。
+
+### 1. 准备登录配置
+
+先生成密码哈希，过程中不会显示或保存明文密码：
+
+```powershell
+python tools/make_password_hash.py
+```
+
+再生成至少 32 字符的随机会话密钥：
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+复制 `.env.example` 为 `.env`，填写账号、上一步生成的密码哈希和会话密钥。`.env` 已被 Git 忽略，不要把它上传到代码仓库或发给他人。
+
+首次部署时先建立可写的数据目录；默认容器用户是 `1000:1000`：
+
+```bash
+sudo install -d -o 1000 -g 1000 /opt/footpoint-atlas-data
+```
+
+目录为空时，容器会用仓库当前的 Excel 和 `data.js` 自动初始化，之后的修改都会持久化到该目录。
+
+### 2. 启动容器
+
+```powershell
+docker compose up -d --build
+```
+
+应用只绑定服务器本机的 `127.0.0.1:8080`，不会直接暴露 Python 数据接口。请在腾讯云服务器上用已配置 HTTPS 证书的 Nginx、Caddy 或腾讯云边缘服务，把公网域名反向代理到 `http://127.0.0.1:8080`。
+
+生产环境必须保留 `TRAIN_COOKIE_SECURE=1` 并通过 HTTPS 访问。腾讯云安全组只需放行实际使用的 80/443 端口，不要放行 8765 或 8080。临时在纯 HTTP 环境测试时可以设为 `0`，上线前应恢复为 `1`。
+
+登录保护覆盖首页、脚本、地图、行程数据和保存接口；健康检查 `/healthz` 是唯一无需登录的运行状态接口。

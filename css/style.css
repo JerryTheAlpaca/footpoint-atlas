@@ -82,6 +82,7 @@ body {
 #review-btn,
 #review-play,
 #settings-btn,
+#logout-btn,
 #trip-submit {
   height: 32px;
   padding: 0 18px;
@@ -96,8 +97,13 @@ body {
 #review-btn:hover,
 #review-play:hover,
 #settings-btn:hover,
+#logout-btn:hover,
 #trip-submit:hover {
   background: rgba(0, 229, 255, 0.18);
+}
+
+.logout-form {
+  margin: 0;
 }
 
 .stat-cards {
@@ -1404,6 +1410,7 @@ body {
 
   #review-btn,
   #review-play,
+  #logout-btn,
   #trip-submit,
   #play-btn,
   .type-filter-btn,
@@ -1418,6 +1425,10 @@ body {
   #review-btn {
     flex: 0 1 180px;
     width: min(180px, 100%);
+    height: 44px;
+  }
+
+  #logout-btn {
     height: 44px;
   }
 

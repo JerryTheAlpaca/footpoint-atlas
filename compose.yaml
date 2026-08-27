@@ -4,6 +4,12 @@ services:
       context: .
     environment:
       TRAIN_DATA_DIR: /data
+      TRAIN_AUTH_ENABLED: "1"
+      TRAIN_AUTH_USERNAME: ${TRAIN_AUTH_USERNAME:?Set TRAIN_AUTH_USERNAME}
+      TRAIN_AUTH_PASSWORD_HASH: ${TRAIN_AUTH_PASSWORD_HASH:?Set TRAIN_AUTH_PASSWORD_HASH}
+      TRAIN_SESSION_SECRET: ${TRAIN_SESSION_SECRET:?Set TRAIN_SESSION_SECRET}
+      TRAIN_COOKIE_SECURE: ${TRAIN_COOKIE_SECURE:-1}
+      TRAIN_TRUST_PROXY: "1"
     volumes:
       - ${HOST_DATA_DIR:-/opt/footpoint-atlas-data}:/data
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
@@ -13,7 +19,7 @@ services:
         - CMD
         - python
         - -c
-        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/api/train-data', timeout=3).read()"
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/healthz', timeout=3).read()"
       interval: 15s
       timeout: 5s
       retries: 5
@@ -23,14 +29,10 @@ services:
 
   web:
     image: nginx:stable-alpine
-    environment:
-      ALLOWED_IP: ${ALLOWED_IP:?Set ALLOWED_IP to the single client IPv4 address}
     ports:
-      - "8080:80"
+      - "127.0.0.1:8080:80"
     volumes:
-      - .:/srv/site:ro
-      - ${HOST_DATA_DIR:-/opt/footpoint-atlas-data}:/data:ro
-      - ./deploy/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./deploy/nginx.conf.template:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       app:
         condition: service_healthy
@@ -42,7 +44,7 @@ services:
         - -q
         - -O
         - /dev/null
-        - http://127.0.0.1/
+        - http://127.0.0.1/healthz
       interval: 15s
       timeout: 5s
       retries: 5
