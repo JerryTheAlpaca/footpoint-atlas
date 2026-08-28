@@ -1937,16 +1937,15 @@ body {
     height: 36px;
     margin: 4px auto 2px;
     padding: 0;
-    border: 1px solid var(--card-line);
-    border-radius: 999px;
-    background: rgba(3, 8, 20, 0.5);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     color: var(--cyan-dim);
     opacity: 1;
   }
 
   .rank-toggle:hover,
   .rank-toggle:focus-visible {
-    border-color: rgba(0, 229, 255, 0.5);
     color: var(--cyan);
     opacity: 1;
   }

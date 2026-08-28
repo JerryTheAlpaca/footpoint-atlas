@@ -274,7 +274,7 @@ describe('mobile scroll story structure', () => {
     assert.match(css, /\.type-filter\s*\{[\s\S]*?border-radius:\s*999px/);
     assert.match(css, /\.type-filter-btn\.is-active\s*\{[\s\S]*?background:\s*rgba\(0, 229, 255, 0\.16\)/);
     assert.match(css, /#trip-submit\s*\{[\s\S]*?linear-gradient\(135deg/);
-    assert.match(css, /\.rank-toggle\s*\{[\s\S]*?width:\s*36px;[\s\S]*?border-radius:\s*999px/);
+    assert.match(css, /\.rank-toggle\s*\{[\s\S]*?width:\s*36px;[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
     assert.match(css, /:active\s*\{\s*transform:\s*scale\(0\.96\)/);
     assert.match(css, /\.record-item\.is-touching\s*\{[\s\S]*?transform:\s*scale\(0\.985\)/);
     assert.match(css, /@keyframes\s+mobile-sheet-rise/);
