@@ -97,10 +97,10 @@ describe('mobile scroll story structure', () => {
     assert.deepEqual(scenes, ['footprint', 'insights', 'records']);
   });
 
-  it('groups title and map, summary and rankings, then trip records on compact screens', () => {
+  it('groups title, stats and map first, then rankings, then trip records on compact screens', () => {
     assert.match(layoutCode, /pageFootprint\.appendChild\(nodes\.header\)/);
+    assert.match(layoutCode, /pageFootprint\.appendChild\(nodes\.stats\)/);
     assert.match(layoutCode, /pageFootprint\.appendChild\(nodes\.map\)/);
-    assert.match(layoutCode, /pageInsights\.appendChild\(nodes\.stats\)/);
     assert.match(layoutCode, /pageInsights\.appendChild\(nodes\.ranking\)/);
     assert.match(layoutCode, /pageInsights\.appendChild\(nodes\.reunion\)/);
     assert.match(layoutCode, /pageRecords\.appendChild\(nodes\.records\)/);
@@ -109,11 +109,11 @@ describe('mobile scroll story structure', () => {
     assert.doesNotMatch(appCode, /缘分重逢/);
   });
 
-  it('restores page scrolling, proximity snap, safe areas, and natural long-content flow', () => {
+  it('restores page scrolling, natural flow without scroll snap, and safe areas', () => {
     assert.match(css, /@media\s*\(max-width:\s*1024px\)/);
     assert.match(css, /overflow-y:\s*auto;/);
-    assert.match(css, /scroll-snap-type:\s*y\s+proximity;/);
-    assert.match(css, /scroll-snap-align:\s*start;/);
+    assert.doesNotMatch(css, /scroll-snap-type/);
+    assert.doesNotMatch(css, /scroll-snap-align/);
     assert.match(css, /100svh/);
     assert.match(css, /safe-area-inset-bottom/);
     assert.match(css, /\.record-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3/);
@@ -139,11 +139,23 @@ describe('mobile scroll story structure', () => {
     assert.match(css, /@media\s*\(max-width:\s*1024px\)[\s\S]*?#settings-btn\s*\{\s*display:\s*none;/);
     assert.match(css, /\.title-wrap\s*\{[\s\S]*?align-items:\s*center;/);
     assert.match(css, /\.title-actions\s*\{[\s\S]*?justify-content:\s*center;/);
-    assert.match(css, /\.map-frame\s*\{[\s\S]*?border-radius:\s*var\(--radius-lg\);/);
-    assert.match(css, /\.map-explore-btn\s*\{[\s\S]*?position:\s*static;/);
+    assert.match(css, /\.map-frame\s*\{[\s\S]*?border-radius:\s*calc\(var\(--card-radius\) - 1px\)/);
+    assert.match(css, /\.map-explore-btn\s*\{[\s\S]*?position:\s*absolute;/);
+    assert.match(css, /\.map-explore-btn\s*\{[\s\S]*?backdrop-filter:\s*blur/);
     assert.match(css, /grid-template-areas:\s*"label mode types";/);
-    assert.match(css, /\.record-more\s*\{[\s\S]*?width:\s*32px;[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
+    assert.match(css, /\.record-more\s*\{[\s\S]*?width:\s*36px;[\s\S]*?border-radius:\s*999px;[\s\S]*?background:\s*rgba\(0, 229, 255, 0\.07\);/);
     assert.match(appCode, /getElementById\('add-trip-btn'\)\.addEventListener\('click', openAddTripForm\)/);
+  });
+
+  it('uses premium card styling, segmented filters, and press feedback on compact screens', () => {
+    assert.match(css, /--card-radius:\s*18px/);
+    assert.match(css, /\.type-filter\s*\{[\s\S]*?border-radius:\s*999px/);
+    assert.match(css, /\.type-filter-btn\.is-active\s*\{[\s\S]*?background:\s*rgba\(0, 229, 255, 0\.16\)/);
+    assert.match(css, /#trip-submit\s*\{[\s\S]*?linear-gradient\(135deg/);
+    assert.match(css, /\.rank-toggle\s*\{[\s\S]*?width:\s*44px;[\s\S]*?border-radius:\s*999px/);
+    assert.match(css, /:active\s*\{\s*transform:\s*scale\(0\.96\)/);
+    assert.match(css, /\.record-item\.is-touching\s*\{[\s\S]*?transform:\s*scale\(0\.985\)/);
+    assert.match(css, /@keyframes\s+mobile-sheet-rise/);
   });
 });
 
@@ -153,6 +165,13 @@ describe('mobile animation controls', () => {
     assert.match(motionCode, /addEventListener\('scroll',\s*scheduleParallax,\s*\{\s*passive:\s*true/);
     assert.match(motionCode, /requestAnimationFrame/);
     assert.match(motionCode, /scene-motion-ready/);
+  });
+
+  it('reveals scenes once and keeps them fully visible afterwards', () => {
+    assert.match(motionCode, /classList\.add\('has-revealed'\)/);
+    assert.doesNotMatch(motionCode, /classList\.remove\('has-revealed'\)/);
+    assert.match(css, /\.scene-motion-ready\.has-revealed\s*>\s*\*[\s\S]*?\{\s*opacity:\s*1/);
+    assert.doesNotMatch(css, /opacity:\s*0\.48/);
   });
 
   it('supports reduced motion for scenes and data/chart animations', () => {

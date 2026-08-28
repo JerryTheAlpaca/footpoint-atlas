@@ -1390,7 +1390,6 @@ body {
     min-height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-    scroll-snap-type: y proximity;
     overscroll-behavior-y: auto;
   }
 
@@ -1408,6 +1407,13 @@ body {
   }
 
   .app {
+    --card-radius: 18px;
+    --card-line: rgba(0, 229, 255, 0.16);
+    --card-bg: linear-gradient(180deg, rgba(13, 26, 50, 0.66), rgba(6, 13, 28, 0.78));
+    --card-shadow:
+      inset 0 1px 0 rgba(232, 246, 255, 0.05),
+      0 12px 32px rgba(0, 0, 0, 0.38),
+      0 0 22px rgba(0, 229, 255, 0.05);
     position: relative !important;
     left: auto !important;
     top: auto !important;
@@ -1417,11 +1423,11 @@ body {
     height: auto !important;
     min-height: 100vh;
     min-height: 100svh;
-    padding: max(18px, env(safe-area-inset-top))
+    padding: max(14px, env(safe-area-inset-top))
       max(14px, env(safe-area-inset-right))
-      max(24px, env(safe-area-inset-bottom))
+      max(28px, env(safe-area-inset-bottom))
       max(14px, env(safe-area-inset-left));
-    gap: 14px;
+    gap: 16px;
     transform: none !important;
     transform-origin: initial;
   }
@@ -1440,14 +1446,7 @@ body {
     flex-direction: column;
     width: 100%;
     min-width: 0;
-    min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-    min-height: calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-    gap: 10px;
-    padding: 10px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    background: rgba(8, 18, 36, 0.42);
-    box-shadow: var(--shadow);
+    gap: 16px;
   }
 
   .ranking-scene,
@@ -1457,69 +1456,77 @@ body {
     flex-direction: column;
     width: 100%;
     min-width: 0;
-    gap: 10px;
+    gap: 16px;
   }
 
   .mobile-scene {
     position: relative;
     isolation: isolate;
-    scroll-snap-align: start;
-    scroll-snap-stop: normal;
   }
 
   .mobile-scene::before {
     content: "";
     position: absolute;
-    inset: 8px;
+    inset: 6px;
     z-index: -1;
     pointer-events: none;
-    border-radius: inherit;
+    border-radius: 24px;
     background: radial-gradient(circle at 50% 0%, rgba(0, 229, 255, 0.12), transparent 65%);
-    opacity: 0.22;
+    opacity: 0.14;
     transform: translate3d(0, var(--scene-parallax, 0px), 0);
-    transition: opacity 0.5s ease;
+    transition: opacity 0.6s ease;
   }
 
-  .scene-motion-ready > * {
-    opacity: 0.48;
-    transform: translate3d(0, 20px, 0) scale(0.985);
+  .mobile-scene.is-scene-active::before {
+    opacity: 0.45;
+  }
+
+  .scene-motion-ready > *,
+  .scene-motion-ready .ranking-scene > * {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.98);
     transition:
-      opacity 0.5s ease,
-      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.65s ease,
+      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .scene-motion-ready.is-scene-active > * {
+  .scene-motion-ready.has-revealed > *,
+  .scene-motion-ready.has-revealed .ranking-scene > * {
     opacity: 1;
     transform: none;
   }
 
-  .scene-motion-ready.is-scene-active > *:nth-child(2) {
-    transition-delay: 60ms;
+  .scene-motion-ready.has-revealed > *:nth-child(2),
+  .scene-motion-ready.has-revealed .ranking-scene > *:nth-child(2) {
+    transition-delay: 90ms;
   }
 
-  .scene-motion-ready.is-scene-active > *:nth-child(3) {
-    transition-delay: 120ms;
-  }
-
-  .scene-motion-ready.is-scene-active > *:nth-child(4) {
+  .scene-motion-ready.has-revealed > *:nth-child(3),
+  .scene-motion-ready.has-revealed .ranking-scene > *:nth-child(3) {
     transition-delay: 180ms;
   }
 
-  .scene-motion-ready.is-scene-active {
-    border-color: rgba(0, 229, 255, 0.48);
-    box-shadow: 0 0 28px rgba(0, 229, 255, 0.16);
+  .scene-motion-ready.has-revealed > *:nth-child(4) {
+    transition-delay: 270ms;
   }
 
-  .scene-motion-ready.is-scene-active::before {
-    opacity: 0.62;
+  .stat-card,
+  .map-panel,
+  .ranking-scene .chart-block,
+  .reunion-scene .chart-block,
+  .record-scene .record-panel {
+    border: 1px solid var(--card-line);
+    border-radius: var(--card-radius);
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
   }
 
   .header {
     align-items: center;
     justify-content: center;
     width: 100%;
-    gap: 24px;
-    padding: 2px;
+    gap: 20px;
+    padding: 12px 4px 2px;
     text-align: center;
   }
 
@@ -1531,8 +1538,8 @@ body {
 
   .title-wrap h1 {
     max-width: 100%;
-    font-size: clamp(25px, 8vw, 32px);
-    letter-spacing: 0.1em;
+    font-size: clamp(28px, 9vw, 36px);
+    letter-spacing: 0.12em;
     overflow-wrap: anywhere;
     text-align: center;
   }
@@ -1544,11 +1551,17 @@ body {
     gap: 10px;
   }
 
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   #review-btn,
   #review-play,
   #logout-btn,
   #trip-submit,
   #play-btn,
+  #add-trip-btn,
+  .map-explore-btn,
   .type-filter-btn,
   .rank-toggle,
   .review-year-btn,
@@ -1558,9 +1571,86 @@ body {
     min-height: 44px;
   }
 
+  #review-btn,
+  #review-play,
+  #logout-btn,
+  #trip-submit,
+  #play-btn,
+  #add-trip-btn,
+  .map-explore-btn,
+  .type-filter-btn,
+  .rank-toggle,
+  .review-year-btn,
+  .settings-nav-btn,
+  .range-select-trigger,
+  .range-select-option,
+  .date-picker-toggle,
+  .date-picker-nav,
+  .date-picker-day,
+  .record-more,
+  .record-action-dialog button {
+    transition:
+      transform 0.16s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      color 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  #review-btn:active,
+  #review-play:active,
+  #logout-btn:active,
+  #trip-submit:active,
+  #play-btn:active,
+  #add-trip-btn:active,
+  .map-explore-btn:active,
+  .type-filter-btn:active,
+  .rank-toggle:active,
+  .review-year-btn:active,
+  .settings-nav-btn:active,
+  .range-select-trigger:active,
+  .range-select-option:active,
+  .date-picker-nav:active,
+  .date-picker-day:active,
+  .record-action-dialog button:active {
+    transform: scale(0.96);
+  }
+
+  .date-picker-toggle:active {
+    transform: translateY(-50%) scale(0.9);
+  }
+
+  #play-btn,
+  #review-play,
+  #trip-submit {
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #2ae9ff 0%, #00b8e6 52%, #0a84ff 100%);
+    color: #03202e;
+    font-weight: 600;
+    text-shadow: none;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 8px 22px rgba(0, 229, 255, 0.26);
+  }
+
+  #play-btn:hover,
+  #review-play:hover,
+  #trip-submit:hover {
+    background: linear-gradient(135deg, #66efff 0%, #17c9f2 52%, #2b95ff 100%);
+    color: #03202e;
+  }
+
+  #review-btn,
+  #logout-btn,
+  #add-trip-btn {
+    border-radius: 999px;
+  }
+
   #review-btn {
-    flex: 0 1 180px;
-    width: min(180px, 100%);
+    flex: 0 1 200px;
+    width: min(200px, 100%);
     height: 44px;
   }
 
@@ -1575,13 +1665,18 @@ body {
   .stat-cards {
     width: 100%;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
     margin-left: 0;
   }
 
   .stat-card {
     min-width: 0;
-    padding: 12px 10px 14px;
+    padding: 14px 12px 16px;
+  }
+
+  .stat-card::after {
+    width: 2px;
+    background: linear-gradient(180deg, rgba(0, 229, 255, 0.85), transparent 78%);
   }
 
   .stat-label {
@@ -1589,18 +1684,16 @@ body {
   }
 
   .stat-value {
-    font-size: clamp(22px, 7vw, 28px);
+    margin: 8px 0 2px;
+    font-size: clamp(26px, 8vw, 34px);
   }
 
   .map-panel {
+    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
     min-height: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
     overflow: visible;
   }
 
@@ -1608,17 +1701,15 @@ body {
     display: block;
     width: 100%;
     overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    background: var(--bg-elev);
-    box-shadow: var(--shadow);
+    border-radius: calc(var(--card-radius) - 1px) calc(var(--card-radius) - 1px) 0 0;
+    background: rgba(4, 10, 24, 0.5);
   }
 
   .map-viewport {
     flex: 0 0 auto;
-    height: clamp(280px, 42vh, 480px);
-    height: clamp(280px, 42svh, 480px);
-    min-height: 280px;
+    height: clamp(300px, 44vh, 460px);
+    height: clamp(300px, 44svh, 460px);
+    min-height: 300px;
   }
 
   .map-chart {
@@ -1632,35 +1723,39 @@ body {
   }
 
   .map-explore-btn {
-    position: static;
-    align-self: flex-end;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 6;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 112px;
     min-height: 44px;
-    padding: 0 14px;
-    border: 1px solid var(--cyan);
-    border-radius: var(--radius-sm);
-    background: rgba(5, 12, 28, 0.9);
+    padding: 0 16px;
+    margin: 0;
+    border: 1px solid rgba(0, 229, 255, 0.42);
+    border-radius: 999px;
+    background: rgba(5, 12, 28, 0.68);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     color: var(--cyan);
     font: inherit;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
-    margin: 8px 12px 0;
-    box-shadow: 0 0 14px rgba(0, 229, 255, 0.2);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   }
 
   .map-explore-btn[aria-pressed="true"] {
-    background: rgba(0, 229, 255, 0.16);
+    background: rgba(0, 229, 255, 0.22);
   }
 
   .timeline {
     flex: 0 0 auto;
-    margin-top: 8px;
+    margin-top: 0;
     padding: 12px 12px max(14px, env(safe-area-inset-bottom));
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
+    border-top: 1px solid var(--card-line);
+    border-radius: 0 0 calc(var(--card-radius) - 1px) calc(var(--card-radius) - 1px);
+    background: rgba(4, 10, 24, 0.35);
   }
 
   .timeline-filter {
@@ -1742,33 +1837,55 @@ body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     min-width: 0;
     margin-left: 0;
-    gap: 4px;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--card-line);
+    border-radius: 999px;
+    background: rgba(3, 8, 20, 0.55);
   }
 
   .type-filter-btn {
     min-width: 0;
-    height: 44px;
-    padding: 0 3px;
-    gap: 3px;
+    height: 40px;
+    padding: 0 4px;
+    gap: 4px;
     justify-content: center;
-    font-size: 12px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
   }
 
   .type-filter-btn .swatch {
     width: 10px;
   }
 
+  .type-filter-btn.is-active {
+    background: rgba(0, 229, 255, 0.16);
+    color: var(--cyan);
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.18);
+  }
+
+  .type-filter-btn[data-type="conv"].is-active {
+    background: rgba(22, 163, 74, 0.2);
+    color: #4ade80;
+    box-shadow: 0 0 12px rgba(22, 163, 74, 0.2);
+  }
+
   .timeline-controls {
-    grid-template-columns: minmax(78px, auto) minmax(0, 1fr);
+    grid-template-columns: minmax(84px, auto) minmax(0, 1fr);
     gap: 10px;
   }
 
   #play-btn {
     height: 44px;
+    padding: 0 18px;
   }
 
   #time-slider {
     min-width: 0;
+    min-height: 44px;
   }
 
   #time-label {
@@ -1788,7 +1905,7 @@ body {
   }
 
   .ranking-scene .chart-block {
-    padding: 12px 10px 4px;
+    padding: 14px 12px 8px;
   }
 
   .chart-block h2,
@@ -1802,19 +1919,33 @@ body {
   }
 
   .rank-toggle {
-    flex-basis: 44px;
-    width: 100%;
+    align-self: center;
+    flex: 0 0 auto;
+    width: 44px;
     height: 44px;
-    opacity: 0.8;
+    margin: 4px auto 2px;
+    padding: 0;
+    border: 1px solid var(--card-line);
+    border-radius: 999px;
+    background: rgba(3, 8, 20, 0.5);
+    color: var(--cyan-dim);
+    opacity: 1;
+  }
+
+  .rank-toggle:hover,
+  .rank-toggle:focus-visible {
+    border-color: rgba(0, 229, 255, 0.5);
+    color: var(--cyan);
+    opacity: 1;
   }
 
   .record-panel {
     min-height: 0;
-    padding: 12px 10px 10px;
+    padding: 14px 12px 12px;
   }
 
   .record-panel-head {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
   .record-panel-head h2 {
@@ -1823,7 +1954,7 @@ body {
 
   #add-trip-btn {
     min-height: 44px;
-    padding: 0 14px;
+    padding: 0 18px;
     font-size: 14px;
   }
 
@@ -1832,13 +1963,25 @@ body {
     grid-template-columns: minmax(0, 1fr);
     flex: 0 0 auto;
     overflow: visible;
-    gap: 8px;
+    gap: 10px;
     padding-right: 0;
   }
 
   .record-item {
     min-height: 68px;
-    padding: 11px 46px 11px 12px;
+    padding: 12px 56px 12px 14px;
+    border: 1px solid rgba(0, 229, 255, 0.1);
+    border-radius: var(--radius-md);
+    background: rgba(9, 22, 42, 0.5);
+    transition:
+      transform 0.16s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .record-item.is-touching {
+    transform: scale(0.985);
   }
 
   .record-route {
@@ -1857,16 +2000,16 @@ body {
   .record-more {
     position: absolute;
     top: 50%;
-    right: 10px;
+    right: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
+    border: 1px solid rgba(0, 229, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(0, 229, 255, 0.07);
     color: var(--cyan-dim);
     font: inherit;
     font-size: 14px;
@@ -1879,6 +2022,12 @@ body {
   .record-more:focus-visible,
   .record-more:hover {
     color: var(--cyan);
+    border-color: rgba(0, 229, 255, 0.45);
+    background: rgba(0, 229, 255, 0.14);
+  }
+
+  .record-more:active {
+    transform: translateY(-50%) scale(0.9);
   }
 
   .record-more:focus-visible {
@@ -1887,7 +2036,7 @@ body {
   }
 
   .reunion-scene .reunion-block {
-    padding: 12px 10px 4px;
+    padding: 14px 12px 8px;
   }
 
   .reunion-summary {
@@ -1896,7 +2045,8 @@ body {
   }
 
   .reunion-item {
-    padding: 11px 10px;
+    padding: 11px 12px;
+    border-radius: var(--radius-md);
   }
 
   .reunion-item-rides span {
@@ -1914,6 +2064,14 @@ body {
     justify-content: center;
   }
 
+  .review-backdrop,
+  .settings-backdrop,
+  .record-action-backdrop {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    animation: mobile-sheet-fade 0.32s ease;
+  }
+
   .review-dialog,
   .settings-dialog {
     width: 100%;
@@ -1921,7 +2079,8 @@ body {
     max-height: calc(100vh - env(safe-area-inset-top));
     max-height: calc(100svh - env(safe-area-inset-top));
     overflow: hidden;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-radius: 22px 22px 0 0;
+    animation: mobile-sheet-rise 0.42s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .review-dialog {
@@ -1949,19 +2108,22 @@ body {
 
   .review-year-btn {
     flex: 0 0 auto;
-    min-width: 72px;
+    min-width: 76px;
     min-height: 44px;
-    padding: 0 16px;
+    padding: 0 18px;
+    border-radius: 999px;
   }
 
   .review-cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
   }
 
   .review-card {
     min-width: 0;
-    padding: 12px 10px;
+    padding: 14px 12px;
+    border-radius: var(--radius-md);
+    background: rgba(9, 22, 42, 0.5);
   }
 
   .review-text {
@@ -2063,7 +2225,9 @@ body {
     flex-wrap: wrap;
     margin-top: 14px;
     padding: 12px 0 max(4px, env(safe-area-inset-bottom));
-    background: #071422;
+    background: rgba(7, 20, 34, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .trip-status {
@@ -2072,7 +2236,7 @@ body {
 
   #trip-submit {
     width: 100%;
-    height: 46px;
+    height: 44px;
   }
 
   .date-picker {
@@ -2138,11 +2302,12 @@ body {
     display: grid;
     gap: 8px;
     padding: 10px 14px max(14px, env(safe-area-inset-bottom));
-    border: 1px solid var(--line);
+    border: 1px solid var(--card-line);
     border-bottom: 0;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    background: #071422;
+    border-radius: 22px 22px 0 0;
+    background: rgba(7, 20, 34, 0.92);
     box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.35);
+    animation: mobile-sheet-rise 0.38s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .record-action-handle {
@@ -2178,6 +2343,28 @@ body {
     margin-top: 4px;
     color: var(--muted);
   }
+
+  @keyframes mobile-sheet-rise {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 32px, 0);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes mobile-sheet-fade {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2191,7 +2378,9 @@ body {
   }
 
   .scene-motion-ready > *,
-  .scene-motion-ready.is-scene-active > * {
+  .scene-motion-ready .ranking-scene > *,
+  .scene-motion-ready.has-revealed > *,
+  .scene-motion-ready.has-revealed .ranking-scene > * {
     opacity: 1;
     transform: none;
   }

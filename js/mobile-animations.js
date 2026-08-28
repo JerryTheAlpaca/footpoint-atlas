@@ -30,7 +30,7 @@
 
     function clearMotionState() {
       scenes.forEach(function (scene) {
-        scene.classList.remove('scene-motion-ready', 'is-scene-active');
+        scene.classList.remove('scene-motion-ready', 'is-scene-active', 'has-revealed');
         scene.style.removeProperty('--scene-parallax');
       });
     }
@@ -83,23 +83,24 @@
     }
 
     try {
-      scenes.forEach(function (scene) {
-        scene.classList.add('scene-motion-ready');
-      });
       observer = new windowRef.IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           entry.target.classList.toggle(
             'is-scene-active',
-            entry.isIntersecting && entry.intersectionRatio >= 0.14
+            entry.isIntersecting && entry.intersectionRatio >= 0.12
           );
+          if (entry.isIntersecting) {
+            entry.target.classList.add('has-revealed');
+          }
         });
         scheduleParallax();
       }, {
         root: null,
-        rootMargin: '-8% 0px -14% 0px',
-        threshold: [0, 0.14, 0.45, 0.75],
+        rootMargin: '-5% 0px -15% 0px',
+        threshold: [0, 0.12, 0.5],
       });
       scenes.forEach(function (scene) {
+        scene.classList.add('scene-motion-ready');
         observer.observe(scene);
       });
     } catch (error) {

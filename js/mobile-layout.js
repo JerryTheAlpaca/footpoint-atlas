@@ -42,8 +42,8 @@
     nodes.pageRecords.hidden = false;
 
     nodes.pageFootprint.appendChild(nodes.header);
+    nodes.pageFootprint.appendChild(nodes.stats);
     nodes.pageFootprint.appendChild(nodes.map);
-    nodes.pageInsights.appendChild(nodes.stats);
     nodes.pageInsights.appendChild(nodes.ranking);
     nodes.pageInsights.appendChild(nodes.reunion);
     nodes.pageRecords.appendChild(nodes.records);
