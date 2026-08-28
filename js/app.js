@@ -88,17 +88,59 @@
     };
   }
 
-  function routeLineWidth(count) {
+  function useCompactMapMarks(override) {
+    if (typeof override === 'boolean') return override;
+    return isCompactLayout();
+  }
+
+  function mapMarkChrome(compact) {
+    if (useCompactMapMarks(compact)) {
+      return {
+        lineEffectSize: 2,
+        tripEffectSize: 2.5,
+        tripHeadSize: 4,
+        stationShadow: 3,
+        tripHeadShadow: 5,
+        rippleScale: 2.4,
+        ringBorder: 1,
+        ringExtra: 3,
+        hoverExtra: 0.6,
+        replayLineWidth: 1.5,
+        labelFont: 9,
+        labelOffset: -10,
+      };
+    }
+    return {
+      lineEffectSize: 4,
+      tripEffectSize: 5,
+      tripHeadSize: 8,
+      stationShadow: 8,
+      tripHeadShadow: 12,
+      rippleScale: 3.2,
+      ringBorder: 2,
+      ringExtra: 8,
+      hoverExtra: 1.2,
+      replayLineWidth: 2.4,
+      labelFont: 11,
+      labelOffset: -16,
+    };
+  }
+
+  function routeLineWidth(count, compact) {
     var rides = Math.max(1, Number(count) || 1);
-    var width = 1.2 + (rides - 1) * 0.9;
-    if (width > 6) width = 6;
+    var compactMarks = useCompactMapMarks(compact);
+    var width = compactMarks ? 0.85 + (rides - 1) * 0.6 : 1.2 + (rides - 1) * 0.9;
+    var cap = compactMarks ? 3.8 : 6;
+    if (width > cap) width = cap;
     return width;
   }
 
-  function stationSymbolSize(visits) {
+  function stationSymbolSize(visits, compact) {
     var n = Math.max(1, Number(visits) || 1);
-    var size = 5.5 + Math.sqrt(n) * 4;
-    if (size > 22) size = 22;
+    var compactMarks = useCompactMapMarks(compact);
+    var size = compactMarks ? 2.4 + Math.sqrt(n) * 1.7 : 5.5 + Math.sqrt(n) * 4;
+    var cap = compactMarks ? 8 : 22;
+    if (size > cap) size = cap;
     return size;
   }
 
@@ -223,6 +265,8 @@
     readGeoView: readGeoView,
     routeLineWidth: routeLineWidth,
     stationSymbolSize: stationSymbolSize,
+    useCompactMapMarks: useCompactMapMarks,
+    mapMarkChrome: mapMarkChrome,
     mapLineSeries: mapLineSeries,
     mapRenderOpts: mapRenderOpts,
     ROUTE_LINE_STYLES: ROUTE_LINE_STYLES,
@@ -362,9 +406,12 @@
     var from = Math.max(0, Number(fromSize) || 0);
     var to = toSize == null ? stationSymbolSize(1) : Math.max(0, Number(toSize));
     var newborn = from < 0.5;
+    var chrome = mapMarkChrome();
     return {
       size: from + (to - from) * a,
-      ringSize: newborn ? Math.max(4, to * 0.8) + a * (to * 1.6 + 8) : to + a * 8,
+      ringSize: newborn
+        ? Math.max(chrome.ringBorder + 2, to * 0.8) + a * (to * 1.6 + chrome.ringExtra)
+        : to + a * chrome.ringExtra,
       ringOpacity: a <= 0 || a >= 1 ? 0 : (1 - a) * (newborn ? 0.9 : 0.4),
     };
   }
@@ -408,7 +455,7 @@
     }
     var arriveAt = tmg.startHoldMs + tmg.drawMs;
     var done = elapsed >= arriveAt + tmg.endAppearMs;
-    var lineWidth = trip.lineWidth == null ? 2.4 : trip.lineWidth;
+    var lineWidth = trip.lineWidth == null ? mapMarkChrome().replayLineWidth : trip.lineWidth;
     var hideOverlayStroke = !!trip.routeLit;
 
     if (elapsed < tmg.startHoldMs) {
@@ -611,7 +658,7 @@
   function hoverLineDrawStyle(type, width) {
     return {
       stroke: HIGHLIGHT_LINE_COLORS[type] || HIGHLIGHT_LINE_COLORS.emu,
-      lineWidth: (Number(width) || 1.2) + 1.2,
+      lineWidth: (Number(width) || routeLineWidth(1)) + mapMarkChrome().hoverExtra,
       opacity: 1,
     };
   }
@@ -760,7 +807,7 @@
         trailLength: 0.45,
         color: style.effectColor,
         symbol: 'circle',
-        symbolSize: 4,
+        symbolSize: mapMarkChrome().lineEffectSize,
       },
       tooltip: { formatter: lineTooltip },
       data: data,
@@ -775,13 +822,13 @@
       coordinateSystem: 'geo',
       geoIndex: 0,
       zlevel: 3,
-      rippleEffect: { brushType: 'stroke', scale: 3.2, period: 3.6 },
+      rippleEffect: { brushType: 'stroke', scale: mapMarkChrome().rippleScale, period: 3.6 },
       symbolSize: function (val) {
         return stationSymbolSize(val[2]);
       },
       itemStyle: {
         color: NEON,
-        shadowBlur: 8,
+        shadowBlur: mapMarkChrome().stationShadow,
         shadowColor: NEON,
       },
       label: { show: false },
@@ -799,7 +846,7 @@
       phase: 'start',
       stations: [],
       lineCoords: [],
-      lineWidth: 2.4,
+      lineWidth: mapMarkChrome().replayLineWidth,
       head: null,
     };
   }
@@ -827,7 +874,7 @@
       zlevel: HOVER_ZLEVEL,
       z: 100,
       shape: { points: [] },
-      style: { stroke: HIGHLIGHT_LINE_COLORS.emu, lineWidth: 2.4, opacity: 0, lineCap: 'round', lineJoin: 'round' },
+      style: { stroke: HIGHLIGHT_LINE_COLORS.emu, lineWidth: mapMarkChrome().replayLineWidth, opacity: 0, lineCap: 'round', lineJoin: 'round' },
     });
     mapChart.getZr().add(hoverZrLine);
     return hoverZrLine;
@@ -937,7 +984,7 @@
             trailLength: 0.55,
             color: trailColor,
             symbol: 'circle',
-            symbolSize: 5,
+            symbolSize: mapMarkChrome().tripEffectSize,
           }
         : { show: false },
       lineStyle: lineStyle,
@@ -966,8 +1013,8 @@
             show: showLabel && station.appear > 0.5,
             formatter: '{b}',
             color: '#e8f6ff',
-            fontSize: 11,
-            offset: [0, -16],
+            fontSize: mapMarkChrome().labelFont,
+            offset: [0, mapMarkChrome().labelOffset],
           },
         };
       });
@@ -984,7 +1031,7 @@
           itemStyle: {
             color: 'transparent',
             borderColor: NEON,
-            borderWidth: 2,
+            borderWidth: mapMarkChrome().ringBorder,
             opacity: style.ringOpacity,
           },
         };
@@ -1000,7 +1047,7 @@
     var headData = frame.head
       ? [{ name: '', value: frame.head.concat([1]), visits: 1 }]
       : [];
-    var width = frame.lineWidth == null ? 2.4 : frame.lineWidth;
+    var width = frame.lineWidth == null ? mapMarkChrome().replayLineWidth : frame.lineWidth;
     var lineColor = frame.lineColor || NEON;
     var effectColor = frame.effectColor || GOLD;
     var stationTooltip = {
@@ -1031,11 +1078,11 @@
         silent: true,
         animation: false,
         symbol: 'circle',
-        symbolSize: 8,
+        symbolSize: mapMarkChrome().tripHeadSize,
         rippleEffect: { brushType: 'stroke', scale: 2.4, period: 2.2 },
         itemStyle: {
           color: effectColor,
-          shadowBlur: 12,
+          shadowBlur: mapMarkChrome().tripHeadShadow,
           shadowColor: effectColor,
         },
         label: { show: false },
@@ -1764,7 +1811,7 @@
       '单程回放  ' + rec.date + '  ' + rec.from + ' → ' + rec.to;
 
     var trip = makeTripModel(rec, []);
-    trip.lineWidth = 2.4;
+    trip.lineWidth = mapMarkChrome().replayLineWidth;
     runTripOverlay({
       trip: trip,
       timing: TRIP_PLAY_TIMING,
@@ -2488,7 +2535,11 @@
     if (!compact) mapExploreMode = false;
     syncMapExploreButton();
     if (mapChart) {
-      mapChart.setOption({ geo: { roam: mapRoamEnabled || mapExploreMode } }, false);
+      if (!timelinePlaying && focusedRecordIndex == null) {
+        renderMap();
+      } else {
+        mapChart.setOption({ geo: { roam: mapRoamEnabled || mapExploreMode } }, false);
+      }
     }
     scheduleLayoutRefresh();
   }

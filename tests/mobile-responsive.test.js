@@ -210,6 +210,14 @@ describe('compact responsive scaling', () => {
     assert.equal(buildGeoOption().roam, true);
     assert.equal(buildGeoOption(undefined, { roam: false }).roam, false);
   });
+
+  it('uses much smaller station circles and thinner lines on compact screens', () => {
+    const { stationSymbolSize, routeLineWidth, mapMarkChrome } = loadMap();
+    assert.ok(stationSymbolSize(1, true) < stationSymbolSize(1, false) * 0.5);
+    assert.ok(routeLineWidth(1, true) < routeLineWidth(1, false));
+    assert.ok(mapMarkChrome(true).stationShadow < mapMarkChrome(false).stationShadow);
+    assert.ok(mapMarkChrome(true).lineEffectSize < mapMarkChrome(false).lineEffectSize);
+  });
 });
 
 describe('mobile scroll story structure', () => {

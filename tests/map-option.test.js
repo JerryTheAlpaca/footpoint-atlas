@@ -78,11 +78,13 @@ describe('routeLineWidth', () => {
     assert.equal(routeLineWidth(99), 6);
   });
 
-  it('keeps all lines at the same base width during highlight to avoid flicker', () => {
+  it('thins lines on compact screens without losing ride-count contrast', () => {
     const { routeLineWidth } = loadTrainMap();
 
-    assert.equal(routeLineWidth(1, true), routeLineWidth(1, false));
-    assert.equal(routeLineWidth(3, true), routeLineWidth(3, false));
+    assert.equal(routeLineWidth(1, true), 0.85);
+    assert.ok(routeLineWidth(3, true) > routeLineWidth(1, true));
+    assert.ok(routeLineWidth(3, true) < routeLineWidth(3, false));
+    assert.equal(routeLineWidth(20, true), 3.8);
   });
 });
 
@@ -107,6 +109,16 @@ describe('stationSymbolSize', () => {
     const { stationSymbolSize } = loadTrainMap();
 
     assert.equal(stationSymbolSize(200), 22);
+  });
+
+  it('shrinks station circles on compact screens so dense clusters stay readable', () => {
+    const { stationSymbolSize } = loadTrainMap();
+
+    assert.ok(Math.abs(stationSymbolSize(1, true) - 4.1) < 0.01);
+    assert.ok(stationSymbolSize(1, true) < stationSymbolSize(1, false) * 0.5);
+    assert.ok(stationSymbolSize(14, true) > stationSymbolSize(1, true));
+    assert.ok(stationSymbolSize(14, true) < 9);
+    assert.equal(stationSymbolSize(200, true), 8);
   });
 });
 
