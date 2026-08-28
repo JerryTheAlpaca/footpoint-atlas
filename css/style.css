@@ -710,8 +710,8 @@ body {
 .record-context-menu {
   position: fixed;
   z-index: 40;
-  min-width: 128px;
-  padding: 6px;
+  min-width: 88px;
+  padding: 3px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: rgba(8, 18, 36, 0.96);
@@ -725,14 +725,14 @@ body {
 .record-context-menu button {
   display: block;
   width: 100%;
-  padding: 8px 14px;
+  padding: 4px 8px;
   border: none;
   border-radius: 6px;
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 14px;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  letter-spacing: 0.02em;
   text-align: left;
   cursor: pointer;
 }
