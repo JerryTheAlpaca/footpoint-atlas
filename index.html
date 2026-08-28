@@ -48,13 +48,37 @@
         <button id="map-explore-btn" class="map-explore-btn" type="button" aria-pressed="false">探索地图</button>
         <div class="timeline">
           <div class="timeline-filter">
-            <label for="range-mode">回放范围</label>
-            <select id="range-mode">
-              <option value="all">全部</option>
-              <option value="year">按年份</option>
-              <option value="custom">自定义时间段</option>
-            </select>
-            <select id="range-year" hidden></select>
+            <label for="range-mode-button">回放范围</label>
+            <div id="range-mode-control" class="range-mode-select">
+              <select id="range-mode" hidden aria-hidden="true" tabindex="-1">
+                <option value="all">全部</option>
+                <option value="year">按年份</option>
+                <option value="custom">自定义时间段</option>
+              </select>
+              <button id="range-mode-button" class="range-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="range-mode-menu">
+                <span id="range-mode-text">全部</span>
+                <span class="range-select-arrow" aria-hidden="true"></span>
+              </button>
+              <div id="range-mode-menu" class="range-select-menu" role="listbox" aria-label="回放范围" hidden>
+                <button type="button" class="range-select-option is-selected" role="option" data-value="all" aria-selected="true">
+                  <span>全部</span><span class="range-select-check" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="range-select-option" role="option" data-value="year" aria-selected="false">
+                  <span>按年份</span><span class="range-select-check" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="range-select-option" role="option" data-value="custom" aria-selected="false">
+                  <span>自定义时间段</span><span class="range-select-check" aria-hidden="true"></span>
+                </button>
+              </div>
+            </div>
+            <div id="range-year-control" class="range-year-select" hidden>
+              <select id="range-year" hidden aria-hidden="true" tabindex="-1"></select>
+              <button id="range-year-button" class="range-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="range-year-menu">
+                <span id="range-year-text"></span>
+                <span class="range-select-arrow" aria-hidden="true"></span>
+              </button>
+              <div id="range-year-menu" class="range-select-menu range-year-menu" role="listbox" aria-label="回放年份" hidden></div>
+            </div>
             <div id="range-custom" class="range-custom" hidden>
               <div class="date-field range-date-field">
                 <input id="range-start" type="text" inputmode="numeric" placeholder="年-月-日" autocomplete="off" maxlength="10" aria-label="开始日期">

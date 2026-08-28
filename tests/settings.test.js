@@ -225,6 +225,8 @@ describe('TrainSettings.replaceRecord / removeRecord', () => {
 
 describe('settings page structure', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'css', 'style.css'), 'utf8');
+  const app = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
 
   it('keeps desktop settings and adds a shared add-trip entry', () => {
     assert.match(html, /<button id="settings-btn" type="button">设置<\/button>/);
@@ -255,6 +257,23 @@ describe('settings page structure', () => {
     assert.match(html, /id="range-end-picker"/);
     assert.doesNotMatch(html, /id="range-start"[^>]*type="date"/);
     assert.doesNotMatch(html, /id="range-end"[^>]*type="date"/);
+  });
+
+  it('uses a rounded custom menu instead of the native range dropdown', () => {
+    assert.match(html, /id="range-mode" hidden aria-hidden="true"/);
+    assert.match(html, /id="range-mode-button"[^>]*aria-haspopup="listbox"/);
+    assert.match(html, /id="range-mode-menu"[^>]*role="listbox"/);
+    assert.match(html, /id="range-year" hidden aria-hidden="true"/);
+    assert.match(html, /id="range-year-button"[^>]*aria-haspopup="listbox"/);
+    assert.match(html, /id="range-year-menu"[^>]*role="listbox"/);
+    assert.match(html, /class="range-select-option is-selected"[^>]*role="option"/);
+    assert.match(css, /\.range-select-menu\s*\{[\s\S]*?border-radius:\s*11px/);
+    assert.match(css, /\.range-year-menu\s*\{[\s\S]*?width:\s*112px/);
+    assert.match(css, /\.range-select-option\.is-selected/);
+    assert.match(app, /function bindRangeModeSelect\(\)/);
+    assert.match(app, /function bindRangeYearSelect\(\)/);
+    assert.match(app, /function populateRangeYearMenu\(years\)/);
+    assert.match(app, /select\.dispatchEvent\(new Event\('change'/);
   });
 });
 

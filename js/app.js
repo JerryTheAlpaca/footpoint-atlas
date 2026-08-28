@@ -2056,8 +2056,161 @@
 
   function syncRangeControls() {
     var mode = document.getElementById('range-mode').value;
-    document.getElementById('range-year').hidden = mode !== 'year';
+    document.getElementById('range-year-control').hidden = mode !== 'year';
     document.getElementById('range-custom').hidden = mode !== 'custom';
+    syncRangeModeSelect();
+    syncRangeYearSelect();
+  }
+
+  function syncRangeSelect(selectId, textId, menuId) {
+    var select = document.getElementById(selectId);
+    var text = document.getElementById(textId);
+    var menu = document.getElementById(menuId);
+    if (!select || !text || !menu) return;
+    var selected = select.options[select.selectedIndex];
+    text.textContent = selected ? selected.textContent : '';
+    Array.prototype.forEach.call(menu.querySelectorAll('.range-select-option'), function (option) {
+      var active = option.getAttribute('data-value') === select.value;
+      option.classList.toggle('is-selected', active);
+      option.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+  }
+
+  function syncRangeModeSelect() {
+    syncRangeSelect('range-mode', 'range-mode-text', 'range-mode-menu');
+  }
+
+  function syncRangeYearSelect() {
+    syncRangeSelect('range-year', 'range-year-text', 'range-year-menu');
+  }
+
+  function bindRangeSelect(config) {
+    var select = document.getElementById(config.selectId);
+    var wrap = document.getElementById(config.wrapId);
+    var trigger = document.getElementById(config.triggerId);
+    var menu = document.getElementById(config.menuId);
+    if (!select || !wrap || !trigger || !menu) return;
+
+    function optionNodes() {
+      return Array.prototype.slice.call(menu.querySelectorAll('.range-select-option'));
+    }
+
+    function selectedOption() {
+      var options = optionNodes();
+      return options.filter(function (option) {
+        return option.getAttribute('data-value') === select.value;
+      })[0] || options[0];
+    }
+
+    function openMenu(focusTarget) {
+      var options = optionNodes();
+      menu.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      if (focusTarget === 'first' && options[0]) options[0].focus();
+      else if (focusTarget === 'last' && options.length) options[options.length - 1].focus();
+      else if (focusTarget === 'selected' && selectedOption()) selectedOption().focus();
+    }
+
+    function closeMenu(returnFocus) {
+      menu.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+      if (returnFocus) trigger.focus();
+    }
+
+    function chooseOption(option) {
+      var value = option && option.getAttribute('data-value');
+      if (!value || value === select.value) {
+        closeMenu(true);
+        return;
+      }
+      select.value = value;
+      config.sync();
+      closeMenu(true);
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    trigger.addEventListener('click', function () {
+      if (menu.hidden) openMenu();
+      else closeMenu(false);
+    });
+
+    trigger.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        openMenu('selected');
+      } else if (event.key === 'Home') {
+        event.preventDefault();
+        openMenu('first');
+      } else if (event.key === 'End') {
+        event.preventDefault();
+        openMenu('last');
+      } else if (event.key === 'Escape' && !menu.hidden) {
+        event.preventDefault();
+        closeMenu(false);
+      }
+    });
+
+    menu.addEventListener('click', function (event) {
+      var option = event.target.closest('.range-select-option');
+      if (option) chooseOption(option);
+    });
+
+    menu.addEventListener('keydown', function (event) {
+      var options = optionNodes();
+      var current = options.indexOf(document.activeElement);
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        closeMenu(true);
+        return;
+      }
+      if (event.key === 'Tab') {
+        closeMenu(false);
+        return;
+      }
+      if (event.key === 'Enter' || event.key === ' ') {
+        var active = document.activeElement.closest('.range-select-option');
+        if (active) {
+          event.preventDefault();
+          chooseOption(active);
+        }
+        return;
+      }
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Home' || event.key === 'End') {
+        event.preventDefault();
+        if (event.key === 'Home') current = 0;
+        else if (event.key === 'End') current = options.length - 1;
+        else if (event.key === 'ArrowDown') current = (current + 1 + options.length) % options.length;
+        else current = (current - 1 + options.length) % options.length;
+        if (options[current]) options[current].focus();
+      }
+    });
+
+    document.addEventListener('mousedown', function (event) {
+      if (!menu.hidden && !wrap.contains(event.target)) closeMenu(false);
+    });
+
+    config.sync();
+  }
+
+  function bindRangeModeSelect() {
+    bindRangeSelect({
+      selectId: 'range-mode',
+      wrapId: 'range-mode-control',
+      triggerId: 'range-mode-button',
+      menuId: 'range-mode-menu',
+      sync: syncRangeModeSelect,
+    });
+  }
+
+  function bindRangeYearSelect() {
+    bindRangeSelect({
+      selectId: 'range-year',
+      wrapId: 'range-year-control',
+      triggerId: 'range-year-button',
+      menuId: 'range-year-menu',
+      sync: syncRangeYearSelect,
+    });
   }
 
   function currentFilteredRecords() {
@@ -2094,6 +2247,24 @@
     setVisibleCount(playRecords.length);
   }
 
+  function populateRangeYearMenu(years) {
+    var menu = document.getElementById('range-year-menu');
+    var trigger = document.getElementById('range-year-button');
+    menu.innerHTML = years
+      .map(function (year) {
+        return (
+          '<button type="button" class="range-select-option" role="option" data-value="' +
+          escapeHtml(year) +
+          '" aria-selected="false"><span>' +
+          escapeHtml(year) +
+          ' 年</span><span class="range-select-check" aria-hidden="true"></span></button>'
+        );
+      })
+      .join('');
+    trigger.disabled = years.length === 0;
+    syncRangeYearSelect();
+  }
+
   function populateRangeControls() {
     var years = window.TrainStats.listYears(allRecords);
     var yearSelect = document.getElementById('range-year');
@@ -2105,6 +2276,7 @@
       .join('');
     if (prevYear && years.indexOf(prevYear) !== -1) yearSelect.value = prevYear;
     else yearSelect.value = years[years.length - 1] || '';
+    populateRangeYearMenu(years);
     if (!allRecords.length) return;
     var first = allRecords[0].date;
     var last = allRecords[allRecords.length - 1].date;
@@ -2850,7 +3022,12 @@
       syncRangeControls();
       applyRangeFilter();
     });
-    document.getElementById('range-year').addEventListener('change', applyRangeFilter);
+    bindRangeModeSelect();
+    bindRangeYearSelect();
+    document.getElementById('range-year').addEventListener('change', function () {
+      syncRangeYearSelect();
+      applyRangeFilter();
+    });
     document.getElementById('range-start').addEventListener('change', applyRangeFilter);
     document.getElementById('range-end').addEventListener('change', applyRangeFilter);
 
