@@ -62,6 +62,128 @@ function loadMap() {
   return fn(sandbox, sandbox, undefined);
 }
 
+function loadMotionRuntime() {
+  const frames = [];
+  const observedCards = [];
+  const scene = {
+    classList: {
+      add() {},
+      remove() {},
+      toggle() {},
+    },
+    style: { setProperty() {}, removeProperty() {} },
+    getBoundingClientRect() {
+      return { top: 0, height: 800 };
+    },
+  };
+
+  function makeCard(box) {
+    const classes = new Set();
+    return {
+      isConnected: true,
+      _classes: classes,
+      classList: {
+        add(name) { classes.add(name); },
+        remove(name) { classes.delete(name); },
+        contains(name) { return classes.has(name); },
+        toggle(name, on) {
+          if (on) classes.add(name);
+          else classes.delete(name);
+        },
+      },
+      getBoundingClientRect() {
+        return {
+          top: box.top,
+          bottom: box.bottom,
+          height: box.height,
+          left: 0,
+          right: 360,
+          width: 360,
+        };
+      },
+    };
+  }
+
+  const cards = [
+    makeCard({ top: 80, bottom: 180, height: 100 }),
+    makeCard({ top: 900, bottom: 1000, height: 100 }),
+  ];
+  const list = { children: [] };
+  let mutationCallback = null;
+  const documentRef = {
+    readyState: 'loading',
+    querySelectorAll(selector) {
+      if (selector === '.mobile-scene') return [scene];
+      if (String(selector).indexOf('.stat-card') !== -1) return cards.concat(list.children);
+      return [];
+    },
+    getElementById(id) {
+      return id === 'record-list' ? list : null;
+    },
+    addEventListener() {},
+  };
+  const windowRef = {
+    document: documentRef,
+    innerWidth: 360,
+    innerHeight: 800,
+    TrainScale: {
+      isCompactLayout(width) {
+        return width <= 1024;
+      },
+      readViewportSize() {
+        return { width: 360, height: 800 };
+      },
+    },
+    matchMedia() {
+      return {
+        matches: false,
+        addEventListener() {},
+        removeEventListener() {},
+      };
+    },
+    IntersectionObserver: function IntersectionObserver() {
+      this.observe = (node) => {
+        if (node !== scene) observedCards.push(node);
+      };
+      this.unobserve = () => {};
+      this.disconnect = () => {};
+    },
+    MutationObserver: function MutationObserver(callback) {
+      mutationCallback = callback;
+      this.observe = () => {};
+      this.disconnect = () => {};
+    },
+    requestAnimationFrame(fn) {
+      frames.push(fn);
+      return frames.length;
+    },
+    cancelAnimationFrame() {},
+    addEventListener() {},
+    removeEventListener() {},
+  };
+  const fn = new Function(
+    'window',
+    'globalThis',
+    'document',
+    motionCode + '\nreturn window.TrainMobileMotion;'
+  );
+  return {
+    api: fn(windowRef, windowRef, documentRef),
+    cards,
+    list,
+    observedCards,
+    makeCard,
+    documentRef,
+    windowRef,
+    get mutationCallback() {
+      return mutationCallback;
+    },
+    flushFrame() {
+      frames.splice(0).forEach((frame) => frame());
+    },
+  };
+}
+
 describe('compact responsive scaling', () => {
   it('uses 1024px as the compact-layout boundary', () => {
     const scale = loadScale();
@@ -109,11 +231,11 @@ describe('mobile scroll story structure', () => {
     assert.doesNotMatch(appCode, /缘分重逢/);
   });
 
-  it('restores page scrolling, natural flow without scroll snap, and safe areas', () => {
+  it('restores page scrolling, proximity snap, and safe areas', () => {
     assert.match(css, /@media\s*\(max-width:\s*1024px\)/);
     assert.match(css, /overflow-y:\s*auto;/);
-    assert.doesNotMatch(css, /scroll-snap-type/);
-    assert.doesNotMatch(css, /scroll-snap-align/);
+    assert.match(css, /scroll-snap-type:\s*y proximity/);
+    assert.match(css, /scroll-snap-align:\s*start/);
     assert.match(css, /100svh/);
     assert.match(css, /safe-area-inset-bottom/);
     assert.match(css, /\.record-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3/);
@@ -167,18 +289,41 @@ describe('mobile animation controls', () => {
     assert.match(motionCode, /scene-motion-ready/);
   });
 
-  it('reveals scenes once and keeps them fully visible afterwards', () => {
+  it('reveals each card once as it enters the viewport', () => {
+    assert.match(motionCode, /CARD_SELECTOR/);
+    assert.match(motionCode, /\.stat-card, \.map-panel/);
+    assert.match(motionCode, /\.record-item/);
+    assert.match(motionCode, /classList\.add\('card-motion-ready'\)/);
     assert.match(motionCode, /classList\.add\('has-revealed'\)/);
-    assert.doesNotMatch(motionCode, /classList\.remove\('has-revealed'\)/);
-    assert.match(css, /\.scene-motion-ready\.has-revealed\s*>\s*\*[\s\S]*?\{\s*opacity:\s*1/);
+    assert.match(motionCode, /MutationObserver/);
+    assert.match(css, /\.card-motion-ready\.has-revealed\s*\{\s*opacity:\s*1/);
     assert.doesNotMatch(css, /opacity:\s*0\.48/);
   });
 
   it('supports reduced motion for scenes and data/chart animations', () => {
     assert.match(motionCode, /prefers-reduced-motion/);
     assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+    assert.match(css, /scroll-snap-type:\s*none/);
     assert.match(appCode, /prefersReducedMotion/);
     assert.match(appCode, /animation: animateMap !== false && !prefersReducedMotion\(\)/);
     assert.match(appCode, /var motionEnabled = !prefersReducedMotion\(\);/);
+  });
+
+  it('animates in-view cards on compact screens and observes newly rendered records', () => {
+    const motion = loadMotionRuntime();
+    const result = motion.api.init(motion.documentRef, motion.windowRef);
+    assert.ok(result);
+    assert.equal(motion.cards[0]._classes.has('card-motion-ready'), true);
+    assert.equal(motion.cards[1]._classes.has('card-motion-ready'), true);
+    motion.flushFrame();
+    assert.equal(motion.cards[0]._classes.has('has-revealed'), true);
+    assert.equal(motion.observedCards.includes(motion.cards[1]), true);
+
+    const lateCard = motion.makeCard({ top: 900, bottom: 968, height: 68 });
+    motion.list.children.push(lateCard);
+    motion.mutationCallback();
+    assert.equal(lateCard._classes.has('card-motion-ready'), true);
+    assert.equal(motion.observedCards.includes(lateCard), true);
+    result.stop();
   });
 });

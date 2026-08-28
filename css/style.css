@@ -1391,6 +1391,9 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior-y: auto;
+    scroll-snap-type: y proximity;
+    scroll-padding-top: max(14px, env(safe-area-inset-top));
+    scroll-padding-bottom: max(28px, env(safe-area-inset-bottom));
   }
 
   body {
@@ -1404,6 +1407,7 @@ body {
     min-height: 100svh;
     overflow-x: hidden;
     overflow-y: auto;
+    scroll-snap-type: y proximity;
   }
 
   .app {
@@ -1481,33 +1485,25 @@ body {
     opacity: 0.45;
   }
 
-  .scene-motion-ready > *,
-  .scene-motion-ready .ranking-scene > * {
+  .card-motion-ready {
     opacity: 0;
-    transform: translate3d(0, 24px, 0) scale(0.98);
+    transform: translate3d(0, 28px, 0) scale(0.97);
     transition:
-      opacity 0.65s ease,
-      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity 0.62s ease,
+      transform 0.72s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .scene-motion-ready.has-revealed > *,
-  .scene-motion-ready.has-revealed .ranking-scene > * {
+  .card-motion-ready.has-revealed {
     opacity: 1;
     transform: none;
   }
 
-  .scene-motion-ready.has-revealed > *:nth-child(2),
-  .scene-motion-ready.has-revealed .ranking-scene > *:nth-child(2) {
-    transition-delay: 90ms;
+  .stat-card.card-motion-ready.has-revealed:nth-child(2) {
+    transition-delay: 80ms;
   }
 
-  .scene-motion-ready.has-revealed > *:nth-child(3),
-  .scene-motion-ready.has-revealed .ranking-scene > *:nth-child(3) {
-    transition-delay: 180ms;
-  }
-
-  .scene-motion-ready.has-revealed > *:nth-child(4) {
-    transition-delay: 270ms;
+  .stat-card.card-motion-ready.has-revealed:nth-child(3) {
+    transition-delay: 160ms;
   }
 
   .stat-card,
@@ -1519,6 +1515,16 @@ body {
     border-radius: var(--card-radius);
     background: var(--card-bg);
     box-shadow: var(--card-shadow);
+  }
+
+  .header,
+  .map-panel,
+  .ranking-scene .chart-block,
+  .reunion-scene .chart-block,
+  .record-scene .record-panel,
+  .record-item {
+    scroll-snap-align: start;
+    scroll-margin-top: 10px;
   }
 
   .header {
@@ -1991,6 +1997,19 @@ body {
     transform: scale(0.985);
   }
 
+  .record-item.card-motion-ready.has-revealed {
+    transition:
+      transform 0.16s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease,
+      opacity 0.62s ease;
+  }
+
+  .record-item.card-motion-ready.has-revealed.is-touching {
+    transform: scale(0.985);
+  }
+
   .record-route {
     padding-right: 4px;
     white-space: normal;
@@ -2389,12 +2408,19 @@ body {
   .scene-motion-ready > *,
   .scene-motion-ready .ranking-scene > *,
   .scene-motion-ready.has-revealed > *,
-  .scene-motion-ready.has-revealed .ranking-scene > * {
+  .scene-motion-ready.has-revealed .ranking-scene > *,
+  .card-motion-ready,
+  .card-motion-ready.has-revealed {
     opacity: 1;
     transform: none;
   }
 
   .mobile-scene::before {
     transform: none;
+  }
+
+  html,
+  body {
+    scroll-snap-type: none;
   }
 }
