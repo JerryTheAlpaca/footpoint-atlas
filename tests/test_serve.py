@@ -331,5 +331,61 @@ class ServeAuthenticationTests(unittest.TestCase):
         self.assertEqual(serve.safe_return_to("/records?year=2026"), "/records?year=2026")
 
 
+class ServeSsoTests(unittest.TestCase):
+    def sso_config(self):
+        with mock.patch.dict(
+            os.environ,
+            {
+                "TRAIN_AUTH_ENABLED": "1",
+                "TRAIN_AUTH_USERNAME": "jerry",
+                "TRAIN_SSO_SESSION_URL": "http://ledger-auth:3000/api/auth/session",
+                "TRAIN_SSO_LOGOUT_URL": "http://ledger-auth:3000/api/auth/logout",
+                "TRAIN_SSO_LOGIN_URL": "https://auth.jerrythelpaca.cn/login",
+                "TRAIN_SSO_PUBLIC_ORIGIN": "https://atlas.jerrythelpaca.cn",
+                "TRAIN_SSO_COOKIE_NAME": "__Secure-jerry_session",
+                "TRAIN_SSO_COOKIE_DOMAIN": ".jerrythelpaca.cn",
+            },
+            clear=True,
+        ):
+            return serve.load_auth_config()
+
+    def test_sso_config_does_not_require_legacy_password_secret(self):
+        config = self.sso_config()
+        self.assertTrue(config.enabled)
+        self.assertTrue(config.sso_enabled)
+        self.assertEqual(config.username, "jerry")
+
+    def test_sso_session_is_verified_by_central_auth(self):
+        config = self.sso_config()
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = json.dumps(
+            {"data": {"user": {"id": "user-1", "username": "jerry"}}}
+        ).encode("utf-8")
+
+        with mock.patch.object(serve, "urlopen", return_value=response) as opener:
+            self.assertEqual(serve.sso_session_username(config, "secret-token"), "jerry")
+
+        request = opener.call_args.args[0]
+        self.assertEqual(request.get_header("Cookie"), "__Secure-jerry_session=secret-token")
+        self.assertEqual(opener.call_args.kwargs["timeout"], 3)
+
+    def test_sso_rejects_wrong_user_and_builds_whitelisted_return_url(self):
+        config = self.sso_config()
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = json.dumps(
+            {"data": {"user": {"id": "user-2", "username": "someone-else"}}}
+        ).encode("utf-8")
+
+        with mock.patch.object(serve, "urlopen", return_value=response):
+            self.assertIsNone(serve.sso_session_username(config, "secret-token"))
+
+        location = serve.sso_login_location(config, "/?year=2026")
+        self.assertIn("https%3A%2F%2Fatlas.jerrythelpaca.cn%2F%3Fyear%3D2026", location)
+        self.assertEqual(
+            serve.sso_login_location(config, "https://example.com/steal"),
+            "https://auth.jerrythelpaca.cn/login?return_to=https%3A%2F%2Fatlas.jerrythelpaca.cn%2F",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

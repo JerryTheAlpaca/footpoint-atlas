@@ -5,11 +5,17 @@ services:
     environment:
       TRAIN_DATA_DIR: /data
       TRAIN_AUTH_ENABLED: "1"
-      TRAIN_AUTH_USERNAME: ${TRAIN_AUTH_USERNAME:?Set TRAIN_AUTH_USERNAME}
-      TRAIN_AUTH_PASSWORD_HASH: ${TRAIN_AUTH_PASSWORD_HASH:?Set TRAIN_AUTH_PASSWORD_HASH}
-      TRAIN_SESSION_SECRET: ${TRAIN_SESSION_SECRET:?Set TRAIN_SESSION_SECRET}
+      TRAIN_AUTH_USERNAME: ${TRAIN_AUTH_USERNAME:-}
+      TRAIN_AUTH_PASSWORD_HASH: ${TRAIN_AUTH_PASSWORD_HASH:-}
+      TRAIN_SESSION_SECRET: ${TRAIN_SESSION_SECRET:-}
       TRAIN_COOKIE_SECURE: ${TRAIN_COOKIE_SECURE:-1}
       TRAIN_TRUST_PROXY: "1"
+      TRAIN_SSO_SESSION_URL: ${TRAIN_SSO_SESSION_URL:-}
+      TRAIN_SSO_LOGOUT_URL: ${TRAIN_SSO_LOGOUT_URL:-}
+      TRAIN_SSO_LOGIN_URL: ${TRAIN_SSO_LOGIN_URL:-}
+      TRAIN_SSO_PUBLIC_ORIGIN: ${TRAIN_SSO_PUBLIC_ORIGIN:-}
+      TRAIN_SSO_COOKIE_NAME: ${TRAIN_SSO_COOKIE_NAME:-__Secure-jerry_session}
+      TRAIN_SSO_COOKIE_DOMAIN: ${TRAIN_SSO_COOKIE_DOMAIN:-.jerrythelpaca.cn}
     volumes:
       - ${HOST_DATA_DIR:-/opt/footpoint-atlas-data}:/data
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
@@ -26,6 +32,9 @@ services:
       start_period: 10s
     security_opt:
       - no-new-privileges:true
+    networks:
+      - default
+      - jerry-sites
 
   web:
     image: nginx:stable-alpine
@@ -51,3 +60,8 @@ services:
       start_period: 5s
     security_opt:
       - no-new-privileges:true
+
+networks:
+  jerry-sites:
+    external: true
+    name: jerry-sites

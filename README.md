@@ -76,3 +76,22 @@ docker compose up -d --build
 生产环境必须保留 `TRAIN_COOKIE_SECURE=1` 并通过 HTTPS 访问。腾讯云安全组只需放行实际使用的 80/443 端口，不要放行 8765 或 8080。临时在纯 HTTP 环境测试时可以设为 `0`，上线前应恢复为 `1`。
 
 登录保护覆盖首页、脚本、地图、行程数据和保存接口；健康检查 `/healthz` 是唯一无需登录的运行状态接口。
+
+### 接入 Jerry Ledger 单点登录
+
+当 Ledger 与火车足迹都由本人控制并位于 `*.jerrythelpaca.cn` 时，可让火车足迹服务端校验
+Ledger 的父域会话 Cookie。先让两个 Compose 项目加入同一个名为 `jerry-sites` 的 Docker
+网络，再在火车足迹 `.env` 中配置：
+
+```dotenv
+TRAIN_SSO_SESSION_URL=http://ledger-auth:3000/api/auth/session
+TRAIN_SSO_LOGOUT_URL=http://ledger-auth:3000/api/auth/logout
+TRAIN_SSO_LOGIN_URL=https://auth.jerrythelpaca.cn/login
+TRAIN_SSO_PUBLIC_ORIGIN=https://atlas.jerrythelpaca.cn
+TRAIN_SSO_COOKIE_NAME=__Secure-jerry_session
+TRAIN_SSO_COOKIE_DOMAIN=.jerrythelpaca.cn
+```
+
+配置后，未登录访问会跳到中心登录页；中心会话有效时直接进入足迹页；从足迹站退出会撤销中心
+会话并清除父域 Cookie。旧的密码哈希与会话密钥仍可暂时保留在 `.env` 以便回滚，但 SSO 模式
+不会再使用它们验证登录。

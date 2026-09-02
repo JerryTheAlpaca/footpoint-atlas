@@ -33,7 +33,9 @@ from datetime import date
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from http.cookies import SimpleCookie
 from pathlib import Path
-from urllib.parse import parse_qs, quote, unquote, urlsplit
+from urllib.error import HTTPError, URLError
+from urllib.parse import parse_qs, quote, unquote, urlencode, urlsplit
+from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -61,6 +63,16 @@ class AuthConfig:
     session_ttl: int = 12 * 60 * 60
     cookie_secure: bool = False
     trust_proxy: bool = False
+    sso_session_url: str = ""
+    sso_logout_url: str = ""
+    sso_login_url: str = ""
+    sso_public_origin: str = ""
+    sso_cookie_name: str = "__Secure-jerry_session"
+    sso_cookie_domain: str = ".jerrythelpaca.cn"
+
+    @property
+    def sso_enabled(self) -> bool:
+        return bool(self.sso_session_url)
 
 
 def env_flag(name: str, default: bool = False) -> bool:
@@ -75,6 +87,59 @@ def load_auth_config() -> AuthConfig:
         return AuthConfig(enabled=False)
 
     username = os.environ.get("TRAIN_AUTH_USERNAME", "").strip()
+    sso_session_url = os.environ.get("TRAIN_SSO_SESSION_URL", "").strip()
+    if sso_session_url:
+        sso_logout_url = os.environ.get("TRAIN_SSO_LOGOUT_URL", "").strip()
+        sso_login_url = os.environ.get("TRAIN_SSO_LOGIN_URL", "").strip()
+        sso_public_origin = os.environ.get("TRAIN_SSO_PUBLIC_ORIGIN", "").strip().rstrip("/")
+        sso_cookie_name = os.environ.get(
+            "TRAIN_SSO_COOKIE_NAME", "__Secure-jerry_session"
+        ).strip()
+        sso_cookie_domain = os.environ.get(
+            "TRAIN_SSO_COOKIE_DOMAIN", ".jerrythelpaca.cn"
+        ).strip()
+        required_urls = {
+            "TRAIN_SSO_SESSION_URL": sso_session_url,
+            "TRAIN_SSO_LOGOUT_URL": sso_logout_url,
+            "TRAIN_SSO_LOGIN_URL": sso_login_url,
+            "TRAIN_SSO_PUBLIC_ORIGIN": sso_public_origin,
+        }
+        for name, value in required_urls.items():
+            parsed = urlsplit(value)
+            if (
+                parsed.scheme not in {"http", "https"}
+                or not parsed.netloc
+                or parsed.username
+                or parsed.password
+                or parsed.fragment
+            ):
+                raise ValueError(f"{name} 必须是完整的 HTTP(S) URL")
+        public_origin = urlsplit(sso_public_origin)
+        if (
+            public_origin.scheme != "https"
+            or public_origin.path not in {"", "/"}
+            or public_origin.query
+        ):
+            raise ValueError("TRAIN_SSO_PUBLIC_ORIGIN 必须是 HTTPS Origin，不能包含路径或查询")
+        if urlsplit(sso_login_url).scheme != "https":
+            raise ValueError("TRAIN_SSO_LOGIN_URL 必须使用 HTTPS")
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", sso_cookie_name):
+            raise ValueError("TRAIN_SSO_COOKIE_NAME 格式无效")
+        if not re.fullmatch(r"\.[A-Za-z0-9.-]+", sso_cookie_domain):
+            raise ValueError("TRAIN_SSO_COOKIE_DOMAIN 格式无效")
+        return AuthConfig(
+            enabled=True,
+            username=username,
+            cookie_secure=env_flag("TRAIN_COOKIE_SECURE", True),
+            trust_proxy=env_flag("TRAIN_TRUST_PROXY"),
+            sso_session_url=sso_session_url,
+            sso_logout_url=sso_logout_url,
+            sso_login_url=sso_login_url,
+            sso_public_origin=sso_public_origin,
+            sso_cookie_name=sso_cookie_name,
+            sso_cookie_domain=sso_cookie_domain,
+        )
+
     password_hash = os.environ.get("TRAIN_AUTH_PASSWORD_HASH", "").strip()
     secret = os.environ.get("TRAIN_SESSION_SECRET", "").encode("utf-8")
     if not username:
@@ -156,6 +221,35 @@ def session_username(config: AuthConfig, token: str, now: int | None = None) -> 
         return config.username
     except (ValueError, TypeError, KeyError, json.JSONDecodeError, UnicodeDecodeError, binascii.Error):
         return None
+
+
+def sso_session_username(config: AuthConfig, token: str) -> str | None:
+    if not config.sso_enabled or not token:
+        return None
+    request = Request(
+        config.sso_session_url,
+        headers={"Cookie": f"{config.sso_cookie_name}={token}"},
+        method="GET",
+    )
+    try:
+        with urlopen(request, timeout=3) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (HTTPError, URLError, TimeoutError, ValueError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    try:
+        username = payload["data"]["user"]["username"]
+    except (KeyError, TypeError):
+        return None
+    if not isinstance(username, str) or not username:
+        return None
+    if config.username and not hmac.compare_digest(username, config.username):
+        return None
+    return username
+
+
+def sso_login_location(config: AuthConfig, return_to: str | None) -> str:
+    target = f"{config.sso_public_origin}{safe_return_to(return_to)}"
+    return f"{config.sso_login_url}?{urlencode({'return_to': target})}"
 
 
 def safe_return_to(value: str | None) -> str:
@@ -342,6 +436,8 @@ class Handler(SimpleHTTPRequestHandler):
         config = self.auth_config
         if not config.enabled:
             return "local"
+        if config.sso_enabled:
+            return sso_session_username(config, self.cookie_value(config.sso_cookie_name))
         return session_username(config, self.cookie_value("train_session"))
 
     def client_key(self) -> str:
@@ -382,8 +478,11 @@ class Handler(SimpleHTTPRequestHandler):
         if self.is_api_path(path):
             self.send_json(401, {"ok": False, "error": "请先登录"})
         else:
-            target = quote(safe_return_to(self.path), safe="/?=&%")
-            self.redirect(f"/login?return_to={target}", 302)
+            if config.sso_enabled:
+                self.redirect(sso_login_location(config, self.path), 302)
+            else:
+                target = quote(safe_return_to(self.path), safe="/?=&%")
+                self.redirect(f"/login?return_to={target}", 302)
         return False
 
     def request_origin_is_same(self) -> bool:
@@ -445,6 +544,13 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_json(200, {"ok": True})
             return
         if path == "/login":
+            if self.auth_config.sso_enabled:
+                return_to = parse_qs(urlsplit(self.path).query).get("return_to", ["/"])[0]
+                if self.current_user():
+                    self.redirect(safe_return_to(return_to))
+                else:
+                    self.redirect(sso_login_location(self.auth_config, return_to), 302)
+                return
             if self.auth_config.enabled and self.current_user():
                 self.redirect(safe_return_to(parse_qs(urlsplit(self.path).query).get("return_to", ["/"])[0]))
                 return
@@ -490,6 +596,9 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_json(403, {"ok": False, "error": "请求来源无效"})
             return
         if path == "/logout":
+            if self.auth_config.sso_enabled:
+                self.handle_sso_logout()
+                return
             self.send_response(303)
             self.send_header("Location", "/login")
             self.send_header(
@@ -544,6 +653,9 @@ class Handler(SimpleHTTPRequestHandler):
         if not config.enabled:
             self.redirect("/")
             return
+        if config.sso_enabled:
+            self.redirect(sso_login_location(config, "/"))
+            return
         blocked, retry_after = self.login_blocked()
         try:
             form = parse_qs(self.read_body(16 * 1024).decode("utf-8"), keep_blank_values=True)
@@ -577,6 +689,43 @@ class Handler(SimpleHTTPRequestHandler):
             "Set-Cookie",
             f"train_session={token}; Path=/; HttpOnly; SameSite=Strict; Max-Age={config.session_ttl}"
             + ("; Secure" if config.cookie_secure else ""),
+        )
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def handle_sso_logout(self) -> None:
+        config = self.auth_config
+        token = self.cookie_value(config.sso_cookie_name)
+        if token:
+            request = Request(
+                config.sso_logout_url,
+                data=b"",
+                headers={
+                    "Cookie": f"{config.sso_cookie_name}={token}",
+                    "Origin": config.sso_public_origin,
+                },
+                method="POST",
+            )
+            try:
+                with urlopen(request, timeout=3) as response:
+                    if response.status != 200:
+                        raise ValueError("中心登录服务拒绝退出请求")
+            except (HTTPError, URLError, TimeoutError, ValueError):
+                self.send_json(502, {"ok": False, "error": "暂时无法退出，请稍后重试"})
+                return
+
+        self.send_response(303)
+        self.send_header("Location", config.sso_login_url)
+        secure = "; Secure" if config.cookie_secure else ""
+        self.send_header(
+            "Set-Cookie",
+            f"{config.sso_cookie_name}=; Domain={config.sso_cookie_domain}; Path=/; "
+            f"HttpOnly; SameSite=Lax; Max-Age=0{secure}",
+        )
+        self.send_header(
+            "Set-Cookie",
+            f"train_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0{secure}",
         )
         self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", "0")
