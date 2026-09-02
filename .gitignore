@@ -15,5 +15,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Deployment-local settings
-.env
+# Deployment-local settings and rollback copies
+.env*
+!.env.example
