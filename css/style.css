@@ -82,7 +82,6 @@ body {
 #review-btn,
 #review-play,
 #settings-btn,
-#logout-btn,
 #trip-submit {
   height: 32px;
   padding: 0 18px;
@@ -97,13 +96,8 @@ body {
 #review-btn:hover,
 #review-play:hover,
 #settings-btn:hover,
-#logout-btn:hover,
 #trip-submit:hover {
   background: rgba(0, 229, 255, 0.18);
-}
-
-.logout-form {
-  margin: 0;
 }
 
 .stat-cards {
@@ -1562,7 +1556,6 @@ body {
   }
 
   #review-play,
-  #logout-btn,
   #trip-submit,
   #play-btn,
   #add-trip-btn,
@@ -1582,7 +1575,6 @@ body {
 
   #review-btn,
   #review-play,
-  #logout-btn,
   #trip-submit,
   #play-btn,
   #add-trip-btn,
@@ -1609,7 +1601,6 @@ body {
 
   #review-btn:active,
   #review-play:active,
-  #logout-btn:active,
   #trip-submit:active,
   #play-btn:active,
   #add-trip-btn:active,
@@ -1652,7 +1643,6 @@ body {
   }
 
   #review-btn,
-  #logout-btn,
   #add-trip-btn {
     border-radius: 999px;
   }
@@ -1661,12 +1651,6 @@ body {
     flex: 0 1 200px;
     width: min(200px, 100%);
     height: 44px;
-  }
-
-  #logout-btn {
-    height: 36px;
-    padding: 0 14px;
-    font-size: 13px;
   }
 
   #settings-btn {
