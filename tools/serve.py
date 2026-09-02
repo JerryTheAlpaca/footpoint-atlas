@@ -68,7 +68,7 @@ class AuthConfig:
     sso_login_url: str = ""
     sso_public_origin: str = ""
     sso_cookie_name: str = "__Secure-jerry_session"
-    sso_cookie_domain: str = ".jerrythelpaca.cn"
+    sso_cookie_domain: str = ".jerrythealpaca.cn"
 
     @property
     def sso_enabled(self) -> bool:
@@ -96,7 +96,7 @@ def load_auth_config() -> AuthConfig:
             "TRAIN_SSO_COOKIE_NAME", "__Secure-jerry_session"
         ).strip()
         sso_cookie_domain = os.environ.get(
-            "TRAIN_SSO_COOKIE_DOMAIN", ".jerrythelpaca.cn"
+            "TRAIN_SSO_COOKIE_DOMAIN", ".jerrythealpaca.cn"
         ).strip()
         required_urls = {
             "TRAIN_SSO_SESSION_URL": sso_session_url,

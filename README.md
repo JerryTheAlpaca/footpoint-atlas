@@ -79,17 +79,17 @@ docker compose up -d --build
 
 ### 接入 Jerry Ledger 单点登录
 
-当 Ledger 与火车足迹都由本人控制并位于 `*.jerrythelpaca.cn` 时，可让火车足迹服务端校验
+当 Ledger 与火车足迹都由本人控制并位于 `*.jerrythealpaca.cn` 时，可让火车足迹服务端校验
 Ledger 的父域会话 Cookie。先让两个 Compose 项目加入同一个名为 `jerry-sites` 的 Docker
 网络，再在火车足迹 `.env` 中配置：
 
 ```dotenv
 TRAIN_SSO_SESSION_URL=http://ledger-auth:3000/api/auth/session
 TRAIN_SSO_LOGOUT_URL=http://ledger-auth:3000/api/auth/logout
-TRAIN_SSO_LOGIN_URL=https://auth.jerrythelpaca.cn/login
-TRAIN_SSO_PUBLIC_ORIGIN=https://atlas.jerrythelpaca.cn
+TRAIN_SSO_LOGIN_URL=https://auth.jerrythealpaca.cn/login
+TRAIN_SSO_PUBLIC_ORIGIN=https://atlas.jerrythealpaca.cn
 TRAIN_SSO_COOKIE_NAME=__Secure-jerry_session
-TRAIN_SSO_COOKIE_DOMAIN=.jerrythelpaca.cn
+TRAIN_SSO_COOKIE_DOMAIN=.jerrythealpaca.cn
 ```
 
 配置后，未登录访问会跳到中心登录页；中心会话有效时直接进入足迹页；从足迹站退出会撤销中心

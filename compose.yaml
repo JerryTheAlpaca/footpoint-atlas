@@ -15,7 +15,7 @@ services:
       TRAIN_SSO_LOGIN_URL: ${TRAIN_SSO_LOGIN_URL:-}
       TRAIN_SSO_PUBLIC_ORIGIN: ${TRAIN_SSO_PUBLIC_ORIGIN:-}
       TRAIN_SSO_COOKIE_NAME: ${TRAIN_SSO_COOKIE_NAME:-__Secure-jerry_session}
-      TRAIN_SSO_COOKIE_DOMAIN: ${TRAIN_SSO_COOKIE_DOMAIN:-.jerrythelpaca.cn}
+      TRAIN_SSO_COOKIE_DOMAIN: ${TRAIN_SSO_COOKIE_DOMAIN:-.jerrythealpaca.cn}
     volumes:
       - ${HOST_DATA_DIR:-/opt/footpoint-atlas-data}:/data
     user: "${APP_UID:-1000}:${APP_GID:-1000}"

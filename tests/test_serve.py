@@ -340,10 +340,10 @@ class ServeSsoTests(unittest.TestCase):
                 "TRAIN_AUTH_USERNAME": "jerry",
                 "TRAIN_SSO_SESSION_URL": "http://ledger-auth:3000/api/auth/session",
                 "TRAIN_SSO_LOGOUT_URL": "http://ledger-auth:3000/api/auth/logout",
-                "TRAIN_SSO_LOGIN_URL": "https://auth.jerrythelpaca.cn/login",
-                "TRAIN_SSO_PUBLIC_ORIGIN": "https://atlas.jerrythelpaca.cn",
+                "TRAIN_SSO_LOGIN_URL": "https://auth.jerrythealpaca.cn/login",
+                "TRAIN_SSO_PUBLIC_ORIGIN": "https://atlas.jerrythealpaca.cn",
                 "TRAIN_SSO_COOKIE_NAME": "__Secure-jerry_session",
-                "TRAIN_SSO_COOKIE_DOMAIN": ".jerrythelpaca.cn",
+                "TRAIN_SSO_COOKIE_DOMAIN": ".jerrythealpaca.cn",
             },
             clear=True,
         ):
@@ -380,10 +380,10 @@ class ServeSsoTests(unittest.TestCase):
             self.assertIsNone(serve.sso_session_username(config, "secret-token"))
 
         location = serve.sso_login_location(config, "/?year=2026")
-        self.assertIn("https%3A%2F%2Fatlas.jerrythelpaca.cn%2F%3Fyear%3D2026", location)
+        self.assertIn("https%3A%2F%2Fatlas.jerrythealpaca.cn%2F%3Fyear%3D2026", location)
         self.assertEqual(
             serve.sso_login_location(config, "https://example.com/steal"),
-            "https://auth.jerrythelpaca.cn/login?return_to=https%3A%2F%2Fatlas.jerrythelpaca.cn%2F",
+            "https://auth.jerrythealpaca.cn/login?return_to=https%3A%2F%2Fatlas.jerrythealpaca.cn%2F",
         )
 
 
