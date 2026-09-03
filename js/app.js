@@ -2553,29 +2553,6 @@
       .replace(/'/g, '&#39;');
   }
 
-  function fillDatalist(id, values) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = values
-      .map(function (value) {
-        return '<option value="' + escapeHtml(value) + '"></option>';
-      })
-      .join('');
-  }
-
-  function fillSettingsLists() {
-    var bureaus = {};
-    allRecords.forEach(function (rec) {
-      if (rec.bureau) bureaus[rec.bureau] = true;
-    });
-    fillDatalist(
-      'bureau-list',
-      Object.keys(bureaus).sort(function (a, b) {
-        return a.localeCompare(b, 'zh-CN');
-      })
-    );
-  }
-
   function todayIso() {
     var now = new Date();
     var month = String(now.getMonth() + 1).padStart(2, '0');
@@ -2699,7 +2676,6 @@
   function openSettings() {
     hideRecordContextMenu();
     closeReview();
-    fillSettingsLists();
     if (!editingRecord && !document.getElementById('trip-date').value) {
       document.getElementById('trip-date').value = todayIso();
     }
@@ -2745,7 +2721,6 @@
     adoptMergedData(loadMergedData());
     setStatCards(stats, !!animateStats);
     rebuildRankCharts();
-    fillSettingsLists();
     populateRangeControls();
     applyRangeFilter();
     if (window.TrainScale) window.TrainScale.applyPageScale();
@@ -3057,7 +3032,6 @@
     bindRecordActionSheet();
     renderReunions();
     bindReunionEvents();
-    fillSettingsLists();
     bindSettingsEvents();
 
     populateRangeControls();
