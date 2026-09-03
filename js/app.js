@@ -2564,12 +2564,6 @@
   }
 
   function fillSettingsLists() {
-    fillDatalist(
-      'station-list',
-      Object.keys(stations).sort(function (a, b) {
-        return a.localeCompare(b, 'zh-CN');
-      })
-    );
     var bureaus = {};
     allRecords.forEach(function (rec) {
       if (rec.bureau) bureaus[rec.bureau] = true;
