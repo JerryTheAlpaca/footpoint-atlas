@@ -369,6 +369,31 @@ class ServeSsoTests(unittest.TestCase):
         self.assertEqual(request.get_header("Cookie"), "__Secure-jerry_session=secret-token")
         self.assertEqual(opener.call_args.kwargs["timeout"], 3)
 
+    def test_sso_session_collects_renewal_cookies(self):
+        config = self.sso_config()
+        renewal = (
+            "__Secure-jerry_session=token-1; Path=/; Domain=.jerrythealpaca.cn; "
+            "Max-Age=7776000; HttpOnly; Secure; SameSite=Lax"
+        )
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = json.dumps(
+            {"data": {"user": {"id": "user-1", "username": "jerry"}}}
+        ).encode("utf-8")
+        response.__enter__.return_value.headers.get_all.return_value = [renewal]
+
+        with mock.patch.object(serve, "urlopen", return_value=response):
+            session = serve.sso_session(config, "secret-token")
+
+        self.assertIsNotNone(session)
+        self.assertEqual(session.username, "jerry")
+        self.assertEqual(session.set_cookies, (renewal,))
+
+        response.__enter__.return_value.headers.get_all.return_value = []
+        with mock.patch.object(serve, "urlopen", return_value=response):
+            session = serve.sso_session(config, "secret-token")
+        self.assertEqual(session.username, "jerry")
+        self.assertEqual(session.set_cookies, ())
+
     def test_sso_rejects_wrong_user_and_builds_whitelisted_return_url(self):
         config = self.sso_config()
         response = mock.MagicMock()
@@ -385,6 +410,80 @@ class ServeSsoTests(unittest.TestCase):
             serve.sso_login_location(config, "https://example.com/steal"),
             "https://auth.jerrythealpaca.cn/login?return_to=https%3A%2F%2Fatlas.jerrythealpaca.cn%2F",
         )
+
+
+class ServeSsoHandlerTests(unittest.TestCase):
+    def setUp(self):
+        self.auth_env = mock.patch.dict(
+            os.environ,
+            {
+                "TRAIN_AUTH_ENABLED": "1",
+                "TRAIN_AUTH_USERNAME": "jerry",
+                "TRAIN_SSO_SESSION_URL": "http://ledger-auth:3000/api/auth/session",
+                "TRAIN_SSO_LOGOUT_URL": "http://ledger-auth:3000/api/auth/logout",
+                "TRAIN_SSO_LOGIN_URL": "https://auth.jerrythealpaca.cn/login",
+                "TRAIN_SSO_PUBLIC_ORIGIN": "https://atlas.jerrythealpaca.cn",
+                "TRAIN_SSO_COOKIE_NAME": "__Secure-jerry_session",
+                "TRAIN_SSO_COOKIE_DOMAIN": ".jerrythealpaca.cn",
+                "TRAIN_COOKIE_SECURE": "0",
+            },
+        )
+        self.auth_env.start()
+        self.httpd = serve.ThreadingHTTPServer(("127.0.0.1", 0), serve.Handler)
+        self.httpd.auth_config = serve.load_auth_config()
+        self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
+        self.thread.start()
+        self.base_url = f"http://127.0.0.1:{self.httpd.server_port}"
+
+    def tearDown(self):
+        self.httpd.shutdown()
+        self.httpd.server_close()
+        self.thread.join(timeout=2)
+        self.auth_env.stop()
+
+    def central_auth_response(self, username="jerry", set_cookies=()):
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = json.dumps(
+            {"data": {"user": {"id": "user-1", "username": username}}}
+        ).encode("utf-8")
+        response.__enter__.return_value.headers.get_all.return_value = list(set_cookies)
+        return response
+
+    def test_authenticated_response_forwards_renewal_cookie(self):
+        renewal = (
+            "__Secure-jerry_session=token-1; Path=/; Domain=.jerrythealpaca.cn; "
+            "Max-Age=7776000; HttpOnly; Secure; SameSite=Lax"
+        )
+        request = Request(
+            self.base_url + "/api/auth-status",
+            headers={"Cookie": "__Secure-jerry_session=secret-token"},
+        )
+        with mock.patch.object(
+            serve, "urlopen", return_value=self.central_auth_response(set_cookies=(renewal,))
+        ):
+            with urlopen(request) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+                forwarded = response.headers.get_all("Set-Cookie") or []
+
+        self.assertTrue(payload["authenticated"])
+        self.assertEqual(payload["username"], "jerry")
+        self.assertEqual(forwarded, [renewal])
+
+    def test_failed_session_check_returns_401_without_renewal_cookie(self):
+        error = HTTPError(
+            "http://ledger-auth:3000/api/auth/session", 401, "Unauthorized", None, None
+        )
+        request = Request(
+            self.base_url + "/api/train-data",
+            headers={"Cookie": "__Secure-jerry_session=bad-token"},
+        )
+        with mock.patch.object(serve, "urlopen", side_effect=error):
+            try:
+                urlopen(request)
+                self.fail("expected 401")
+            except HTTPError as response:
+                self.assertEqual(response.code, 401)
+                self.assertEqual(response.headers.get_all("Set-Cookie") or [], [])
 
 
 if __name__ == "__main__":

@@ -223,7 +223,13 @@ def session_username(config: AuthConfig, token: str, now: int | None = None) -> 
         return None
 
 
-def sso_session_username(config: AuthConfig, token: str) -> str | None:
+@dataclass(frozen=True)
+class SsoSession:
+    username: str
+    set_cookies: tuple[str, ...] = ()
+
+
+def sso_session(config: AuthConfig, token: str) -> SsoSession | None:
     if not config.sso_enabled or not token:
         return None
     request = Request(
@@ -234,6 +240,7 @@ def sso_session_username(config: AuthConfig, token: str) -> str | None:
     try:
         with urlopen(request, timeout=3) as response:
             payload = json.loads(response.read().decode("utf-8"))
+            set_cookies = tuple(response.headers.get_all("Set-Cookie") or ())
     except (HTTPError, URLError, TimeoutError, ValueError, json.JSONDecodeError, UnicodeDecodeError):
         return None
     try:
@@ -244,7 +251,12 @@ def sso_session_username(config: AuthConfig, token: str) -> str | None:
         return None
     if config.username and not hmac.compare_digest(username, config.username):
         return None
-    return username
+    return SsoSession(username=username, set_cookies=set_cookies)
+
+
+def sso_session_username(config: AuthConfig, token: str) -> str | None:
+    session = sso_session(config, token)
+    return session.username if session else None
 
 
 def sso_login_location(config: AuthConfig, return_to: str | None) -> str:
@@ -385,6 +397,7 @@ def sanitize_payload(payload: object) -> tuple[list[dict], dict]:
 
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
+        self._sso_set_cookies: list[str] = []
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
     @property
@@ -393,6 +406,8 @@ class Handler(SimpleHTTPRequestHandler):
         return configured if configured is not None else load_auth_config()
 
     def end_headers(self) -> None:
+        for cookie in self._sso_set_cookies:
+            self.send_header("Set-Cookie", cookie)
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
@@ -437,7 +452,13 @@ class Handler(SimpleHTTPRequestHandler):
         if not config.enabled:
             return "local"
         if config.sso_enabled:
-            return sso_session_username(config, self.cookie_value(config.sso_cookie_name))
+            session = sso_session(config, self.cookie_value(config.sso_cookie_name))
+            if session is None:
+                return None
+            for cookie in session.set_cookies:
+                if cookie not in self._sso_set_cookies:
+                    self._sso_set_cookies.append(cookie)
+            return session.username
         return session_username(config, self.cookie_value("train_session"))
 
     def client_key(self) -> str:

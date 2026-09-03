@@ -27,8 +27,12 @@ class DeploymentConfigTests(unittest.TestCase):
 
     def test_docker_build_does_not_copy_local_secrets(self):
         ignore = (ROOT / ".dockerignore").read_text(encoding="utf-8")
-        self.assertIn(".env", ignore.splitlines())
-        self.assertIn(".git", ignore.splitlines())
+        ignore_lines = ignore.splitlines()
+        self.assertTrue(
+            any(line in {".env", ".env*"} for line in ignore_lines),
+            ".dockerignore 必须排除 .env 文件",
+        )
+        self.assertIn(".git", ignore_lines)
         self.assertIn("/etc/nginx/conf.d/default.conf:ro", (ROOT / "compose.yaml").read_text(encoding="utf-8"))
 
 
