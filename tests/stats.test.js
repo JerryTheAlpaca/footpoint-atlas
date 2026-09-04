@@ -361,11 +361,12 @@ describe('buildReunionState', () => {
     assert.deepEqual(state.trains.map((group) => group.train), ['D1']);
     assert.deepEqual(state.trains[0].rides.map((ride) => ride.index), [0, 2]);
     assert.deepEqual(state.vehicles.map((group) => group.unit), ['CRH1A-A-1172']);
-    assert.deepEqual(state.badges.get(records[0]), [
+    assert.equal(state.badges.has(records[0]), false);
+    assert.equal(state.badges.has(records[1]), false);
+    assert.deepEqual(state.badges.get(records[2]), [
       { kind: 'train', count: 2 },
       { kind: 'vehicle', count: 2 },
     ]);
-    assert.equal(state.badges.has(records[1]), false);
   });
 
   it('drops groups and badges when the active filter leaves only one ride', () => {

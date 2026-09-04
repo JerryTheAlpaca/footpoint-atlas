@@ -216,11 +216,12 @@
     const badges = new Map();
 
     function addBadge(group, kind) {
-      group.rides.forEach(function (ride) {
+      group.rides.forEach(function (ride, position) {
+        if (position === 0) return;
         const record = source[ride.index];
         if (!record) return;
         if (!badges.has(record)) badges.set(record, []);
-        badges.get(record).push({ kind: kind, count: group.count });
+        badges.get(record).push({ kind: kind, count: position + 1 });
       });
     }
 
