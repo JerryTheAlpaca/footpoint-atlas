@@ -246,6 +246,7 @@ describe('mobile scroll story structure', () => {
     assert.match(css, /scroll-snap-align:\s*start/);
     assert.match(css, /100svh/);
     assert.match(css, /safe-area-inset-bottom/);
+    assert.match(html, /viewport-fit=cover/);
     assert.match(css, /\.record-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3/);
     assert.match(css, /\.record-list\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\);/);
     assert.doesNotMatch(css, /scroll-snap-stop:\s*always/);
