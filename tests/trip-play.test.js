@@ -86,7 +86,7 @@ describe('tripStationAppearStyle', () => {
     assert.ok(tripStationAppearStyle(0.4).size < full);
     assert.ok(tripStationAppearStyle(0.4).ringOpacity > 0);
     assert.equal(tripStationAppearStyle(1).ringOpacity, 0);
-    assert.ok(full > 6);
+    assert.ok(full > 4);
     assert.ok(full < 16);
   });
 

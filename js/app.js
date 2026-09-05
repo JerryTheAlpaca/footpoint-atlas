@@ -12,6 +12,8 @@
   };
   var DIMMED_LINE_OPACITY = 0.4;
   var RESTING_LINE_OPACITY = 0.75;
+  // 到访次数达到该值的车站才有闪动效果，其余只画静态圆点
+  var STATION_RIPPLE_MIN_VISITS = 5;
   var DEFAULT_GEO_CENTER = [104.2, 35.8];
   var DEFAULT_GEO_ZOOM = 1.45;
   var GEO_ZOOM_MIN = 0.8;
@@ -140,8 +142,8 @@
   function stationSymbolSize(visits, compact) {
     var n = Math.max(1, Number(visits) || 1);
     var compactMarks = useCompactMapMarks(compact);
-    var size = compactMarks ? 2.4 + Math.sqrt(n) * 1.7 : 5.5 + Math.sqrt(n) * 4;
-    var cap = compactMarks ? 8 : 22;
+    var size = compactMarks ? 1.6 + Math.sqrt(n) * 1.0 : 3.5 + Math.sqrt(n) * 2.2;
+    var cap = compactMarks ? 4.5 : 12;
     if (size > cap) size = cap;
     return size;
   }
@@ -270,6 +272,7 @@
     useCompactMapMarks: useCompactMapMarks,
     mapMarkChrome: mapMarkChrome,
     mapLineSeries: mapLineSeries,
+    mapStationSeries: mapStationSeries,
     mapRenderOpts: mapRenderOpts,
     ROUTE_LINE_STYLES: ROUTE_LINE_STYLES,
     HIGHLIGHT_LINE_COLORS: HIGHLIGHT_LINE_COLORS,
@@ -721,13 +724,13 @@
   }
 
   function splitLinesByType(lines) {
-    var emu = [];
-    var conv = [];
+    var result = { emu: [], conv: [], emuReal: [], convReal: [] };
     (lines || []).forEach(function (line) {
-      if (line.trainType === 'conv') conv.push(line);
-      else emu.push(line);
+      var real = !!line.realPath;
+      var key = (line.trainType === 'conv' ? 'conv' : 'emu') + (real ? 'Real' : '');
+      result[key].push(line);
     });
-    return { emu: emu, conv: conv };
+    return result;
   }
 
   // ---------------------------------------------------------------------------
@@ -833,6 +836,7 @@
         return {
           id: 'seg:' + segId,
           name: 'seg:' + segId,
+          realPath: true,
           coords: seg.polyline,
           from: fromNode ? fromNode.name : seg.from,
           to: toNode ? toNode.name : seg.to,
@@ -883,31 +887,21 @@
   function lineTooltip(params) {
     var data = params.data;
     if (!data || !data.records) return '';
+    // 悬停只列乘坐记录本身：日期、车次、出发站-到达站
     var rows = data.records
       .map(function (rec) {
-        var vehiclePart = rec.vehicle ? '<br/>车型：' + escapeHtml(rec.vehicle) : '';
         return (
           escapeHtml(rec.date) +
           '　' +
           escapeHtml(rec.train) +
-          vehiclePart +
-          '<br/>路局：' +
-          escapeHtml(rec.bureau)
+          '　' +
+          escapeHtml(rec.from) +
+          '-' +
+          escapeHtml(rec.to)
         );
       })
-      .join('<br/><br/>');
-    var title =
-      escapeHtml(data.from) +
-      ' → ' +
-      escapeHtml(data.to) +
-      (data.railwayName ? '<br/>线路：' + escapeHtml(data.railwayName) : '');
-    return (
-      title +
-      '<br/>该线路乘坐次数：' +
-      data.count +
-      '<br/><br/>' +
-      rows
-    );
+      .join('<br/>');
+    return rows;
   }
 
   function mapTooltipStyle() {
@@ -920,10 +914,10 @@
     };
   }
 
-  function mapLineSeries(type, data) {
+  function mapLineSeries(type, data, isReal) {
     var style = ROUTE_LINE_STYLES[type] || ROUTE_LINE_STYLES.emu;
     return {
-      id: 'map-lines-' + type,
+      id: 'map-lines-' + type + (isReal ? '-real' : ''),
       name: type === 'conv' ? '普速线路' : '动车线路',
       type: 'lines',
       polyline: true,
@@ -936,21 +930,30 @@
         opacity: RESTING_LINE_OPACITY,
       },
       emphasis: { disabled: true },
-      effect: { show: false },
+      // 移动光点只走曲线（含真实模式下的回退曲线），真实径路上不放光点。
+      effect: {
+        show: !isReal && data.length > 0,
+        period: 5,
+        trailLength: 0.45,
+        color: style.effectColor,
+        symbol: 'circle',
+        symbolSize: mapMarkChrome().lineEffectSize,
+      },
       tooltip: { formatter: lineTooltip },
       data: data,
     };
   }
 
+  function stationTooltipFormatter(params) {
+    return escapeHtml(params.name) + '<br/>到访次数：' + escapeHtml(params.data.visits);
+  }
+
   function mapStationSeries(data) {
-    return {
-      id: 'map-stations',
-      name: '车站',
-      type: 'effectScatter',
+    var all = data || [];
+    var base = {
       coordinateSystem: 'geo',
       geoIndex: 0,
       zlevel: 3,
-      rippleEffect: { brushType: 'stroke', scale: mapMarkChrome().rippleScale, period: 3.6 },
       symbolSize: function (val) {
         return stationSymbolSize(val[2]);
       },
@@ -960,13 +963,29 @@
         shadowColor: NEON,
       },
       label: { show: false },
-      tooltip: {
-        formatter: function (params) {
-          return escapeHtml(params.name) + '<br/>到访次数：' + escapeHtml(params.data.visits);
-        },
-      },
-      data: data,
+      tooltip: { formatter: stationTooltipFormatter },
     };
+    return [
+      {
+        id: 'map-stations',
+        name: '车站',
+        type: 'scatter',
+        data: all.filter(function (d) {
+          return (d.visits || 0) < STATION_RIPPLE_MIN_VISITS;
+        }),
+      },
+      {
+        id: 'map-stations-ripple',
+        name: '常去车站',
+        type: 'effectScatter',
+        rippleEffect: { brushType: 'stroke', scale: mapMarkChrome().rippleScale, period: 3.6 },
+        data: all.filter(function (d) {
+          return (d.visits || 0) >= STATION_RIPPLE_MIN_VISITS;
+        }),
+      },
+    ].map(function (series) {
+      return Object.assign({}, base, series);
+    });
   }
 
   function emptyTripFrame() {
@@ -1323,8 +1342,11 @@
         series: [
           mapLineSeries('emu', split.emu),
           mapLineSeries('conv', split.conv),
-          mapStationSeries(points),
-        ].concat(tripOverlaySeries(frame, showLabel !== false)),
+          mapLineSeries('emu', split.emuReal, true),
+          mapLineSeries('conv', split.convReal, true),
+        ]
+          .concat(mapStationSeries(points))
+          .concat(tripOverlaySeries(frame, showLabel !== false)),
       },
       mapRenderOpts(replaceSeries)
     );

@@ -100,25 +100,65 @@ describe('stationSymbolSize', () => {
   it('keeps a one-visit station compact and still makes hubs clearly larger', () => {
     const { stationSymbolSize } = loadTrainMap();
 
-    assert.ok(Math.abs(stationSymbolSize(1) - 9.5) < 0.01);
-    assert.ok(stationSymbolSize(14) > 18);
-    assert.ok(stationSymbolSize(14) < 24);
+    assert.ok(Math.abs(stationSymbolSize(1) - 5.7) < 0.01);
+    assert.ok(stationSymbolSize(14) > 10);
+    assert.ok(stationSymbolSize(14) < 13);
   });
 
   it('caps huge hubs so circles do not swallow nearby stations', () => {
     const { stationSymbolSize } = loadTrainMap();
 
-    assert.equal(stationSymbolSize(200), 22);
+    assert.equal(stationSymbolSize(200), 12);
   });
 
   it('shrinks station circles on compact screens so dense clusters stay readable', () => {
     const { stationSymbolSize } = loadTrainMap();
 
-    assert.ok(Math.abs(stationSymbolSize(1, true) - 4.1) < 0.01);
+    assert.ok(Math.abs(stationSymbolSize(1, true) - 2.6) < 0.01);
     assert.ok(stationSymbolSize(1, true) < stationSymbolSize(1, false) * 0.5);
     assert.ok(stationSymbolSize(14, true) > stationSymbolSize(1, true));
-    assert.ok(stationSymbolSize(14, true) < 9);
-    assert.equal(stationSymbolSize(200, true), 8);
+    assert.ok(stationSymbolSize(14, true) < 5);
+    assert.equal(stationSymbolSize(200, true), 4.5);
+  });
+});
+
+describe('mapStationSeries', () => {
+  it('ripples only stations visited 5+ times, others stay plain dots', () => {
+    const { mapStationSeries } = loadTrainMap();
+    const data = [
+      { name: '小站', value: [114, 30, 1], visits: 1 },
+      { name: '临界站', value: [115, 30, 5], visits: 5 },
+      { name: '大站', value: [116, 30, 9], visits: 9 },
+    ];
+    const series = mapStationSeries(data);
+
+    assert.equal(series.length, 2);
+    const plain = series.find((s) => s.id === 'map-stations');
+    const ripple = series.find((s) => s.id === 'map-stations-ripple');
+
+    assert.equal(plain.type, 'scatter');
+    assert.deepEqual(
+      plain.data.map((d) => d.name),
+      ['小站']
+    );
+    assert.equal(ripple.type, 'effectScatter');
+    assert.ok(ripple.rippleEffect && ripple.rippleEffect.scale > 0);
+    assert.deepEqual(
+      ripple.data.map((d) => d.name),
+      ['临界站', '大站']
+    );
+  });
+
+  it('keeps tooltip formatter on both station series', () => {
+    const { mapStationSeries } = loadTrainMap();
+    const series = mapStationSeries([{ name: '甲', value: [114, 30, 2], visits: 2 }]);
+
+    series.forEach((s) => {
+      assert.equal(typeof s.tooltip.formatter, 'function');
+      assert.equal(typeof s.symbolSize, 'function');
+      assert.equal(s.coordinateSystem, 'geo');
+      assert.equal(s.zlevel, 3);
+    });
   });
 });
 
@@ -188,7 +228,17 @@ describe('mapLineSeries highlight states', () => {
     assert.equal(ROUTE_LINE_STYLES.conv.type, 'solid');
     assert.equal(ROUTE_LINE_STYLES.conv.color, '#16a34a');
     assert.notEqual(ROUTE_LINE_STYLES.conv.color, ROUTE_LINE_STYLES.emu.color);
-    assert.equal(series.effect.show, false);
+    assert.equal(series.effect.show, true);
+  });
+
+  it('disables moving effect dots on real-path series only', () => {
+    const { mapLineSeries } = loadTrainMap();
+    const curve = mapLineSeries('emu', [{ name: '甲→乙|emu', coords: [[0, 0], [1, 1]] }], false);
+    const real = mapLineSeries('emu', [{ name: 'seg:1|emu', coords: [[0, 0], [1, 1]] }], true);
+
+    assert.equal(curve.effect.show, true);
+    assert.equal(real.effect.show, false);
+    assert.equal(real.id, 'map-lines-emu-real');
   });
 });
 
