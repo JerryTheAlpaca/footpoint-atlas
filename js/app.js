@@ -1240,7 +1240,10 @@
           opacity: 1,
         },
         lineData,
-        frame.phase === 'end',
+        // 描绘阶段的移动光点由 trip-head（effectScatter）负责；
+        // lines 系列的 effect 光点总是从 polyline 起点开始跑，若在 end 阶段开启，
+        // 会导致画完后起点处再次冒出一颗光点向前爬行、随后随下一条线开始而消失。
+        false,
         effectColor
       ),
       {
