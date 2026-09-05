@@ -531,6 +531,17 @@ class Handler(SimpleHTTPRequestHandler):
             return str(OUTPUT_PATH)
         return super().translate_path(path)
 
+    # 静态文件走 SimpleHTTPRequestHandler 默认逻辑，原本不发 Cache-Control，
+    # 浏览器会按启发式缓存（Last-Modified 时长的 10%）把旧 JS 留上数天，
+    # 导致数据更新后重启服务仍显示旧折线。此处为这类响应补上 no-store。
+    _static_response = False
+
+    def end_headers(self) -> None:
+        if self._static_response:
+            self._static_response = False
+            self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def static_path_allowed(self, path: str) -> bool:
         decoded = unquote(path)
         if "\x00" in decoded or "\\" in decoded or ".." in decoded.split("/"):
@@ -557,6 +568,7 @@ class Handler(SimpleHTTPRequestHandler):
         if not self.static_path_allowed(path):
             self.send_error(404)
             return
+        self._static_response = True
         super().do_HEAD()
 
     def do_GET(self) -> None:
@@ -592,6 +604,7 @@ class Handler(SimpleHTTPRequestHandler):
             if not self.static_path_allowed(path):
                 self.send_error(404)
                 return
+            self._static_response = True
             super().do_GET()
             return
         try:

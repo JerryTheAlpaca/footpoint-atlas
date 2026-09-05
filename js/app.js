@@ -36,6 +36,8 @@
   var mapLineByKey = {};
   var recordLinesDimmed = false;
   var recordAreaActive = false;
+  var mapDisplayMode = 'curve';
+  var recordRouteByKey = {};
   var reunionTrains = [];
   var reunionVehicles = [];
   var reunionBadges = new Map();
@@ -437,7 +439,10 @@
   function buildTripPlayFrame(elapsedMs, trip, timing) {
     var tmg = tripPlayTiming(trip, timing);
     var elapsed = Math.max(0, Number(elapsedMs) || 0);
-    var polyline = sampleRoutePolyline(trip.fromCoord, trip.toCoord, ROUTE_CURVENESS, 48);
+    var polyline =
+      trip.routePoints && trip.routePoints.length >= 2
+        ? trip.routePoints
+        : sampleRoutePolyline(trip.fromCoord, trip.toCoord, ROUTE_CURVENESS, 48);
     var startAppear = trip.startLit ? 1 : appearProgress(elapsed, 0, tmg.appearMs);
     var stations = [];
     var colors = tripFrameColors(trip);
@@ -725,6 +730,133 @@
     return { emu: emu, conv: conv };
   }
 
+  // ---------------------------------------------------------------------------
+  // 真实路径优先模式：按最小物理区段聚合，未覆盖行程回退曲线。
+  // ---------------------------------------------------------------------------
+
+  function railSegmentById(segId) {
+    var data = window.RAIL_ROUTE_DATA;
+    if (!data || !data.segments) return null;
+    for (var i = 0; i < data.segments.length; i++) {
+      if (data.segments[i].id === segId) return data.segments[i];
+    }
+    return null;
+  }
+
+  function railNodeById(nodeId) {
+    var data = window.RAIL_ROUTE_DATA;
+    if (!data || !data.nodes) return null;
+    for (var i = 0; i < data.nodes.length; i++) {
+      if (data.nodes[i].id === nodeId) return data.nodes[i];
+    }
+    return null;
+  }
+
+  function majorityTrainType(records) {
+    var emu = 0;
+    var conv = 0;
+    (records || []).forEach(function (rec) {
+      if (window.TrainStats.trainTypeOf(rec) === 'conv') conv += 1;
+      else emu += 1;
+    });
+    return conv > emu ? 'conv' : 'emu';
+  }
+
+  // 记录级稳定缓存键：日期+车次+站对。同站对不同车次可能选择
+  // 不同径路（人工覆盖按 date/train 区分），以站对为键会让先解析
+  // 的记录污染后续同站对记录的热度、悬停与回放。
+  function recordCacheKey(rec) {
+    return [rec.date || '', rec.train || '', rec.from || '', rec.to || ''].join('|');
+  }
+
+  function cachedRecordRoute(rec) {
+    var key = recordCacheKey(rec);
+    if (recordRouteByKey[key]) return recordRouteByKey[key];
+    var route = null;
+    if (window.TrainRoutes) {
+      try {
+        route = window.TrainRoutes.resolveRecordRoute(rec);
+      } catch (err) {
+        route = null;
+      }
+    }
+    if (route) {
+      route.trainType = window.TrainStats.trainTypeOf(rec);
+      recordRouteByKey[key] = route;
+    }
+    return route || null;
+  }
+
+  function realRoutesAvailable() {
+    return !!(mapDisplayMode === 'real' && window.TrainRoutes && window.RAIL_ROUTE_DATA);
+  }
+
+  // 统一坐标入口：真实模式使用经线路验证的网络锚点（与区段折线
+  // 端点同源），避免静态标记、悬停与回放读两套坐标（固定基线曾有
+  // 19 站与折线差 >100m）。曲线模式继续使用业务站表坐标。
+  function displayCoord(name) {
+    if (realRoutesAvailable() && window.TrainRoutes.nodeByName) {
+      var node = window.TrainRoutes.nodeByName(name);
+      if (node && node.coord) return node.coord;
+    }
+    return stations[name] || null;
+  }
+
+  function buildRealLines(records, skipLineKey) {
+    recordRouteByKey = {};
+    var segGroups = {};
+    var fallback = [];
+    (records || []).forEach(function (rec) {
+      var type = window.TrainStats.trainTypeOf(rec);
+      var key = lineKey(rec.from, rec.to, type);
+      if (skipLineKey && key === skipLineKey) return;
+      var route = cachedRecordRoute(rec);
+      if (!route) {
+        fallback.push(rec);
+        return;
+      }
+      route.segIds.forEach(function (segId) {
+        if (!segGroups[segId]) segGroups[segId] = { segId: segId, records: [] };
+        segGroups[segId].records.push(rec);
+      });
+    });
+
+    var lines = Object.keys(segGroups)
+      .map(function (segId) {
+        var group = segGroups[segId];
+        var seg = railSegmentById(segId);
+        if (!seg || !seg.polyline || seg.polyline.length < 2) return null;
+        var type = majorityTrainType(group.records);
+        var style = ROUTE_LINE_STYLES[type];
+        var fromNode = railNodeById(seg.from);
+        var toNode = railNodeById(seg.to);
+        return {
+          id: 'seg:' + segId,
+          name: 'seg:' + segId,
+          coords: seg.polyline,
+          from: fromNode ? fromNode.name : seg.from,
+          to: toNode ? toNode.name : seg.to,
+          railwayName: seg.name,
+          route: 'seg:' + segId,
+          trainType: type,
+          count: group.records.length,
+          records: group.records,
+          lineStyle: {
+            color: style.color,
+            width: routeLineWidth(group.records.length),
+          },
+        };
+      })
+      .filter(Boolean);
+
+    return buildLines(fallback, skipLineKey).concat(lines);
+  }
+
+  function buildDisplayLines(records, skipLineKey) {
+    if (realRoutesAvailable()) return buildRealLines(records, skipLineKey);
+    return buildLines(records, skipLineKey);
+  }
+
   function buildStations(records, skipNames) {
     var visits = {};
     records.forEach(function (rec) {
@@ -734,7 +866,7 @@
     return Object.keys(visits)
       .map(function (name) {
         if (skipNames && skipNames[name]) return null;
-        var coord = stations[name];
+        var coord = displayCoord(name);
         if (!coord) {
           warnMissingStation(name);
           return null;
@@ -764,10 +896,13 @@
         );
       })
       .join('<br/><br/>');
-    return (
+    var title =
       escapeHtml(data.from) +
       ' → ' +
       escapeHtml(data.to) +
+      (data.railwayName ? '<br/>线路：' + escapeHtml(data.railwayName) : '');
+    return (
+      title +
       '<br/>该线路乘坐次数：' +
       data.count +
       '<br/><br/>' +
@@ -801,14 +936,7 @@
         opacity: RESTING_LINE_OPACITY,
       },
       emphasis: { disabled: true },
-      effect: {
-        show: data.length > 0,
-        period: 5,
-        trailLength: 0.45,
-        color: style.effectColor,
-        symbol: 'circle',
-        symbolSize: mapMarkChrome().lineEffectSize,
-      },
+      effect: { show: false },
       tooltip: { formatter: lineTooltip },
       data: data,
     };
@@ -880,6 +1008,16 @@
     return hoverZrLine;
   }
 
+  // —— 悬停高亮：真实模式按记录级缓存取该线路首条记录的实际径路 ——
+  function cachedRouteForLine(line) {
+    if (!line || !line.records || !line.records.length) return null;
+    for (var i = 0; i < line.records.length; i++) {
+      var r = cachedRecordRoute(line.records[i]);
+      if (r && r.points && r.points.length >= 2) return r;
+    }
+    return null;
+  }
+
   function highlightRouteOnMap(lineKey, dimSiblings) {
     if (!mapChart) return;
     var stayDimmed = dimSiblings !== false && shouldDimMapLines();
@@ -888,24 +1026,26 @@
     }
     var el = ensureHoverZrLine();
     var line = lineKey ? mapLineByKey[lineKey] : null;
+    var routeRec = line && realRoutesAvailable() ? cachedRouteForLine(line) : null;
+    var coords = routeRec && routeRec.points ? routeRec.points : line && line.coords ? line.coords : null;
     if (!el) return;
-    if (!line || !line.coords) {
+    if (!coords) {
       el.setStyle({ opacity: 0 });
       el.setShape({ points: [] });
       return;
     }
     var points = [];
     var i;
-    for (i = 0; i < line.coords.length; i++) {
-      var px = mapChart.convertToPixel({ geoIndex: 0 }, line.coords[i]);
+    for (i = 0; i < coords.length; i++) {
+      var px = mapChart.convertToPixel({ geoIndex: 0 }, coords[i]);
       if (!px) {
         points = [];
         break;
       }
       points.push(px);
     }
-    var type = line.trainType === 'conv' ? 'conv' : 'emu';
-    var width = line.lineStyle && line.lineStyle.width ? line.lineStyle.width : 1.2;
+    var type = line ? (line.trainType === 'conv' ? 'conv' : 'emu') : (routeRec && routeRec.trainType === 'conv' ? 'conv' : 'emu');
+    var width = line && line.lineStyle && line.lineStyle.width ? line.lineStyle.width : 1.2;
     var draw = hoverLineDrawStyle(type, width);
     el.setShape({ points: points });
     el.setStyle({
@@ -926,7 +1066,7 @@
   function renderMap(viewOverride, replaceSeries) {
     var visible = recordsUpTo(visibleCount);
     paintMapLayers(
-      buildLines(visible),
+      buildDisplayLines(visible),
       buildStations(visible),
       emptyTripFrame(),
       viewOverride || readGeoView(mapChart),
@@ -934,6 +1074,51 @@
       true
     );
     if (shouldDimMapLines() && highlightedRoute) highlightRouteOnMap(highlightedRoute, true);
+  }
+
+  function syncOsmAttribution() {
+    var el = document.getElementById('map-osm-attribution');
+    if (el) el.hidden = !realRoutesAvailable();
+  }
+
+  function mapDisplayCoverageText() {
+    if (!window.TrainRoutes || !window.RAIL_ROUTE_DATA) return '';
+    try {
+      var summary = window.TrainRoutes.coverageSummary(allRecords);
+      return '真实路径已覆盖 ' + summary.matched + '/' + summary.total +
+        ' 次，其他行程将显示为曲线';
+    } catch (err) {
+      return '';
+    }
+  }
+
+  function syncMapDisplayControls() {
+    var curveRadio = document.getElementById('map-display-curve');
+    var realRadio = document.getElementById('map-display-real');
+    if (curveRadio) curveRadio.checked = mapDisplayMode === 'curve';
+    if (realRadio) realRadio.checked = mapDisplayMode === 'real';
+    var coverage = document.getElementById('map-display-coverage');
+    if (coverage) coverage.textContent = mapDisplayCoverageText();
+  }
+
+  // 切换显示模式：保留地图中心、缩放、筛选与时间轴位置；
+  // 自动回放中停在当前进度重绘，单次播放中结束动画并恢复地图。
+  function setMapDisplayMode(mode) {
+    if (mode !== 'curve' && mode !== 'real') return;
+    if (mode === mapDisplayMode) return;
+    mapDisplayMode = mode;
+    if (window.TrainRoutes) {
+      window.TrainRoutes.writeDisplayMode(window.localStorage, mode);
+    }
+    if (timelinePlaying) {
+      stopPlay();
+    } else if (focusedRecordIndex != null || tripPlayRaf) {
+      restoreFullMap();
+    } else if (mapChart) {
+      renderMap(readGeoView(mapChart), true);
+    }
+    syncOsmAttribution();
+    syncMapDisplayControls();
   }
 
   function syncMapExploreButton() {
@@ -1160,7 +1345,7 @@
   function renderTripPlayFrame(frame, geoView, overlay) {
     var bgRecords = overlay && overlay.backgroundRecords ? overlay.backgroundRecords : [];
     paintMapLayers(
-      buildLines(bgRecords, overlay && overlay.skipLineKey),
+      buildDisplayLines(bgRecords, overlay && overlay.skipLineKey),
       buildStations(bgRecords, overlay && overlay.skipStations),
       frame,
       geoView,
@@ -1736,11 +1921,17 @@
     var nextVisits = stationVisitMap((settled || []).concat([rec]));
     var type = window.TrainStats.trainTypeOf(rec);
     var style = ROUTE_LINE_STYLES[type];
+    var routePoints = null;
+    if (realRoutesAvailable()) {
+      var route = cachedRecordRoute(rec);
+      if (route && route.points && route.points.length >= 2) routePoints = route.points;
+    }
     return {
       from: rec.from,
       to: rec.to,
-      fromCoord: stations[rec.from],
-      toCoord: stations[rec.to],
+      fromCoord: displayCoord(rec.from),
+      toCoord: displayCoord(rec.to),
+      routePoints: routePoints,
       trainType: type,
       lineColor: style.color,
       effectColor: style.effectColor,
@@ -1787,8 +1978,8 @@
   function startTripPlay(index) {
     var rec = playRecords[index];
     if (!rec) return;
-    var fromCoord = stations[rec.from];
-    var toCoord = stations[rec.to];
+    var fromCoord = displayCoord(rec.from);
+    var toCoord = displayCoord(rec.to);
     if (!fromCoord) {
       warnMissingStation(rec.from);
       return;
@@ -2031,7 +2222,7 @@
       return;
     }
     var rec = playRecords[index];
-    if (!rec || !stations[rec.from] || !stations[rec.to]) {
+    if (!rec || !displayCoord(rec.from) || !displayCoord(rec.to)) {
       visibleCount = index + 1;
       document.getElementById('time-slider').value = String(visibleCount);
       refreshTimeLabel();
@@ -2463,16 +2654,46 @@
     stats = window.TrainStats.computeStats({ records: allRecords, stations: stations });
   }
 
+  // 总里程独立于显示模式，按每次乘车的有效真实路径累计；
+  // 仅当全部记录都有真实路径时才显示（计划：试点阶段保持隐藏）。
+  function mileageCardState() {
+    var state = { show: false, text: '' };
+    if (!window.TrainRoutes || !window.RAIL_ROUTE_DATA) return state;
+    var summary = null;
+    try {
+      summary = window.TrainRoutes.mileageSummary(allRecords);
+    } catch (err) {
+      return state;
+    }
+    if (summary && summary.total > 0 && summary.covered === summary.total) {
+      state.show = true;
+      state.text = summary.totalKm.toLocaleString('zh-CN') + ' km';
+    }
+    return state;
+  }
+
+  function syncMileageCard() {
+    var card = document.getElementById('stat-mileage-card');
+    var value = document.getElementById('stat-mileage');
+    if (!card || !value) return;
+    var state = mileageCardState();
+    card.hidden = !state.show;
+    var cards = card.parentElement;
+    if (cards) cards.classList.toggle('has-mileage', state.show);
+    if (state.show) value.textContent = state.text;
+  }
+
   function setStatCards(nextStats, animate) {
     if (animate) {
       animateNumber(document.getElementById('stat-rides'), nextStats.totalRides);
       animateNumber(document.getElementById('stat-stations'), nextStats.stationCount);
       animateNumber(document.getElementById('stat-vehicles'), nextStats.vehicleTypeCount);
-      return;
+    } else {
+      document.getElementById('stat-rides').textContent = nextStats.totalRides.toLocaleString('zh-CN');
+      document.getElementById('stat-stations').textContent = nextStats.stationCount.toLocaleString('zh-CN');
+      document.getElementById('stat-vehicles').textContent = nextStats.vehicleTypeCount.toLocaleString('zh-CN');
     }
-    document.getElementById('stat-rides').textContent = nextStats.totalRides.toLocaleString('zh-CN');
-    document.getElementById('stat-stations').textContent = nextStats.stationCount.toLocaleString('zh-CN');
-    document.getElementById('stat-vehicles').textContent = nextStats.vehicleTypeCount.toLocaleString('zh-CN');
+    syncMileageCard();
   }
 
   function disposeRankCharts() {
@@ -2981,6 +3202,14 @@
     document.getElementById('trip-from').addEventListener('input', syncUnknownStationFields);
     document.getElementById('trip-to').addEventListener('input', syncUnknownStationFields);
     document.getElementById('trip-form').addEventListener('submit', submitTripForm);
+    var mapDisplayControls = document.getElementById('map-display-options');
+    if (mapDisplayControls) {
+      mapDisplayControls.addEventListener('change', function (event) {
+        var input = event.target.closest('input[name="map-display-mode"]');
+        if (!input) return;
+        setMapDisplayMode(input.value);
+      });
+    }
     tripDatePicker = window.TrainSettings.bindDatePicker({
       input: document.getElementById('trip-date'),
       toggle: document.getElementById('trip-date-toggle'),
@@ -3026,6 +3255,11 @@
 
     rebuildRankCharts();
     bindMapExplore();
+    if (window.TrainRoutes) {
+      mapDisplayMode = window.TrainRoutes.readDisplayMode(window.localStorage);
+    }
+    syncOsmAttribution();
+    syncMapDisplayControls();
     renderRecords();
     bindRecordListEvents();
     bindRecordContextMenu();

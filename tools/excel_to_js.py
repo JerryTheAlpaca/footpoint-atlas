@@ -65,8 +65,19 @@ _DATA_FILL = PatternFill("solid", fgColor="FFFFFF")
 
 # 与现有 data.js 同一精度（约 1km），足够全国地图展示。
 STATION_COORDS = {
-    "临平南": [120.3, 30.42],
-    "六安": [116.51, 31.76],
+    "全椒": [118.28, 32.06],
+    "肥东": [117.48, 31.86],
+    "金寨": [115.97, 31.63],
+    "麻城北": [114.98, 31.19],
+    "红安西": [114.63, 31.01],
+    # 以下坐标与 js/rail-route-data.js 网络节点（OSM，压线）一致：
+    # 2 位小数粗坐标曾导致标记漂出线路（衡山西 26km、黄山西 62km 等），
+    # 故这些站采用完整精度。
+    "临平南": [120.28961, 30.38186],
+    # 六安：2 位粗坐标 [116.52, 31.73] 偏离沪蓉线正线 ~2.8km（偏东北），
+    # 修正为 OSM 六安站节点吸附正线顶点（way 760908118，OSM 2026-09 快照），
+    # 与 rail-route-data.js luan 节点坐标一致。
+    "六安": [116.49729, 31.71769],
     "北京": [116.43, 39.9],
     "北京南": [116.38, 39.87],
     "南京南": [118.81, 31.97],
@@ -75,17 +86,17 @@ STATION_COORDS = {
     "天河机场": [114.21, 30.78],
     "成都东": [104.14, 30.63],
     "无锡": [120.3, 31.59],
-    "无锡东": [120.43, 31.59],
+    "无锡东": [120.45549, 31.59881],
     "杭州东": [120.21, 30.29],
     "杭州西": [119.98, 30.3],
     "武汉": [114.42, 30.61],
     "汉口": [114.26, 30.62],
-    "江宁": [118.89, 31.83],
-    "衡山西": [112.52, 27.25],
-    "衡阳东": [112.65, 26.9],
+    "江宁": [118.89392, 31.9387],
+    "衡山西": [112.78379, 27.2511],
+    "衡阳东": [112.70449, 26.8997],
     "郑州东": [113.78, 34.76],
-    "黄山北": [118.29, 29.83],
-    "黄山西": [118.0, 29.72],
+    "黄山北": [118.26734, 29.81834],
+    "黄山西": [118.08466, 30.27973],
     "兰州西": [103.75, 36.07],
     "大通西": [101.67, 36.97],
     "西宁": [101.81, 36.62],
@@ -97,6 +108,10 @@ STATION_COORDS = {
     "深圳北": [114.02, 22.61],
     "广州南": [113.26, 22.99],
 }
+
+# 宁蓉走廊铁路网络试点收录的客运站（与 js/rail-route-data.js 节点一致）：
+# 以后新增"南京南→麻城北"等行程时不再要求手工补坐标。
+NETWORK_STATION_NAMES = {"全椒", "肥东", "金寨", "麻城北", "红安西"}
 
 
 def normalize_date(value) -> str:
@@ -144,14 +159,18 @@ def read_records(path: Path | None = None) -> list[dict]:
 
 
 def stations_for(records: list[dict]) -> dict[str, list[float]]:
-    names = sorted({rec["from"] for rec in records} | {rec["to"] for rec in records})
-    missing = [name for name in names if name not in STATION_COORDS]
+    # 记录中出现的车站 + 铁路网络试点收录的客运站：
+    # 以后新增"南京南→麻城北"等行程时不再要求手工补坐标。
+    names = {rec["from"] for rec in records} | {rec["to"] for rec in records}
+    names |= NETWORK_STATION_NAMES
+    ordered = sorted(names)
+    missing = [name for name in ordered if name not in STATION_COORDS]
     if missing:
         sys.stderr.write("以下车站还没有坐标，请补进 tools/excel_to_js.py 的 STATION_COORDS：\n")
         for name in missing:
             sys.stderr.write(f"  - {name}\n")
         sys.exit(1)
-    return {name: STATION_COORDS[name] for name in names}
+    return {name: STATION_COORDS[name] for name in ordered}
 
 
 def write_data_js(records: list[dict], stations: dict, path: Path = OUTPUT_PATH) -> None:

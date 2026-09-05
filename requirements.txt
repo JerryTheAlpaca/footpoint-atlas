@@ -1,1 +1,7 @@
 openpyxl==3.1.5
+
+# ---- 铁路网络构建器（tools/rail_network）额外依赖 ----
+# pypinyin：NodeRegistry 站名 → 稳定拼音 id
+pypinyin>=0.53
+# osmium（pyosmium）：从 China OSM PBF 提取铁路 way（有提取缓存时可不装）
+osmium>=3.7

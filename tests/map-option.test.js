@@ -188,7 +188,7 @@ describe('mapLineSeries highlight states', () => {
     assert.equal(ROUTE_LINE_STYLES.conv.type, 'solid');
     assert.equal(ROUTE_LINE_STYLES.conv.color, '#16a34a');
     assert.notEqual(ROUTE_LINE_STYLES.conv.color, ROUTE_LINE_STYLES.emu.color);
-    assert.equal(series.effect.color, '#16a34a');
+    assert.equal(series.effect.show, false);
   });
 });
 

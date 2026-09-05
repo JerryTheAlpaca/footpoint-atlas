@@ -18,3 +18,10 @@ Thumbs.db
 # Deployment-local settings and rollback copies
 .env*
 !.env.example
+
+# Overpass API fetch cache (kept locally for rebuilds, not committed)
+op_*.json
+build-cache/
+
+# WorkBuddy project data (local only)
+.workbuddy/

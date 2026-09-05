@@ -267,7 +267,8 @@ describe('mobile scroll story structure', () => {
     assert.match(html, /<button id="settings-btn" type="button">设置<\/button>/);
     assert.match(html, /class="map-frame">[\s\S]*?class="map-viewport">[\s\S]*?<\/div>\s*<\/div>\s*<button id="map-explore-btn"/);
     assert.match(html, /class="record-panel-head">[\s\S]*?<h2>行程数据<\/h2>[\s\S]*?id="add-trip-btn"/);
-    assert.match(css, /@media\s*\(max-width:\s*1024px\)[\s\S]*?#settings-btn\s*\{\s*display:\s*none;/);
+    assert.match(css, /@media\s*\(max-width:\s*1024px\)[\s\S]*?#settings-btn\s*\{\s*display:\s*inline-flex;/);
+    assert.match(css, /@media\s*\(max-width:\s*1024px\)[\s\S]*?#settings-btn\s*\{[^}]*width:\s*44px;[^}]*height:\s*44px;/);
     assert.match(css, /\.title-wrap\s*\{[\s\S]*?align-items:\s*center;/);
     assert.match(css, /\.title-actions\s*\{[\s\S]*?justify-content:\s*center;/);
     assert.match(css, /\.map-frame\s*\{[\s\S]*?border-radius:\s*calc\(var\(--card-radius\) - 1px\)/);

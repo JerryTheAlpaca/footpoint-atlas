@@ -32,6 +32,10 @@
           <span class="stat-label">车型数</span>
           <strong id="stat-vehicles" class="stat-value">0</strong>
         </article>
+        <article class="stat-card" id="stat-mileage-card" hidden>
+          <span class="stat-label">估算总里程</span>
+          <strong id="stat-mileage" class="stat-value">—</strong>
+        </article>
       </div>
     </header>
 
@@ -40,6 +44,7 @@
         <div class="map-frame">
           <div class="map-viewport">
             <div id="map-chart" class="chart map-chart"></div>
+            <div id="map-osm-attribution" class="map-osm-attribution" hidden>铁路几何 © OpenStreetMap contributors · ODbL</div>
           </div>
         </div>
         <button id="map-explore-btn" class="map-explore-btn" type="button" aria-pressed="false">探索地图</button>
@@ -245,8 +250,29 @@
         <div class="settings-body">
           <nav id="settings-nav" class="settings-nav" aria-label="设置分类">
             <button type="button" class="settings-nav-btn is-active" data-panel="trip">添加行程</button>
+            <button type="button" class="settings-nav-btn" data-panel="display">地图显示</button>
           </nav>
           <div class="settings-panels">
+            <section id="settings-panel-display" class="settings-panel" data-panel="display" hidden>
+              <h3 class="settings-panel-title">地图显示</h3>
+              <div id="map-display-options" class="map-display-options">
+                <label class="map-display-option">
+                  <input id="map-display-curve" type="radio" name="map-display-mode" value="curve" checked>
+                  <span class="map-display-option-text">
+                    <strong>曲线</strong>
+                    <small>所有行程使用统一弧度曲线，原始经典视图。</small>
+                  </span>
+                </label>
+                <label class="map-display-option">
+                  <input id="map-display-real" type="radio" name="map-display-mode" value="real">
+                  <span class="map-display-option-text">
+                    <strong>真实路径优先</strong>
+                    <small>已收录铁路网络自动寻径；未覆盖行程仍显示为曲线。</small>
+                  </span>
+                </label>
+              </div>
+              <p id="map-display-coverage" class="settings-hint"></p>
+            </section>
             <section id="settings-panel-trip" class="settings-panel" data-panel="trip">
               <form id="trip-form">
                 <div class="trip-grid">
@@ -333,6 +359,8 @@
   <script src="lib/echarts.min.js"></script>
   <script src="map/china.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/rail-route-data.js"></script>
+  <script src="js/rail-routes.js"></script>
   <script src="js/stats.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/scale.js"></script>
