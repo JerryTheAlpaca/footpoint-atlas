@@ -55,11 +55,17 @@
   var actionSheetRecordIndex = null;
   var LINE_ZLEVEL = 2;
   var HOVER_ZLEVEL = 10;
+  // 移动端点线宽松命中的像素容差；真实径路系列优先于曲线回退系列。
+  var TAP_LINE_TOLERANCE_PX = 18;
+  var TAP_LINE_SERIES_ORDER = ['map-lines-emu-real', 'map-lines-conv-real', 'map-lines-emu', 'map-lines-conv'];
 
-  function buildGeoOption(view, interaction) {
+  // compact 显式传参便于测试；运行时不传则按当前视口判定。
+  // 移动端关闭 geo 区域的 tooltip，避免点击省份时弹出省份名。
+  function buildGeoOption(view, interaction, compact) {
     var roam = true;
     if (interaction && typeof interaction.roam === 'boolean') roam = interaction.roam;
     if (interaction === false) roam = false;
+    var suppressGeoTip = typeof compact === 'boolean' ? compact : isCompactLayout();
     return {
       map: 'china',
       roam: roam,
@@ -78,6 +84,7 @@
         label: { show: false },
       },
       label: { show: false },
+      tooltip: { show: !suppressGeoTip },
     };
   }
 
@@ -281,6 +288,9 @@
     hoverLineDrawStyle: hoverLineDrawStyle,
     shouldDimMapLines: shouldDimMapLines,
     lineTooltip: lineTooltip,
+    pointSegmentDistanceSq: pointSegmentDistanceSq,
+    nearestLineToPixel: nearestLineToPixel,
+    lineSeriesEntry: lineSeriesEntry,
   };
 
   root.TrainRank = {
@@ -939,7 +949,9 @@
         symbol: 'circle',
         symbolSize: mapMarkChrome().lineEffectSize,
       },
-      tooltip: { formatter: lineTooltip },
+      // show 显式为 true：compact 下 geo.tooltip.show=false 只应压住省份区域名，
+      // 不能级联波及挂在地里坐标系上的线路/车站系列 tooltip。
+      tooltip: { show: true, formatter: lineTooltip },
       data: data,
     };
   }
@@ -963,7 +975,7 @@
         shadowColor: NEON,
       },
       label: { show: false },
-      tooltip: { formatter: stationTooltipFormatter },
+      tooltip: { show: true, formatter: stationTooltipFormatter },
     };
     return [
       {
@@ -1080,6 +1092,127 @@
     var wasDimmed = recordLinesDimmed;
     recordLinesDimmed = false;
     highlightRouteOnMap(highlightedRoute, wasDimmed || recordAreaActive);
+  }
+
+  // —— 移动端点线判定：手指点线很难精确命中，这里放宽到以点距折线的像素距离
+  // 做宽松命中（命中后弹出该线路的 tooltip），仅在小屏（compact）布局下生效 ——
+
+  function pointSegmentDistanceSq(px, py, ax, ay, bx, by) {
+    var dx = bx - ax;
+    var dy = by - ay;
+    var lenSq = dx * dx + dy * dy;
+    var t = lenSq > 0 ? ((px - ax) * dx + (py - ay) * dy) / lenSq : 0;
+    if (t < 0) t = 0;
+    else if (t > 1) t = 1;
+    var cx = ax + t * dx - px;
+    var cy = ay + t * dy - py;
+    return cx * cx + cy * cy;
+  }
+
+  // geo 坐标系无旋转，用两次 convertToPixel 推导线性变换，避免逐点换算。
+  function geoPixelTransform(chart) {
+    if (!chart || typeof chart.convertToPixel !== 'function') return null;
+    var origin = chart.convertToPixel({ geoIndex: 0 }, [0, 0]);
+    var step = chart.convertToPixel({ geoIndex: 0 }, [10, 10]);
+    if (!origin || !step || step[0] === origin[0] || step[1] === origin[1]) return null;
+    return {
+      ox: origin[0],
+      oy: origin[1],
+      sx: (step[0] - origin[0]) / 10,
+      sy: (step[1] - origin[1]) / 10,
+    };
+  }
+
+  function nearestLineToPixel(x, y, tolerance, lines, toPixel) {
+    var tolSq = tolerance * tolerance;
+    var best = null;
+    var bestDistSq = Infinity;
+    for (var name in lines) {
+      var line = lines[name];
+      var coords = line && line.coords;
+      if (!coords || coords.length < 2) continue;
+      var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (var b = 0; b < coords.length; b++) {
+        if (coords[b][0] < minX) minX = coords[b][0];
+        if (coords[b][0] > maxX) maxX = coords[b][0];
+        if (coords[b][1] < minY) minY = coords[b][1];
+        if (coords[b][1] > maxY) maxY = coords[b][1];
+      }
+      var tl = toPixel([minX, minY]);
+      var br = toPixel([maxX, maxY]);
+      if (!tl || !br) continue;
+      if (
+        x < Math.min(tl[0], br[0]) - tolerance ||
+        x > Math.max(tl[0], br[0]) + tolerance ||
+        y < Math.min(tl[1], br[1]) - tolerance ||
+        y > Math.max(tl[1], br[1]) + tolerance
+      ) {
+        continue;
+      }
+      var prev = toPixel(coords[0]);
+      for (var i = 1; i < coords.length; i++) {
+        var p = toPixel(coords[i]);
+        var dSq = pointSegmentDistanceSq(x, y, prev[0], prev[1], p[0], p[1]);
+        if (dSq < bestDistSq) {
+          bestDistSq = dSq;
+          best = line;
+        }
+        prev = p;
+      }
+    }
+    return bestDistSq <= tolSq ? best : null;
+  }
+
+  function findLineNearPixel(x, y, tolerance) {
+    if (!mapChart) return null;
+    var t = geoPixelTransform(mapChart);
+    if (!t) return null;
+    return nearestLineToPixel(x, y, tolerance, mapLineByKey, function (lonlat) {
+      return [t.ox + lonlat[0] * t.sx, t.oy + lonlat[1] * t.sy];
+    });
+  }
+
+  function lineSeriesEntry(lineName, seriesList) {
+    var series = seriesList || [];
+    for (var s = 0; s < TAP_LINE_SERIES_ORDER.length; s++) {
+      for (var i = 0; i < series.length; i++) {
+        if (series[i].id !== TAP_LINE_SERIES_ORDER[s]) continue;
+        var data = series[i].data || [];
+        for (var j = 0; j < data.length; j++) {
+          if (data[j] && data[j].name === lineName) {
+            return { seriesIndex: i, dataIndex: j };
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  function handleLooseLineTap(x, y) {
+    if (!mapChart) return;
+    var line = findLineNearPixel(x, y, TAP_LINE_TOLERANCE_PX);
+    var entry = line ? lineSeriesEntry(line.name, (mapChart.getOption() || {}).series) : null;
+    if (entry) {
+      mapChart.dispatchAction({ type: 'showTip', seriesIndex: entry.seriesIndex, dataIndex: entry.dataIndex });
+    } else {
+      mapChart.dispatchAction({ type: 'hideTip' });
+    }
+  }
+
+  function bindMapTapHit() {
+    if (!mapChart || typeof mapChart.getZr !== 'function') return;
+    var nativeSeriesHit = false;
+    // 点到车站/线路元素时 ECharts 原生行为优先，宽松命中只在没点到任何系列时补位。
+    mapChart.on('click', function (params) {
+      nativeSeriesHit = !!(params && params.componentType && params.componentType !== 'geo');
+    });
+    mapChart.getZr().on('click', function (e) {
+      if (!isCompactLayout()) return;
+      var skip = nativeSeriesHit;
+      nativeSeriesHit = false;
+      if (skip) return;
+      handleLooseLineTap(e.offsetX, e.offsetY);
+    });
   }
 
   function renderMap(viewOverride, replaceSeries) {
@@ -1245,6 +1378,7 @@
     var lineColor = frame.lineColor || NEON;
     var effectColor = frame.effectColor || GOLD;
     var stationTooltip = {
+      show: true,
       formatter: function (params) {
         return escapeHtml(params.name);
       },
@@ -3267,6 +3401,7 @@
     mapChart = echarts.init(document.getElementById('map-chart'));
     charts.push(mapChart);
     mapChart.on('georoam', refreshHoverOverlay);
+    bindMapTapHit();
 
     rebuildRankCharts();
     bindMapExplore();

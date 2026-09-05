@@ -257,3 +257,79 @@ describe('mapRenderOpts', () => {
     assert.deepEqual(opts.replaceMerge, ['series']);
   });
 });
+
+describe('buildGeoOption mobile province tooltip suppression', () => {
+  it('disables the geo tooltip on compact layouts so tapping a province shows no name', () => {
+    const { buildGeoOption } = loadTrainMap();
+    const compact = buildGeoOption(null, null, true);
+
+    assert.equal(compact.tooltip.show, false);
+  });
+
+  it('keeps the geo tooltip enabled on desktop', () => {
+    const { buildGeoOption } = loadTrainMap();
+    const desktop = buildGeoOption(null, null, false);
+
+    assert.equal(desktop.tooltip.show, true);
+  });
+
+  it('always writes an explicit tooltip.show so layout switches merge cleanly', () => {
+    const { buildGeoOption } = loadTrainMap();
+
+    assert.equal(typeof buildGeoOption(null, null, true).tooltip.show, 'boolean');
+    assert.equal(typeof buildGeoOption(null, null, false).tooltip.show, 'boolean');
+  });
+});
+
+describe('mobile loose line tap hit test', () => {
+  function makeLines() {
+    return {
+      '甲→乙|emu': { name: '甲→乙|emu', coords: [[0, 0], [10, 10]] },
+      '丙→丁|conv': { name: '丙→丁|conv', coords: [[100, 100], [110, 100]] },
+    };
+  }
+
+  // 简单线性映射：1 经度 = 1px x，1 纬度 = -1px y（屏幕 y 向下）
+  function toPixel(lonlat) {
+    return [lonlat[0], -lonlat[1]];
+  }
+
+  it('finds the nearest line within the pixel tolerance', () => {
+    const { nearestLineToPixel } = loadTrainMap();
+    const line = nearestLineToPixel(6, -5.5, 18, makeLines(), toPixel);
+
+    assert.equal(line.name, '甲→乙|emu');
+  });
+
+  it('rejects taps beyond the tolerance', () => {
+    const { nearestLineToPixel } = loadTrainMap();
+    const line = nearestLineToPixel(6, -40, 18, makeLines(), toPixel);
+
+    assert.equal(line, null);
+  });
+
+  it('prefers the closer of two nearby lines', () => {
+    const { nearestLineToPixel } = loadTrainMap();
+    const lines = makeLines();
+    lines['丙→丁|conv'].coords = [[0, 1], [10, 1]];
+    const line = nearestLineToPixel(5, -0.2, 18, lines, toPixel);
+
+    assert.equal(line.name, '丙→丁|conv');
+  });
+
+  it('resolves series/dataIndex preferring real-path series over curve fallback', () => {
+    const { lineSeriesEntry } = loadTrainMap();
+    const seriesList = [
+      { id: 'map-lines-emu', data: [{ name: '甲→乙|emu' }] },
+      { id: 'map-lines-emu-real', data: [{ name: '甲→乙|emu' }] },
+    ];
+
+    assert.deepEqual(lineSeriesEntry('甲→乙|emu', seriesList), { seriesIndex: 1, dataIndex: 0 });
+  });
+
+  it('returns null when the line is not in any tap series', () => {
+    const { lineSeriesEntry } = loadTrainMap();
+
+    assert.equal(lineSeriesEntry('不存在的线', [{ id: 'map-lines-emu', data: [] }]), null);
+  });
+});
