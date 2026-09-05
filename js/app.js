@@ -1076,11 +1076,6 @@
     if (shouldDimMapLines() && highlightedRoute) highlightRouteOnMap(highlightedRoute, true);
   }
 
-  function syncOsmAttribution() {
-    var el = document.getElementById('map-osm-attribution');
-    if (el) el.hidden = !realRoutesAvailable();
-  }
-
   function syncMapDisplayControls() {
     var curveRadio = document.getElementById('map-display-curve');
     var realRadio = document.getElementById('map-display-real');
@@ -1103,7 +1098,6 @@
       typeFilter = defaultType;
       syncTypeFilterButtons();
       applyRangeFilter();
-      syncOsmAttribution();
       syncMapDisplayControls();
       return;
     }
@@ -1114,7 +1108,6 @@
     } else if (mapChart) {
       renderMap(readGeoView(mapChart), true);
     }
-    syncOsmAttribution();
     syncMapDisplayControls();
   }
 
@@ -3255,7 +3248,6 @@
     if (window.TrainRoutes) {
       mapDisplayMode = window.TrainRoutes.readDisplayMode(window.localStorage);
     }
-    syncOsmAttribution();
     syncMapDisplayControls();
     renderRecords();
     bindRecordListEvents();

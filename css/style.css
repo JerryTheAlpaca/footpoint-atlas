@@ -1118,21 +1118,6 @@ body {
   line-height: 1.6;
 }
 
-.map-osm-attribution {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  z-index: 5;
-  padding: 2px 8px;
-  font-size: 10px;
-  line-height: 1.6;
-  color: rgba(232, 246, 255, 0.78);
-  background: rgba(5, 12, 28, 0.62);
-  border-radius: 4px;
-  pointer-events: none;
-  user-select: none;
-}
-
 .map-display-options {
   display: flex;
   flex-direction: column;

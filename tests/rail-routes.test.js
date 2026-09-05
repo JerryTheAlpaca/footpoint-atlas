@@ -449,10 +449,10 @@ describe('map display integration', () => {
     assert.match(appCode, /setMapDisplayMode[\s\S]*?renderMap\(readGeoView\(mapChart\), true\)/);
   });
 
-  it('shows the OSM attribution only in real mode', () => {
-    assert.match(html, /id="map-osm-attribution"[^>]*hidden>铁路几何 © OpenStreetMap contributors · ODbL</);
-    assert.match(appCode, /function syncOsmAttribution\(\)/);
-    assert.match(appCode, /syncOsmAttribution\(\);/);
+  it('shows the OSM attribution in the settings panel', () => {
+    assert.doesNotMatch(html, /id="map-osm-attribution"/);
+    assert.doesNotMatch(appCode, /syncOsmAttribution/);
+    assert.match(html, /settings-panel" data-panel="display"[\s\S]*?铁路几何数据 © OpenStreetMap contributors · ODbL/);
   });
 
   it('adds the map display settings panel', () => {
