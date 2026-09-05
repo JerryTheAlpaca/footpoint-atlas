@@ -1081,24 +1081,11 @@
     if (el) el.hidden = !realRoutesAvailable();
   }
 
-  function mapDisplayCoverageText() {
-    if (!window.TrainRoutes || !window.RAIL_ROUTE_DATA) return '';
-    try {
-      var summary = window.TrainRoutes.coverageSummary(allRecords);
-      return '真实路径已覆盖 ' + summary.matched + '/' + summary.total +
-        ' 次，其他行程将显示为曲线';
-    } catch (err) {
-      return '';
-    }
-  }
-
   function syncMapDisplayControls() {
     var curveRadio = document.getElementById('map-display-curve');
     var realRadio = document.getElementById('map-display-real');
     if (curveRadio) curveRadio.checked = mapDisplayMode === 'curve';
     if (realRadio) realRadio.checked = mapDisplayMode === 'real';
-    var coverage = document.getElementById('map-display-coverage');
-    if (coverage) coverage.textContent = mapDisplayCoverageText();
   }
 
   // 切换显示模式：保留地图中心、缩放、筛选与时间轴位置；
@@ -1109,6 +1096,16 @@
     mapDisplayMode = mode;
     if (window.TrainRoutes) {
       window.TrainRoutes.writeDisplayMode(window.localStorage, mode);
+    }
+    // 切换显示模式时同步默认列车类别筛选：曲线→全部，真实路径优先→动车
+    var defaultType = mode === 'real' ? 'emu' : 'all';
+    if (typeFilter !== defaultType) {
+      typeFilter = defaultType;
+      syncTypeFilterButtons();
+      applyRangeFilter();
+      syncOsmAttribution();
+      syncMapDisplayControls();
+      return;
     }
     if (timelinePlaying) {
       stopPlay();

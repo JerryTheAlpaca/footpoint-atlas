@@ -455,15 +455,20 @@ describe('map display integration', () => {
     assert.match(appCode, /syncOsmAttribution\(\);/);
   });
 
-  it('adds the map display settings panel with coverage summary', () => {
+  it('adds the map display settings panel', () => {
     assert.match(html, /data-panel="display">地图显示</);
     assert.match(html, /id="map-display-options"/);
     assert.match(html, /id="map-display-curve"[\s\S]*?value="curve"/);
     assert.match(html, /id="map-display-real"[\s\S]*?value="real"/);
-    assert.match(html, /id="map-display-coverage"/);
-    assert.match(appCode, /真实路径已覆盖 '/);
+    assert.doesNotMatch(html, /id="map-display-coverage"/);
+    assert.doesNotMatch(appCode, /真实路径已覆盖/);
+    assert.doesNotMatch(appCode, /mapDisplayCoverageText/);
     assert.match(appCode, /syncMapDisplayControls\(\)/);
-    assert.match(appCode, /mapDisplayCoverageText/);
+    assert.match(
+      appCode,
+      /setMapDisplayMode[\s\S]*?var defaultType = mode === 'real' \? 'emu' : 'all';/
+    );
+    assert.match(appCode, /setMapDisplayMode[\s\S]*?syncTypeFilterButtons\(\);/);
   });
 
   it('hides the mileage card unless every record has a real path', () => {
