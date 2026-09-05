@@ -412,6 +412,17 @@
    ]
   },
   {
+   "id": "hh-junction",
+   "name": "黄黄高铁接入点",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    115.96096,
+    30.0571
+   ]
+  },
+  {
    "id": "bei-jing-nan",
    "name": "北京南",
    "aliases": [],
@@ -31284,31 +31295,53 @@
    ]
   },
   {
-   "id": "huang-mei-dong-huang-mei-nan",
+   "id": "huang-mei-dong-hh-junction",
    "name": "安九高速铁路",
    "from": "huang-mei-dong",
-   "to": "huang-mei-nan",
+   "to": "hh-junction",
    "lineIds": [
     "anjiu-hsr"
    ],
    "serviceDate": "2021-12-30",
-   "estLengthKm": 18.04,
+   "estLengthKm": 1.51,
    "polyline": [
     [
      115.97196,
      30.06677
     ],
     [
-     115.94828,
-     30.0459
+     115.96096,
+     30.0571
+    ]
+   ]
+  },
+  {
+   "id": "hh-junction-huang-mei-nan",
+   "name": "安九高速铁路",
+   "from": "hh-junction",
+   "to": "huang-mei-nan",
+   "lineIds": [
+    "anjiu-hsr",
+    "huanghuang-hsr"
+   ],
+   "serviceDate": "2021-12-30",
+   "estLengthKm": 16.54,
+   "polyline": [
+    [
+     115.96096,
+     30.0571
     ],
     [
-     115.93485,
-     30.02958
+     115.94412,
+     30.04165
     ],
     [
-     115.90735,
-     29.97419
+     115.93228,
+     30.02519
+    ],
+    [
+     115.90496,
+     29.9686
     ],
     [
      115.8979,
@@ -34745,43 +34778,35 @@
    ]
   },
   {
-   "id": "zhuo-gang-huang-mei-nan",
+   "id": "zhuo-gang-hh-junction",
    "name": "黄黄高速铁路",
    "from": "zhuo-gang",
-   "to": "huang-mei-nan",
+   "to": "hh-junction",
    "lineIds": [
     "huanghuang-hsr"
    ],
    "serviceDate": "2022-04-22",
-   "estLengthKm": 18.22,
+   "estLengthKm": 7.8,
    "polyline": [
     [
      115.89467,
      30.02603
     ],
     [
-     115.92149,
-     30.02645
+     115.9153,
+     30.0256
     ],
     [
-     115.93154,
-     30.02998
+     115.92854,
+     30.02853
     ],
     [
-     115.94005,
-     30.03653
+     115.93794,
+     30.03447
     ],
     [
-     115.93228,
-     30.02519
-    ],
-    [
-     115.90735,
-     29.97419
-    ],
-    [
-     115.8979,
-     29.94343
+     115.96096,
+     30.0571
     ]
    ]
   },
@@ -36568,8 +36593,8 @@
     "xi-shui-nan-qi-chun-nan",
     "qi-chun-nan-wu-xue-bei",
     "wu-xue-bei-zhuo-gang",
-    "zhuo-gang-huang-mei-nan",
-    "huang-mei-dong-huang-mei-nan",
+    "zhuo-gang-hh-junction",
+    "huang-mei-dong-hh-junction",
     "su-song-dong-huang-mei-dong",
     "tai-hu-nan-su-song-dong",
     "qian-shan-tai-hu-nan",

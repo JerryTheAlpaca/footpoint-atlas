@@ -61,6 +61,8 @@ MANUAL_ROUTE_OVERRIDES = [
         # G1435 武汉→上海虹桥，武汉—黄山西实际走向：
         # 武石/武冈城际 → 黄黄高铁 → 京港高铁安九段 → 宁安城际 → 池黄高铁。
         # 自动寻径取合武+合安北线（约 655km，比南线短约 5km），与实际不符。
+        # 黄黄高铁在 hh-junction（黄梅东站西南道岔）并入安九段：列车
+        # 转向黄梅东→宿松东，不经黄梅南站。
         "from": "武汉", "to": "黄山西", "train": "G1435",
         "segments": [
             "wuhan-wu-chang-dong", "wu-chang-dong-he-liu",
@@ -70,8 +72,8 @@ MANUAL_ROUTE_OVERRIDES = [
             "hua-rong-dong-huang-gang-xi", "huang-gang-xi-huang-gang",
             "huang-gang-huang-gang-dong", "huang-gang-dong-xi-shui-nan",
             "xi-shui-nan-qi-chun-nan", "qi-chun-nan-wu-xue-bei",
-            "wu-xue-bei-zhuo-gang", "zhuo-gang-huang-mei-nan",
-            "huang-mei-dong-huang-mei-nan", "su-song-dong-huang-mei-dong",
+            "wu-xue-bei-zhuo-gang", "zhuo-gang-hh-junction",
+            "huang-mei-dong-hh-junction", "su-song-dong-huang-mei-dong",
             "tai-hu-nan-su-song-dong", "qian-shan-tai-hu-nan",
             "an-qing-xi-qian-shan", "an-qing-bei-an-qing-xi",
             "an-qing-bei-an-qing", "chi-zhou-an-qing",
