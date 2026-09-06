@@ -1431,12 +1431,11 @@ body {
 
 /* Compact layout: the desktop canvas above remains unchanged. */
 @media (max-width: 1024px) {
-  html,
-  body {
+  html {
     width: 100%;
     height: auto;
     min-height: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
     overflow-y: auto;
     overscroll-behavior-y: auto;
     /* 不用 scroll-snap：根容器吸附会与 Safari 动态地址栏互相拉扯
@@ -1445,14 +1444,30 @@ body {
     scroll-padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
 
+  body {
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    min-height: 100dvh;
+    /* 滚动权只留给文档（html）：body/.scale-stage 若也成为滚动容器，
+       Safari 动态工具栏会因嵌套滚动而收起/展开判断失灵 */
+    overflow: visible;
+  }
+
+  /* 手机端关闭覆盖整个视口的 fixed 装饰层：WebKit 依据屏幕边缘的
+     fixed/sticky 元素决定是否向工具栏区域延伸纯色背景，全屏扫描线层
+     会诱发纯色填充，挡住底栏后面透出的网页内容 */
+  .scanlines {
+    display: none;
+  }
+
   .scale-stage {
     width: 100%;
     height: auto;
     min-height: 100vh;
     min-height: 100svh;
     min-height: 100dvh;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: visible;
   }
 
   .app {

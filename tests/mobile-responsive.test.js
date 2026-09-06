@@ -242,6 +242,11 @@ describe('mobile scroll story structure', () => {
   it('restores page scrolling without snap fighting the Safari URL bar', () => {
     assert.match(css, /@media\s*\(max-width:\s*1024px\)/);
     assert.match(css, /overflow-y:\s*auto;/);
+    // 滚动权只留给文档（html），body/.scale-stage 不得再成为滚动容器，
+    // 否则 Safari 动态工具栏因嵌套滚动收起/展开判断失灵
+    assert.match(css, /\.scale-stage\s*\{[^}]*overflow:\s*visible;/);
+    // 全屏 fixed 装饰层会诱发 WebKit 向工具栏区域延伸纯色背景
+    assert.match(css, /\.scanlines\s*\{[^}]*display:\s*none/);
     // 根容器 scroll-snap 会与 Safari 动态地址栏互相拉扯（吸附回滚 → 地址栏重新展开）
     assert.doesNotMatch(css, /scroll-snap-type:\s*y proximity/);
     assert.doesNotMatch(css, /scroll-snap-align/);
