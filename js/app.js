@@ -1531,6 +1531,7 @@
       yAxis: Object.assign({}, axisStyle(), {
         type: 'category',
         inverse: true,
+        axisTick: { show: false },
         data: entries.map(function (item) {
           return item[0];
         }),
