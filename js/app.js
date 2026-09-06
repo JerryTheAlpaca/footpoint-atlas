@@ -3323,6 +3323,34 @@
       });
   }
 
+  function tripFormInputs() {
+    var form = document.getElementById('trip-form');
+    if (!form) return [];
+    return Array.prototype.filter.call(form.querySelectorAll('input'), function (input) {
+      return input.type !== 'radio' && input.type !== 'checkbox' && input.offsetParent !== null;
+    });
+  }
+
+  function handleTripFormKeydown(event) {
+    if (event.key !== 'Enter' || event.keyCode === 229) return;
+    if (event.isComposing) return;
+    var input = event.target;
+    if (!input || input.tagName !== 'INPUT') return;
+    var inputs = tripFormInputs();
+    var index = inputs.indexOf(input);
+    if (index === -1) return;
+    event.preventDefault();
+    if (index < inputs.length - 1) {
+      inputs[index + 1].focus();
+      return;
+    }
+    if (!input.value.trim()) return;
+    var form = document.getElementById('trip-form');
+    var submitBtn = document.getElementById('trip-submit');
+    if (form.requestSubmit) form.requestSubmit();
+    else if (submitBtn) submitBtn.click();
+  }
+
   function bindRangeDatePickers() {
     rangeStartPicker = window.TrainSettings.bindDatePicker({
       input: document.getElementById('range-start'),
@@ -3358,6 +3386,7 @@
     document.getElementById('trip-from').addEventListener('input', syncUnknownStationFields);
     document.getElementById('trip-to').addEventListener('input', syncUnknownStationFields);
     document.getElementById('trip-form').addEventListener('submit', submitTripForm);
+    document.getElementById('trip-form').addEventListener('keydown', handleTripFormKeydown);
     var mapDisplayControls = document.getElementById('map-display-options');
     if (mapDisplayControls) {
       mapDisplayControls.addEventListener('change', function (event) {

@@ -136,6 +136,19 @@ describe('record context menu', () => {
   });
 });
 
+describe('trip form Enter key', () => {
+  it('advances focus on Enter and only submits from the filled last field', () => {
+    const { code } = loadApp();
+    assert.match(code, /trip-form'\)\.addEventListener\('keydown', handleTripFormKeydown\)/);
+    assert.match(code, /event\.isComposing\) return;/);
+    assert.match(code, /var inputs = tripFormInputs\(\);/);
+    assert.match(code, /event\.preventDefault\(\);/);
+    assert.match(code, /if \(index < inputs\.length - 1\)/);
+    assert.match(code, /if \(!input\.value\.trim\(\)\) return;/);
+    assert.match(code, /form\.requestSubmit/);
+  });
+});
+
 describe('annual review train summary', () => {
   it('formats one and tied top train entries', () => {
     const { window, code } = loadApp();
