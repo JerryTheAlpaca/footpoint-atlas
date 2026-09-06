@@ -1444,15 +1444,12 @@ body {
     scroll-padding-bottom: max(28px, env(safe-area-inset-bottom));
   }
 
-  body {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-
   .scale-stage {
     width: 100%;
     height: auto;
     min-height: 100vh;
     min-height: 100svh;
+    min-height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
     scroll-snap-type: y proximity;
@@ -1475,6 +1472,7 @@ body {
     height: auto !important;
     min-height: 100vh;
     min-height: 100svh;
+    min-height: 100dvh;
     padding: max(14px, env(safe-area-inset-top))
       max(14px, env(safe-area-inset-right))
       max(28px, env(safe-area-inset-bottom))

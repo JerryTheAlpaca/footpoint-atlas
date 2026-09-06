@@ -50,7 +50,9 @@ AUTH_FAILURES: dict[str, list[float]] = {}
 PASSWORD_HASH_PATTERN = re.compile(r"^pbkdf2_sha256\.(\d+)\.([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)$")
 PUBLIC_PATHS = frozenset({"/login", "/healthz"})
 STATIC_PREFIXES = ("/css/", "/js/", "/lib/", "/map/")
-STATIC_FILES = frozenset({"/", "/index.html", "/favicon.ico", "/图标.ico", "/图标.png"})
+STATIC_FILES = frozenset(
+    {"/", "/index.html", "/favicon.ico", "/icon.png", "/manifest.webmanifest", "/图标.ico", "/图标.png"}
+)
 MAX_REQUEST_BYTES = 1024 * 1024
 
 
@@ -405,10 +407,19 @@ class Handler(SimpleHTTPRequestHandler):
         configured = getattr(self.server, "auth_config", None)
         return configured if configured is not None else load_auth_config()
 
+    # 静态文件走 SimpleHTTPRequestHandler 默认逻辑，原本不发 Cache-Control，
+    # 浏览器会按启发式缓存（Last-Modified 时长的 10%）把旧 JS 留上数天，
+    # 导致数据更新后重启服务仍显示旧折线。静态响应补上 no-store。
+    # 注意：end_headers 只能有这一个定义（后定义会遮蔽前定义），
+    # SSO 续期 Cookie 与安全响应头在这里对所有响应统一补发。
+    _static_response = False
+
     def end_headers(self) -> None:
         for cookie in self._sso_set_cookies:
             self.send_header("Set-Cookie", cookie)
-        self.send_header("Cache-Control", "no-store")
+        if self._static_response:
+            self._static_response = False
+            self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
         self.send_header("X-Frame-Options", "DENY")
@@ -530,17 +541,6 @@ class Handler(SimpleHTTPRequestHandler):
         if unquote(path.split("?", 1)[0]) == "/js/data.js":
             return str(OUTPUT_PATH)
         return super().translate_path(path)
-
-    # 静态文件走 SimpleHTTPRequestHandler 默认逻辑，原本不发 Cache-Control，
-    # 浏览器会按启发式缓存（Last-Modified 时长的 10%）把旧 JS 留上数天，
-    # 导致数据更新后重启服务仍显示旧折线。此处为这类响应补上 no-store。
-    _static_response = False
-
-    def end_headers(self) -> None:
-        if self._static_response:
-            self._static_response = False
-            self.send_header("Cache-Control", "no-store")
-        super().end_headers()
 
     def static_path_allowed(self, path: str) -> bool:
         decoded = unquote(path)

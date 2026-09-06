@@ -1,0 +1,25 @@
+{
+  "name": "我的火车足迹",
+  "short_name": "火车足迹",
+  "description": "个人火车乘车记录与足迹地图",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050814",
+  "theme_color": "#050814",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "967x967",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "967x967",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
