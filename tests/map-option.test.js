@@ -44,6 +44,17 @@ describe('buildGeoOption', () => {
     assert.equal(geo.layoutCenter, undefined);
     assert.equal(geo.layoutSize, undefined);
   });
+
+  it('shifts the default view up on compact layouts so the explore button stays clear', () => {
+    const { buildGeoOption } = loadTrainMap();
+    const compact = buildGeoOption(null, null, true);
+    const desktop = buildGeoOption(null, null, false);
+
+    assert.ok(
+      compact.center[1] < desktop.center[1],
+      `compact center ${compact.center[1]} should sit below desktop ${desktop.center[1]} (map drawn higher)`
+    );
+  });
 });
 
 describe('readGeoView', () => {

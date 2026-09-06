@@ -229,7 +229,7 @@ describe('settings page structure', () => {
   const app = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
 
   it('keeps desktop settings and adds a shared add-trip entry', () => {
-    assert.match(html, /<button id="settings-btn" type="button">设置<\/button>/);
+    assert.match(html, /<button id="settings-btn" type="button" aria-label="设置">/);
     assert.match(html, /id="add-trip-btn"[^>]*>添加行程<\/button>/);
     assert.match(html, /id="settings-modal"/);
     assert.match(html, /id="settings-nav"/);
@@ -259,21 +259,16 @@ describe('settings page structure', () => {
     assert.doesNotMatch(html, /id="range-end"[^>]*type="date"/);
   });
 
-  it('uses a rounded custom menu instead of the native range dropdown', () => {
-    assert.match(html, /id="range-mode" hidden aria-hidden="true"/);
-    assert.match(html, /id="range-mode-button"[^>]*aria-haspopup="listbox"/);
-    assert.match(html, /id="range-mode-menu"[^>]*role="listbox"/);
-    assert.match(html, /id="range-year" hidden aria-hidden="true"/);
-    assert.match(html, /id="range-year-button"[^>]*aria-haspopup="listbox"/);
-    assert.match(html, /id="range-year-menu"[^>]*role="listbox"/);
-    assert.match(html, /class="range-select-option is-selected"[^>]*role="option"/);
-    assert.match(css, /\.range-select-menu\s*\{[\s\S]*?border-radius:\s*11px/);
-    assert.match(css, /\.range-year-menu\s*\{[\s\S]*?width:\s*112px/);
-    assert.match(css, /\.range-select-option\.is-selected/);
-    assert.match(app, /function bindRangeModeSelect\(\)/);
-    assert.match(app, /function bindRangeYearSelect\(\)/);
+  it('uses compact native range dropdowns instead of the custom menu', () => {
+    assert.doesNotMatch(html, /<select id="range-mode"[^>]*hidden/);
+    assert.doesNotMatch(html, /id="range-mode-button"/);
+    assert.doesNotMatch(html, /id="range-mode-menu"/);
+    assert.doesNotMatch(html, /<select id="range-year"[^>]*hidden/);
+    assert.doesNotMatch(html, /id="range-year-button"/);
+    assert.doesNotMatch(html, /id="range-year-menu"/);
+    assert.match(css, /\.timeline-filter select\s*\{[^}]*height:\s*34px;[^}]*font-size:\s*13px;/);
     assert.match(app, /function populateRangeYearMenu\(years\)/);
-    assert.match(app, /select\.dispatchEvent\(new Event\('change'/);
+    assert.match(app, /yearSelect\.disabled = years\.length === 0/);
   });
 });
 

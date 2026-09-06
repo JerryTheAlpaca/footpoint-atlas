@@ -16,7 +16,13 @@
         <h1>我的火车足迹</h1>
         <div class="title-actions">
           <button id="review-btn" type="button">年度回顾</button>
-          <button id="settings-btn" type="button">设置</button>
+          <button id="settings-btn" type="button" aria-label="设置">
+            <svg class="settings-gear" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span class="settings-btn-text">设置</span>
+          </button>
         </div>
       </div>
       <div class="stat-cards">
@@ -44,41 +50,21 @@
         <div class="map-frame">
           <div class="map-viewport">
             <div id="map-chart" class="chart map-chart"></div>
+            <button id="map-explore-btn" class="map-explore-btn" type="button" aria-pressed="false">探索地图</button>
           </div>
         </div>
-        <button id="map-explore-btn" class="map-explore-btn" type="button" aria-pressed="false">探索地图</button>
         <div class="timeline">
           <div class="timeline-filter">
-            <label for="range-mode-button">回放范围</label>
+            <label for="range-mode">回放范围</label>
             <div id="range-mode-control" class="range-mode-select">
-              <select id="range-mode" hidden aria-hidden="true" tabindex="-1">
+              <select id="range-mode" aria-label="回放范围">
                 <option value="all">全部</option>
                 <option value="year">按年份</option>
                 <option value="custom">自定义时间段</option>
               </select>
-              <button id="range-mode-button" class="range-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="range-mode-menu">
-                <span id="range-mode-text">全部</span>
-                <span class="range-select-arrow" aria-hidden="true"></span>
-              </button>
-              <div id="range-mode-menu" class="range-select-menu" role="listbox" aria-label="回放范围" hidden>
-                <button type="button" class="range-select-option is-selected" role="option" data-value="all" aria-selected="true">
-                  <span>全部</span><span class="range-select-check" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="range-select-option" role="option" data-value="year" aria-selected="false">
-                  <span>按年份</span><span class="range-select-check" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="range-select-option" role="option" data-value="custom" aria-selected="false">
-                  <span>自定义时间段</span><span class="range-select-check" aria-hidden="true"></span>
-                </button>
-              </div>
             </div>
             <div id="range-year-control" class="range-year-select" hidden>
-              <select id="range-year" hidden aria-hidden="true" tabindex="-1"></select>
-              <button id="range-year-button" class="range-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="range-year-menu">
-                <span id="range-year-text"></span>
-                <span class="range-select-arrow" aria-hidden="true"></span>
-              </button>
-              <div id="range-year-menu" class="range-select-menu range-year-menu" role="listbox" aria-label="回放年份" hidden></div>
+              <select id="range-year" aria-label="回放年份"></select>
             </div>
             <div id="range-custom" class="range-custom" hidden>
               <div class="date-field range-date-field">

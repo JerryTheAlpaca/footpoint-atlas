@@ -93,6 +93,11 @@ body {
   letter-spacing: 0.12em;
 }
 
+/* 齿轮图标仅在移动端显示，桌面端保持文字按钮 */
+.settings-gear {
+  display: none;
+}
+
 #review-btn:hover,
 #review-play:hover,
 #settings-btn:hover,
@@ -1571,6 +1576,7 @@ body {
   }
 
   .header {
+    position: relative;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -1704,15 +1710,29 @@ body {
 
   #settings-btn {
     display: inline-flex;
+    position: absolute;
+    top: 10px;
+    right: 4px;
     align-items: center;
     justify-content: center;
     width: 44px;
     height: 44px;
     min-width: 44px;
     padding: 0;
+    border: 0;
     border-radius: 999px;
+    background: transparent;
     letter-spacing: 0;
+    color: var(--cyan);
     font-size: 13px;
+  }
+
+  #settings-btn .settings-gear {
+    display: block;
+  }
+
+  #settings-btn .settings-btn-text {
+    display: none;
   }
 
   .stat-cards {
@@ -1781,14 +1801,15 @@ body {
 
   .map-explore-btn {
     position: absolute;
-    top: 10px;
+    top: auto;
+    bottom: 10px;
     right: 10px;
     z-index: 6;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 36px;
-    padding: 0 12px;
+    min-height: 26px;
+    padding: 0 8px;
     margin: 0;
     border: 1px solid rgba(0, 229, 255, 0.42);
     border-radius: 999px;
@@ -1797,9 +1818,9 @@ body {
     -webkit-backdrop-filter: blur(12px);
     color: var(--cyan);
     font: inherit;
-    font-size: 13px;
+    font-size: 11px;
     cursor: pointer;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 
   .map-explore-btn[aria-pressed="true"] {
@@ -1817,11 +1838,11 @@ body {
 
   .timeline-filter {
     display: grid;
-    grid-template-columns: auto minmax(78px, 0.8fr) minmax(140px, 1.35fr);
+    grid-template-columns: auto minmax(104px, 0.9fr) minmax(162px, 1fr);
     grid-template-areas: "label mode types";
     align-items: center;
     gap: 6px;
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .timeline-filter select,
@@ -1829,6 +1850,12 @@ body {
     min-width: 0;
     height: 44px;
     font-size: 16px;
+  }
+
+  /* 原生范围/年份下拉：紧凑小字；日期输入保持 16px 以免 iOS 聚焦缩放 */
+  .timeline-filter select {
+    height: 34px;
+    font-size: 13px;
   }
 
   .timeline-filter > label {
@@ -1843,10 +1870,15 @@ body {
     width: 100%;
   }
 
+  .range-mode-select select,
+  .range-year-select select {
+    width: 100%;
+  }
+
   .range-select-trigger {
-    height: 44px;
-    padding-inline: 12px;
-    font-size: 16px;
+    height: 34px;
+    padding-inline: 10px;
+    font-size: 13px;
   }
 
   .range-select-menu {
@@ -1856,9 +1888,9 @@ body {
   }
 
   .range-select-option {
-    min-height: 44px;
+    min-height: 40px;
     padding-inline: 12px;
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .range-year-select,
@@ -1912,6 +1944,7 @@ body {
     background: transparent;
     color: var(--muted);
     font-size: 13px;
+    white-space: nowrap;
   }
 
   .type-filter-btn .swatch {

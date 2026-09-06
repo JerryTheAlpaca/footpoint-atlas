@@ -264,8 +264,10 @@ describe('mobile scroll story structure', () => {
   });
 
   it('keeps compact controls unobtrusive and aligned', () => {
-    assert.match(html, /<button id="settings-btn" type="button">设置<\/button>/);
-    assert.match(html, /class="map-frame">[\s\S]*?class="map-viewport">[\s\S]*?<\/div>\s*<\/div>\s*<button id="map-explore-btn"/);
+    assert.match(html, /<button id="settings-btn" type="button" aria-label="设置">/);
+    assert.match(html, /class="settings-gear"/);
+    assert.match(html, /class="map-viewport">\s*<div id="map-chart" class="chart map-chart"><\/div>\s*<button id="map-explore-btn"/);
+    assert.match(css, /@media\s*\(max-width:\s*1024px\)[\s\S]*?\.map-explore-btn\s*\{[^}]*bottom:\s*10px;/);
     assert.match(html, /class="record-panel-head">[\s\S]*?<h2>行程数据<\/h2>[\s\S]*?id="add-trip-btn"/);
     assert.match(css, /@media\s*\(max-width:\s*1024px\)[\s\S]*?#settings-btn\s*\{\s*display:\s*inline-flex;/);
     assert.match(css, /@media\s*\(max-width:\s*1024px\)[\s\S]*?#settings-btn\s*\{[^}]*width:\s*44px;[^}]*height:\s*44px;/);

@@ -15,6 +15,8 @@
   // 到访次数达到该值的车站才有闪动效果，其余只画静态圆点
   var STATION_RIPPLE_MIN_VISITS = 5;
   var DEFAULT_GEO_CENTER = [104.2, 35.8];
+  // 移动端默认视野整体上移一点（中心纬度更低），给右下角"探索地图"按钮留出空间
+  var DEFAULT_GEO_CENTER_COMPACT = [104.2, 34.0];
   var DEFAULT_GEO_ZOOM = 1.45;
   var GEO_ZOOM_MIN = 0.8;
   var GEO_ZOOM_MAX = 100;
@@ -65,12 +67,14 @@
     var roam = true;
     if (interaction && typeof interaction.roam === 'boolean') roam = interaction.roam;
     if (interaction === false) roam = false;
-    var suppressGeoTip = typeof compact === 'boolean' ? compact : isCompactLayout();
+    var compactNow = typeof compact === 'boolean' ? compact : isCompactLayout();
+    var suppressGeoTip = compactNow;
+    var defaultCenter = compactNow ? DEFAULT_GEO_CENTER_COMPACT : DEFAULT_GEO_CENTER;
     return {
       map: 'china',
       roam: roam,
       zoom: view && typeof view.zoom === 'number' ? view.zoom : DEFAULT_GEO_ZOOM,
-      center: view && Array.isArray(view.center) ? view.center : DEFAULT_GEO_CENTER,
+      center: view && Array.isArray(view.center) ? view.center : defaultCenter,
       scaleLimit: { min: GEO_ZOOM_MIN, max: GEO_ZOOM_MAX },
       itemStyle: {
         areaColor: '#071525',
@@ -2635,8 +2639,10 @@
   }
 
   function populateRangeYearMenu(years) {
+    // 自定义年份菜单已移除，改用原生 select；保留函数兼容旧调用与测试。
     var menu = document.getElementById('range-year-menu');
     var trigger = document.getElementById('range-year-button');
+    if (!menu || !trigger) return;
     menu.innerHTML = years
       .map(function (year) {
         return (
@@ -2663,6 +2669,7 @@
       .join('');
     if (prevYear && years.indexOf(prevYear) !== -1) yearSelect.value = prevYear;
     else yearSelect.value = years[years.length - 1] || '';
+    yearSelect.disabled = years.length === 0;
     populateRangeYearMenu(years);
     if (!allRecords.length) return;
     var first = allRecords[0].date;
