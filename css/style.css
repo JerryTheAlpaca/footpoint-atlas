@@ -1439,7 +1439,8 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior-y: auto;
-    scroll-snap-type: y proximity;
+    /* 不用 scroll-snap：根容器吸附会与 Safari 动态地址栏互相拉扯
+       （吸附回滚被判定为向上滚动 → 地址栏重新展开、底部空间消失） */
     scroll-padding-top: max(14px, env(safe-area-inset-top));
     scroll-padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
@@ -1452,7 +1453,6 @@ body {
     min-height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
-    scroll-snap-type: y proximity;
   }
 
   .app {
@@ -1569,7 +1569,6 @@ body {
   .reunion-scene .chart-block,
   .record-scene .record-panel,
   .record-item {
-    scroll-snap-align: start;
     scroll-margin-top: 10px;
   }
 
@@ -2493,10 +2492,5 @@ body {
 
   .mobile-scene::before {
     transform: none;
-  }
-
-  html,
-  body {
-    scroll-snap-type: none;
   }
 }

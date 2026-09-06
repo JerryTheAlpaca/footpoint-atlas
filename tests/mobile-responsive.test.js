@@ -239,11 +239,12 @@ describe('mobile scroll story structure', () => {
     assert.doesNotMatch(appCode, /缘分重逢/);
   });
 
-  it('restores page scrolling, proximity snap, and safe areas', () => {
+  it('restores page scrolling without snap fighting the Safari URL bar', () => {
     assert.match(css, /@media\s*\(max-width:\s*1024px\)/);
     assert.match(css, /overflow-y:\s*auto;/);
-    assert.match(css, /scroll-snap-type:\s*y proximity/);
-    assert.match(css, /scroll-snap-align:\s*start/);
+    // 根容器 scroll-snap 会与 Safari 动态地址栏互相拉扯（吸附回滚 → 地址栏重新展开）
+    assert.doesNotMatch(css, /scroll-snap-type:\s*y proximity/);
+    assert.doesNotMatch(css, /scroll-snap-align/);
     assert.match(css, /100svh/);
     assert.match(css, /safe-area-inset-bottom/);
     assert.match(html, /viewport-fit=cover/);
@@ -315,7 +316,7 @@ describe('mobile animation controls', () => {
   it('supports reduced motion for scenes and data/chart animations', () => {
     assert.match(motionCode, /prefers-reduced-motion/);
     assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
-    assert.match(css, /scroll-snap-type:\s*none/);
+    assert.doesNotMatch(css, /scroll-snap-type/);
     assert.match(appCode, /prefersReducedMotion/);
     assert.match(appCode, /animation: animateMap !== false && !prefersReducedMotion\(\)/);
     assert.match(appCode, /var motionEnabled = !prefersReducedMotion\(\);/);
