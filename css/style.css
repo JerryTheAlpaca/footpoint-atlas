@@ -1441,7 +1441,7 @@ body {
     overscroll-behavior-y: auto;
     scroll-snap-type: y proximity;
     scroll-padding-top: max(14px, env(safe-area-inset-top));
-    scroll-padding-bottom: max(28px, env(safe-area-inset-bottom));
+    scroll-padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
 
   .scale-stage {
@@ -1475,7 +1475,7 @@ body {
     min-height: 100dvh;
     padding: max(14px, env(safe-area-inset-top))
       max(14px, env(safe-area-inset-right))
-      max(28px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-bottom))
       max(14px, env(safe-area-inset-left));
     gap: 16px;
     transform: none !important;
