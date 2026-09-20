@@ -195,6 +195,14 @@ body {
   z-index: 0;
 }
 
+/* iOS Safari：把 ECharts 的分层 canvas 稳定提升为独立合成层。
+   否则手势/滚动期间 WebKit 可能回收 canvas 背靠存储再重绘，
+   线路会闪现"清空→重画"的闪烁。translateZ(0) 成本可忽略，
+   且 zrender 因 resize 重建 canvas 元素时规则自动适用。 */
+.map-chart canvas {
+  transform: translateZ(0);
+}
+
 .map-explore-btn {
   display: none;
 }

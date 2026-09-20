@@ -1092,8 +1092,19 @@
     });
   }
 
+  // 悬浮高亮线当前是否可见（opacity>0 表示画了东西）。
+  // georoam 在拖动地图时逐帧触发，若无高亮内容仍对 zlevel-10 悬浮层
+  // setStyle/setShape，会把该额外 canvas 层逐帧标脏重绘 —— iOS Safari
+  // 上表现为线条闪烁（还会在手势中途懒创建一整块新 canvas，闪得更明显）。
+  function hoverOverlayVisible() {
+    return !!hoverZrLine && hoverZrLine.style && hoverZrLine.style.opacity > 0;
+  }
+
   function refreshHoverOverlay() {
     var wasDimmed = recordLinesDimmed;
+    // 无高亮线路、悬浮线也没画东西、且没有变暗状态要恢复时直接跳过：
+    // 拖动/缩放地图时不必触碰任何悬浮层 canvas，避免 iOS 上的重绘闪烁。
+    if (!highlightedRoute && !hoverOverlayVisible() && !wasDimmed) return;
     recordLinesDimmed = false;
     highlightRouteOnMap(highlightedRoute, wasDimmed || recordAreaActive);
   }
@@ -2884,12 +2895,23 @@
     ];
   }
 
+  // 图表容器尺寸是否真的变了。iOS Safari 滑动页面时动态工具栏收展会让
+  // resize / visualViewport.resize 连续触发，若每次都无条件 chart.resize()，
+  // 画布会被整层清除重绘 —— 用户看到的就是"线条闪一下像在重新绘图"。
+  // 尺寸没变时跳过 resize，只在真正需要时重排。
+  function chartDomSizeChanged(chart) {
+    if (!chart || typeof chart.getWidth !== 'function') return true;
+    var dom = typeof chart.getDom === 'function' ? chart.getDom() : null;
+    if (!dom) return true;
+    return dom.clientWidth !== chart.getWidth() || dom.clientHeight !== chart.getHeight();
+  }
+
   function resizeDashboardCharts() {
     rankLayouts.forEach(function (rank) {
       rank.relayout();
     });
     charts.forEach(function (chart) {
-      chart.resize();
+      if (chartDomSizeChanged(chart)) chart.resize();
     });
     refreshHoverOverlay();
   }
