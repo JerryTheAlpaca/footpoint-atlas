@@ -308,9 +308,12 @@ describe('automatic routing', () => {
     // 真实模式坐标统一入口：网络节点（与区段折线端点同源）优先。
     assert.deepEqual(TrainRoutes.stationCoord('麻城北', loadData().stations), [114.9793, 31.1893]);
     assert.deepEqual(TrainRoutes.stationCoord('不存在', loadData().stations), null);
-    // 网络外的站（杭州/武昌/西安）回退业务站表。
-    const hangzhou = loadData().stations['杭州'];
-    assert.deepEqual(TrainRoutes.stationCoord('杭州', loadData().stations), hangzhou);
+    // 普速干线并入后 杭州（城站）也有网络锚点，2 位小数粗坐标不再优先。
+    const data = loadData();
+    assert.deepEqual(TrainRoutes.stationCoord('杭州', data.stations), [120.17835, 30.24597]);
+    assert.notDeepEqual(TrainRoutes.stationCoord('杭州', data.stations), data.stations['杭州']);
+    // 真正网络外的站仍回退业务站表。
+    assert.deepEqual(TrainRoutes.stationCoord('某外站', { 某外站: [100, 30] }), [100, 30]);
   });
 });
 
@@ -447,14 +450,15 @@ describe('pilot corridor counts', () => {
     }
   });
 
-  it('covers 33 of 37 records and reports the rest as fallback', () => {
+  it('covers 36 of 37 records and reports the rest as fallback', () => {
     const { TrainRoutes } = loadRoutes();
     const data = loadData();
     const coverage = TrainRoutes.coverageSummary(data.records);
     assert.equal(coverage.total, 37);
-    // 全国网络（28 线路）上线后，试点时代的 11 条扩大到 33 条；
-    // 剩余 4 条为网络外记录（普速等），回退曲线。
-    assert.equal(coverage.matched, 33);
+    // 批次 F 普速干线并入后，Z45/K146/K148 也有实际路径；唯一未覆盖的
+    // 是 K1352 西宁→西安：兰州站—河口南 在 OSM 断开约 8.8km，接它要扩
+    // 无名线提取框到 兰州西（高铁场），会改动已验收的高铁几何。
+    assert.equal(coverage.matched, 36);
   });
 
   it('counts direction-agnostic usage and keeps record references', () => {
@@ -474,11 +478,11 @@ describe('pilot corridor counts', () => {
     const data = loadData();
     const summary = TrainRoutes.mileageSummary(data.records);
     assert.equal(summary.total, 37);
-    assert.equal(summary.covered, 33);
+    assert.equal(summary.covered, 36);
     assert.ok(summary.totalKm > 0);
-    // 未覆盖的 4 条全是普速（K1352/Z45/K146/K148）：动车已全覆盖。
+    // 未覆盖仅剩 K1352（兰州枢纽断档）；动车 33 条全覆盖。
     assert.equal(summary.uncoveredEmu, 0);
-    assert.equal(summary.uncoveredConv, 4);
+    assert.equal(summary.uncoveredConv, 1);
     const onlyPilot = TrainRoutes.mileageSummary(pilotRecords());
     assert.equal(onlyPilot.covered, 11);
     assert.ok(onlyPilot.totalKm > 0);

@@ -8,7 +8,9 @@
 - 同站对两条不同物理走廊均保留为独立区段，同走廊才合并；
 - 端点吸附阈值单位为公里；
 - 线路约束白名单含 osm_names/osm_bounds/link_names；
-- 列车类别 trains：缺省仅动车组、共走廊合并取并集且顺序恒定。
+- 列车类别 trains：缺省仅动车组、共走廊合并取并集且顺序恒定；
+- 同名来源被多线借用时提取给最宽、限界按线过滤（京九线全国干线 vs
+  昌九城际枢纽段）；批次 F 普速清单齐备。
 """
 
 import os
@@ -21,9 +23,11 @@ sys.path.insert(0, os.path.join(
 
 from rail_network.build import (  # noqa: E402
     cut_line_segments,
+    extract_wanted,
     insert_via_stops,
     line_allowed_names,
     line_trains,
+    line_ways,
     NodeRegistry,
 )
 from rail_network.geometry import (  # noqa: E402
@@ -306,6 +310,49 @@ class TestLineAllowedNames(unittest.TestCase):
         self.assertNotIn("沪宁城际线", allowed)
 
 
+class TestExtractWanted(unittest.TestCase):
+    """同名来源被不同线借用：提取给最宽，限界在各线分线图内生效。
+
+    回归场景："京九线"way 被批次 D 的昌九城际按 bbox 借作南昌枢纽接入段，
+    批次 F 又要全国普速干线。旧实现把 wanted 做成 name→单一限界字典、
+    后写覆盖先写，结果全国干线永远取不到（Z45 断在庐山—九江）。
+    """
+
+    CJC = {"id": "changjiu-int", "osm_names": ["昌九城际线", "京九线"],
+           "osm_bounds": {"京九线": [115.75, 28.55, 116.08, 28.95]}}
+    JJ = {"id": "jingjiu", "osm_names": ["京九线"]}
+
+    def test_unbounded_request_wins_for_extraction(self):
+        wanted = extract_wanted([self.CJC, self.JJ])
+        self.assertIsNone(wanted["京九线"])
+        self.assertIsNone(wanted["昌九城际线"])
+
+    def test_bbox_still_applies_when_no_line_wants_it_nationally(self):
+        wanted = extract_wanted([self.CJC])
+        self.assertEqual(wanted["京九线"], [[115.75, 28.55, 116.08, 28.95]])
+
+    def test_multiple_bboxes_merge(self):
+        other = {"id": "x", "osm_names": ["京九线"],
+                 "osm_bounds": {"京九线": [116.0, 29.5, 116.2, 29.9]}}
+        wanted = extract_wanted([self.CJC, other])
+        self.assertEqual(wanted["京九线"], [
+            [115.75, 28.55, 116.08, 28.95], [116.0, 29.5, 116.2, 29.9]])
+
+    def test_line_ways_keeps_borrowed_source_within_own_bounds(self):
+        """全量提取后，昌九城际仍只拿到枢纽段 way；全国线拿到全部。"""
+        inside = {"id": 1, "src": "京九线",
+                  "pts": [[115.85, 28.70], [115.86, 28.71]]}
+        far = {"id": 2, "src": "京九线",
+               "pts": [[116.40, 35.40], [116.41, 35.41]]}
+        ways = [inside, far]
+        self.assertEqual(line_ways(ways, self.CJC), [inside])
+        self.assertEqual(len(line_ways(ways, self.JJ)), 2)
+
+    def test_line_ways_allow_unnamed_only_in_extracted_zones(self):
+        unnamed = {"id": 3, "src": "__unnamed__", "pts": [[115.0, 30.0], [115.1, 30.0]]}
+        self.assertIn(unnamed, line_ways([unnamed], self.JJ))
+
+
 class TestLineList(unittest.TestCase):
     """线路清单自身的一致性（人工维护的数据文件，构建前先把住关）。"""
 
@@ -333,6 +380,17 @@ class TestLineList(unittest.TestCase):
         self.assertTrue(conv)
         for line in conv:
             self.assertTrue(line["stations"], line["id"])
+
+    def test_jingjiu_unlocks_the_jiujiang_connector(self):
+        """Z45 武昌→杭州 依赖 京九线 的 庐山—九江 江边段：该来源必须
+        不限界提取，且武九/衢九/沪昆三条线都在清单里。"""
+        jj = next(l for l in LINES if l["id"] == "jingjiu-conventional")
+        self.assertIn("京九线", jj["osm_names"])
+        self.assertNotIn("京九线", jj.get("osm_bounds") or {})
+        wanted = extract_wanted(LINES)
+        self.assertIsNone(wanted["京九线"])
+        for name in ("武九线", "衢九线", "沪昆线"):
+            self.assertIn(name, wanted)
 
 
 if __name__ == "__main__":

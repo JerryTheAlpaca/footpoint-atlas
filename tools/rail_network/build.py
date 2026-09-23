@@ -51,6 +51,10 @@ UNNAMED_ZONES = [
     [117.19, 31.79, 117.31, 32.07],   # 合肥枢纽（合肥北城—合肥南—肥西）
     [115.845, 28.795, 115.91, 28.86],  # 南昌乐化（昌九城际↔京九线南昌站区）
     [114.40, 30.52, 114.50, 30.61],    # 武汉站出站段（京广场↔武九客专）
+    # 兰州枢纽：陇海正线在 兰州东 以西 13km 处断开，该段在 OSM 多为
+    # 无名站场线（实测框内 278 条无名 way），不补则西宁—西安 普速无通路。
+    # 框取 兰州—兰州东 河谷走廊，不含兰州西（高铁场在其西界外）。
+    [103.80, 35.98, 104.02, 36.10],    # 兰州枢纽（陇海↔兰新↔兰青）
 ]
 
 # 人工径路覆盖（js/rail-routes.js matchOverride 消费）：
@@ -163,6 +167,62 @@ def polyline_gap(pts_a, pts_b):
         return worst
 
     return max(one_way(pts_a, pts_b), one_way(pts_b, pts_a))
+
+
+def _bbox_list(bb):
+    """osm_bounds 值兼容单个 bbox 与 bbox 列表。"""
+    if bb and isinstance(bb[0], (list, tuple)):
+        return [list(b) for b in bb]
+    return [list(bb)]
+
+
+def way_in_bboxes(way, bboxes):
+    """way 有任一顶点落入任一 bbox（与 extract 的限界判定同一规则）。"""
+    return any(bb[0] <= x <= bb[2] and bb[1] <= y <= bb[3]
+               for bb in bboxes for x, y in way["pts"])
+
+
+def extract_wanted(active_lines):
+    """提取白名单：每个来源名取最宽请求（不限界优先，否则并集 bbox）。
+
+    某条线把"京九线"当全国干线要（不限界）、另一条线只借它枢纽段时，
+    提取必须给全量；各线自己的限界在 line_graph 里生效，互不影响。
+    """
+    bounds = {}
+    wide = set()
+    for ln in active_lines:
+        own = ln.get("osm_bounds") or {}
+        for nm in ln["osm_names"]:
+            if nm not in own:
+                wide.add(nm)
+        for nm, bb in own.items():
+            bucket = bounds.setdefault(nm, [])
+            for b in _bbox_list(bb):
+                if b not in bucket:
+                    bucket.append(b)
+    return {nm: (None if nm in wide else bounds.get(nm))
+            for nm in wide | set(bounds)}
+
+
+def line_ways(all_ways, line):
+    """本线寻径图允许的 way：来源属本线（含显式联络），且过本线自己的限界。
+
+    提取按最宽请求给量（见 extract_wanted），所以限界必须在这里过滤：
+    "京九线"作为全国普速干线被全量提取后，昌九城际借它只该拿到
+    osm_bounds 圈定的南昌枢纽段，否则普速长走廊会进入高铁分线图、
+    改变已验收区段的几何。
+    """
+    allowed = line_allowed_names(line)
+    own = line.get("osm_bounds") or {}
+    out = []
+    for w in all_ways:
+        src = w["src"]
+        if src not in allowed and src != "__unnamed__":
+            continue
+        if src in own and not way_in_bboxes(w, _bbox_list(own[src])):
+            continue
+        out.append(w)
+    return out
 
 
 def line_allowed_names(line):
@@ -629,16 +689,25 @@ def main(argv=None):
 
     data_coords = load_data_station_coords()
 
-    wanted = {}
     active_lines = [ln for ln in LINES if ln["batch"] in batches]
-    for ln in active_lines:
-        for nm in ln["osm_names"]:
-            wanted.setdefault(nm, None)
-        for nm, bb in (ln.get("osm_bounds") or {}).items():
-            wanted[nm] = bb
+    # 提取白名单：同名线路可能被不同线借用（"京九线"既被批次 D 的昌九
+    # 城际/昌赣按 bbox 借作南昌枢纽接入段，又是批次 F 的全国普速干线）。
+    # 提取按最宽请求执行（有一条线不限界就全量取），限界下沉到分线图
+    # （line_graph 按各线自己的 osm_bounds 过滤 way），否则后写的 bbox
+    # 会覆盖先写的，全国普速干线永远取不到。
+    wanted = extract_wanted(active_lines)
     wanted["__unnamed__"] = [list(b) for b in UNNAMED_ZONES]
     payload = extract_mod.extract(wanted, force=args.force_extract)
     ways_by_name = payload["ways"]
+    # 来源名"写了但没提取到"必须是可见的：osm_names 只影响提取白名单，
+    # link_names 只放行不提取，名字打错或没人全量提取时会静默变成空操作
+    # （曾把"余花联络线"只写进 link_names，以为借到了接入段，实际没提取）。
+    for line in active_lines:
+        silent = [nm for nm in list(line["osm_names"]) + list(line.get("link_names") or [])
+                  if nm not in ways_by_name]
+        if silent:
+            print("    ! %s 来源名无提取结果（检查拼写，或按 osm_bounds 借用）：%s"
+                  % (line["id"], silent))
     station_index = build_station_index(payload["stations"])
     meta = payload.get("meta", {})
 
@@ -670,12 +739,16 @@ def main(argv=None):
         镇江南曾混入沪宁城际/仙宁线 95 条 way）。这里把图收缩到本线
         归属（line_allowed_names），另保留 UNNAMED_ZONES 内的
         站内渡线段作为显式允许的枢纽联络。
+        提取按最宽请求给量，本线 osm_bounds 在这里过滤：借用的来源名
+        只保留限界内的 way，普速长走廊不会进入高铁分线图。
         """
-        allowed = line_allowed_names(line)
-        ways = [w for w in all_ways
-                if w["src"] in allowed or w["src"] == "__unnamed__"]
-        g = WayGraph(ways)
+        g = WayGraph(line_ways(all_ways, line))
         for b in UNNAMED_ZONES:
+            g.bridge_zone(list(b), max_gap=0.004)
+        # 本线声明的节点补桥点：OSM 常把同一正线切成首尾相距几十米的
+        # 相邻 way（节点未合并），分线图在此断开。只桥接本线自己的 way，
+        # 不影响其他线路的分线图。
+        for b in line.get("gap_bridges") or []:
             g.bridge_zone(list(b), max_gap=0.004)
         return g
 
