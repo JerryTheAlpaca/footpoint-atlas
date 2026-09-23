@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""全国高铁真实径路网络构建器。
+"""全国铁路真实径路网络构建器（高铁/城际 + 普速干线）。
 
 流程（线路清单、车站节点、物理区段、状态日期、业务断言驱动）：
 1. 载入宁蓉试点 legacy 数据（折线逐点等价迁移，不重算）；
@@ -7,7 +7,8 @@
 3. 逐线路解析必须站坐标（OSM 站节点优先，data.js 粗坐标吸附走廊兜底），
    相邻站对在 way 图上 Dijkstra 寻径，与 legacy 区段按无序站对复用合并；
 4. 自动补充走廊 1.1km 内的客运站节点，按全线折线里程切分区段；
-5. 全局合并共享站对区段（lineIds 多重归属），写入状态日期与中途节点索引；
+5. 全局合并共享站对区段（lineIds 多重归属），写入状态日期、可运行
+   列车类别（trains）与中途节点索引；
 6. 硬校验（端点衔接、连通、长度合理、无重复坐标/区段）后原子写出。
 
 产物：js/rail-route-data.js —— window.RAIL_ROUTE_DATA。
@@ -110,6 +111,32 @@ def pair_key(a, b):
 # 上下行/站场几米差异、Douglas-Peucker 简化抖动都在容差内；
 # 真正的另一条走廊（如同站对南北两线）偏差远超此值，必须分开保留。
 CORRIDOR_TOL = 0.02
+
+
+# 列车类别：动车组 / 普速。线路以 trains 声明自身可运行的类别，区段取
+# 所属线路并集；JS 侧按记录类别过滤邻接（js/rail-routes.js）。
+KIND_EMU, KIND_CONV = "emu", "conv"
+KIND_ORDER = (KIND_EMU, KIND_CONV)
+# 未声明 trains 的线路按既成语义视为仅动车组走行（高铁/城际正线）。
+KIND_DEFAULT = (KIND_EMU,)
+
+
+def line_trains(line):
+    """线路可运行类别（恒定顺序列表）；非法声明直接失败，不静默降级。"""
+    kinds = line.get("trains")
+    if not kinds:
+        return list(KIND_DEFAULT)
+    bad = [k for k in kinds if k not in KIND_ORDER]
+    if bad:
+        raise SystemExit("线路 %s：trains 含未知类别 %s（可用 %s）"
+                         % (line.get("id"), bad, "/".join(KIND_ORDER)))
+    return merge_trains([], kinds)
+
+
+def merge_trains(trains, more):
+    """类别并集，顺序恒定（避免并集结果随线路处理顺序漂移）。"""
+    found = set(trains or []) | set(more or [])
+    return [k for k in KIND_ORDER if k in found]
 
 
 def _point_seg_dist(p, a, b):
@@ -405,6 +432,7 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
     里程超界、绕行比异常）抛 SystemExit，由调用方按线路失败处理。
     """
     lid = line["id"]
+    trains = line_trains(line)
 
     # 块在全线折线中的区间（首尾相接）。
     block_ranges = []
@@ -527,6 +555,9 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
                 dup["lineIds"].append(lid)
             if block["serviceDate"] < dup["serviceDate"]:
                 dup["serviceDate"] = block["serviceDate"]
+            # 共线区段（如高铁与既有线在同一站对共走廊）任一类别可运行
+            # 即可供该类记录走行。
+            dup["trains"] = merge_trains(dup.get("trains"), trains)
             continue
         # legacy 块的里程沿用试点固化值（等价迁移：折线与里程均不变）。
         est_km = round(full_km, 2)
@@ -543,6 +574,7 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
             "name": line["name"],
             "from": node_a["id"], "to": node_b["id"],
             "lineIds": [lid],
+            "trains": list(trains),
             "serviceDate": block["serviceDate"],
             "estLengthKm": est_km,
             "polyline": simplified,
@@ -562,6 +594,10 @@ def main(argv=None):
     parser.add_argument("--force-extract", action="store_true")
     args = parser.parse_args(argv)
     batches = [b.strip().upper() for b in args.batches.split(",") if b.strip()]
+
+    # 线路清单的类别声明先行校验：trains 写错是清单笔误，不能让某条
+    # optional 线路把它当"提取失败"吞掉。
+    trains_by_line = {ln["id"]: line_trains(ln) for ln in LINES}
 
     legacy_nodes = LEGACY_DATA["nodes"]
     legacy_segments = LEGACY_DATA["segments"]
@@ -607,7 +643,8 @@ def main(argv=None):
     meta = payload.get("meta", {})
 
     # 全网合并图：枢纽站本就是多线交汇，分线建图会在站场端点处断裂；
-    # 白名单仅含高铁/城际 way，跨线走行只经真实联络线，不会误入普速。
+    # 该图仅用于站坐标贴走廊判定与粗坐标吸附，区段几何始终由分线图
+    # （line_graph）寻径得到，因此混入普速干线 way 不会污染高铁区段。
     # 每个 way 记录来源名（osm_names 白名单键），供分线约束寻径使用。
     all_ways = []
     for nm, ws in ways_by_name.items():
@@ -652,6 +689,7 @@ def main(argv=None):
 
     for line in active_lines:
         lid = line["id"]
+        trains = trains_by_line[lid]
         n_line_ways = sum(len(ways_by_name.get(nm, [])) for nm in line["osm_names"])
         try:
             if not n_line_ways:
@@ -676,6 +714,7 @@ def main(argv=None):
                 "from": registry.get(line["from"])["id"],
                 "to": registry.get(line["to"])["id"],
                 "serviceDate": line["serviceDate"],
+                "trains": trains,
             })
         except SystemExit as exc:
             if line.get("optional"):
@@ -692,6 +731,7 @@ def main(argv=None):
 
     # ---- legacy 附加区段（绕行线/京广接入段等，不在线路站序中） ----
     covered_legacy = {s.get("_legacySeg") for s in out_segments.values()}
+    ningrong_trains = trains_by_line["ningrong"]
     final_segments = []
     for seg in legacy_segments:
         if seg["id"] in covered_legacy:
@@ -700,6 +740,7 @@ def main(argv=None):
             for s in out_segments.values():
                 if s["id"] == seg["id"] and "ningrong" not in s["lineIds"]:
                     s["lineIds"].append("ningrong")
+                    s["trains"] = merge_trains(s.get("trains"), ningrong_trains)
             continue
         # 同站对且物理走廊一致时才视为已覆盖；走廊不同（另一条线）
         # 则作为独立区段保留，不再按站对静默丢弃。
@@ -711,7 +752,8 @@ def main(argv=None):
         final_segments.append({
             "id": seg["id"], "name": seg["name"],
             "from": seg["from"], "to": seg["to"],
-            "lineIds": ["ningrong"], "serviceDate": "2009-04-01",
+            "lineIds": ["ningrong"], "trains": list(ningrong_trains),
+            "serviceDate": "2009-04-01",
             "estLengthKm": seg["estLengthKm"], "polyline": seg["polyline"],
         })
     for entry in out_segments.values():
@@ -741,7 +783,7 @@ def main(argv=None):
             "attribution": ATTRIBUTION,
             "extract": "Geofabrik China OSM PBF 铁路 way 提取；"
                        "宁蓉试点区段自提交 8740690 等价迁移",
-            "buildVersion": 2,
+            "buildVersion": 3,
             "skippedLines": skipped,
         },
         "lines": lines_out,
@@ -753,7 +795,8 @@ def main(argv=None):
     body = json.dumps(payload_out, ensure_ascii=False, indent=1)
     js = (
         "// 由 tools/build_rail_route_data.py 生成，请勿手工编辑。\n"
-        "// 全国高铁真实径路网络：线路/节点/物理区段/状态日期/覆盖。\n"
+        "// 全国铁路真实径路网络（高铁/城际 + 普速干线）：\n"
+        "// 线路/节点/物理区段/状态日期/可运行列车类别(trains)/覆盖。\n"
         "// 坐标约定：[lon, lat]，与 data.js stations 一致。\n"
         "(function (root) {\n"
         "  'use strict';\n"

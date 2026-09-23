@@ -28,6 +28,15 @@ function loadData() {
   return sandbox.TRAIN_DATA;
 }
 
+// app.js 中某个顶层函数的源码体。全文正则在跨函数处会误判（[\s\S]*? 能
+// 一路吃到后文的同名语句），函数体级别的行为断言必须先界定范围。
+function functionBody(code, name) {
+  const start = code.indexOf('function ' + name + '(');
+  if (start < 0) return '';
+  const end = code.indexOf('\n  }', start);
+  return code.slice(start, end < 0 ? code.length : end);
+}
+
 function fakeStorage() {
   const map = new Map();
   return {
@@ -305,6 +314,122 @@ describe('automatic routing', () => {
   });
 });
 
+describe('train-kind segment filtering', () => {
+  // 类别过滤测试网：北线为仅开动车组的高速正线（31km），南线为普速
+  // 干线（16km）。不做类别过滤，动车记录会被更短的普速南线改道、
+  // 普速记录则会借道只开动车组的高速正线——两类错误都不可见地改变径路。
+  function kindNetwork(overrides) {
+    const cfg = Object.assign(
+      { north: ['emu'], south: ['conv'] },
+      overrides || {}
+    );
+    return {
+      lines: [
+        { id: 'hsr', name: '高速正线', trains: cfg.north },
+        { id: 'conv', name: '普速干线', trains: cfg.south },
+      ],
+      nodes: [
+        { id: 'a', name: '甲', kind: 'station', coord: [110.0, 30.0] },
+        { id: 'b', name: '乙', kind: 'station', coord: [110.1, 30.0] },
+        { id: 'c', name: '丙', kind: 'station', coord: [110.05, 30.1] },
+        { id: 'd', name: '丁', kind: 'station', coord: [110.2, 30.1] },
+      ],
+      segments: [
+        { id: 'ab', name: '高速正线', from: 'a', to: 'b', lineIds: ['hsr'], serviceDate: '2012-12-01', estLengthKm: 11, polyline: [[110.0, 30.0], [110.1, 30.0]] },
+        { id: 'bd', name: '高速正线', from: 'b', to: 'd', lineIds: ['hsr'], serviceDate: '2012-12-01', estLengthKm: 20, polyline: [[110.1, 30.0], [110.2, 30.1]] },
+        { id: 'ac', name: '普速干线', from: 'a', to: 'c', lineIds: ['conv'], serviceDate: '1996-09-01', estLengthKm: 8, polyline: [[110.0, 30.0], [110.05, 30.1]] },
+        { id: 'cd', name: '普速干线', from: 'c', to: 'd', lineIds: ['conv'], serviceDate: '1996-09-01', estLengthKm: 8, polyline: [[110.05, 30.1], [110.2, 30.1]] },
+      ],
+      overrides: [],
+    };
+  }
+
+  function routes(overrides) {
+    return loadRoutes(kindNetwork(overrides)).TrainRoutes;
+  }
+
+  it('classifies G/D/C as emu and K/T/Z/numeric as conv', () => {
+    const { TrainRoutes } = loadRoutes();
+    for (const train of ['G172', 'D2256', 'C1234']) {
+      assert.equal(TrainRoutes.recordKind({ train }), TrainRoutes.KIND_EMU, train);
+    }
+    for (const train of ['K1352', 'Z45', 'T123', '1462']) {
+      assert.equal(TrainRoutes.recordKind({ train }), TrainRoutes.KIND_CONV, train);
+    }
+  });
+
+  it('keeps emu trips off the shorter conv-only corridor', () => {
+    const route = routes().resolveRecordRoute({ from: '甲', to: '丁', train: 'G1', date: '2026-01-01' });
+    assert.deepEqual(route.segIds, ['ab', 'bd']);
+  });
+
+  it('routes conv trips over the conv corridor they actually run on', () => {
+    const route = routes().resolveRecordRoute({ from: '甲', to: '丁', train: 'K82', date: '2026-01-01' });
+    assert.deepEqual(route.segIds, ['ac', 'cd']);
+  });
+
+  it('returns null when a conv trip has no conv-capable path', () => {
+    // 全网只开动车组 → 普速记录无实际径路，前端回退曲线。
+    const R = routes({ north: ['emu'], south: ['emu'] });
+    assert.equal(R.resolveRecordRoute({ from: '甲', to: '丁', train: 'K82', date: '2026-01-01' }), null);
+    assert.ok(R.resolveRecordRoute({ from: '甲', to: '丁', train: 'G1', date: '2026-01-01' }));
+  });
+
+  it('shares a mixed-traffic corridor with both kinds', () => {
+    // 沪汉蓉一类走廊：区段 lineIds 并集含两类列车即可双方共同走行，
+    // 正反向共同累计热度。
+    const R = routes({ north: ['emu'], south: ['emu', 'conv'] });
+    assert.deepEqual(R.resolveRecordRoute({ from: '甲', to: '丁', train: 'G1', date: '2026-01-01' }).segIds, ['ac', 'cd']);
+    assert.deepEqual(R.resolveRecordRoute({ from: '甲', to: '丁', train: 'K82', date: '2026-01-01' }).segIds, ['ac', 'cd']);
+  });
+
+  it('honours segment-level trains over the line declaration', () => {
+    // 共线走廊（高铁正线与既有线同走一段）由构建器把区段 trains 并成
+    // 两类；区段自带 trains 时以区段为准，不再回看线路声明。
+    const net = kindNetwork();
+    net.segments[0].trains = ['emu', 'conv'];
+    const R = loadRoutes(net).TrainRoutes;
+    const emu = R.resolveRecordRoute({ from: '甲', to: '乙', train: 'G1', date: '2026-01-01' });
+    const conv = R.resolveRecordRoute({ from: '甲', to: '乙', train: 'K1', date: '2026-01-01' });
+    assert.deepEqual(emu.segIds, ['ab']);
+    assert.deepEqual(conv.segIds, ['ab']);
+    // 乙—丁 仍仅动车组走行：普速续不上，只能改走普速南线。
+    const convThrough = R.resolveRecordRoute({ from: '甲', to: '丁', train: 'K1', date: '2026-01-01' });
+    assert.deepEqual(convThrough.segIds, ['ac', 'cd']);
+  });
+
+  it('defaults undecorated data to emu-only so existing products keep routing', () => {
+    // 现行已发布产物没有 trains 字段：必须保持"仅动车组"语义，否则
+    // 新建普速干线会静默改变既有高铁记录的径路。
+    const net = kindNetwork();
+    delete net.lines;
+    const R = loadRoutes(net).TrainRoutes;
+    assert.deepEqual(R.resolveRecordRoute({ from: '甲', to: '丁', train: 'G1', date: '2026-01-01' }).segIds, ['ac', 'cd']);
+    assert.equal(R.resolveRecordRoute({ from: '甲', to: '丁', train: 'K1', date: '2026-01-01' }), null);
+  });
+
+  it('rejects an override whose segments the train kind cannot use', () => {
+    const net = kindNetwork();
+    net.overrides = [{ from: '甲', to: '丁', train: 'K82', segments: ['ab', 'bd'] }];
+    const R = loadRoutes(net).TrainRoutes;
+    assert.deepEqual(R.resolveRecordRoute({ from: '甲', to: '丁', train: 'K82', date: '2026-01-01' }).segIds, ['ac', 'cd']);
+  });
+
+  it('reports uncovered trips by kind so a conv gap does not veto the mileage card', () => {
+    // 全网暂无普速可走（线路清单还在扩充）：未覆盖只算在普速头上，
+    // 动车一条不缺，"估算总里程"卡照旧显示。
+    const R = routes({ north: ['emu'], south: ['emu'] });
+    const summary = R.mileageSummary([
+      { from: '甲', to: '丁', train: 'G1', date: '2026-01-01' },
+      { from: '甲', to: '丁', train: 'K1', date: '2026-01-01' },
+      { from: '乙', to: '戊', train: 'Z9', date: '2026-01-01' },
+    ]);
+    assert.equal(summary.covered, 1);
+    assert.equal(summary.uncoveredEmu, 0);
+    assert.equal(summary.uncoveredConv, 2);
+  });
+});
+
 describe('pilot corridor counts', () => {
   it('matches the planned coarse-grained segment counts for the 11 trips', () => {
     const { TrainRoutes } = loadRoutes();
@@ -351,6 +476,9 @@ describe('pilot corridor counts', () => {
     assert.equal(summary.total, 37);
     assert.equal(summary.covered, 33);
     assert.ok(summary.totalKm > 0);
+    // 未覆盖的 4 条全是普速（K1352/Z45/K146/K148）：动车已全覆盖。
+    assert.equal(summary.uncoveredEmu, 0);
+    assert.equal(summary.uncoveredConv, 4);
     const onlyPilot = TrainRoutes.mileageSummary(pilotRecords());
     assert.equal(onlyPilot.covered, 11);
     assert.ok(onlyPilot.totalKm > 0);
@@ -464,18 +592,28 @@ describe('map display integration', () => {
     assert.doesNotMatch(appCode, /真实路径已覆盖/);
     assert.doesNotMatch(appCode, /mapDisplayCoverageText/);
     assert.match(appCode, /syncMapDisplayControls\(\)/);
-    assert.match(
-      appCode,
-      /setMapDisplayMode[\s\S]*?var defaultType = mode === 'real' \? 'emu' : 'all';/
-    );
     assert.match(appCode, /setMapDisplayMode[\s\S]*?syncTypeFilterButtons\(\);/);
   });
 
-  it('hides the mileage card unless every record has a real path', () => {
+  it('keeps the train-type filter when switching display modes', () => {
+    // 普速行程同样有实际径路：进入"真实路径优先"不再把车型筛选强制
+    // 切成动车，模式切换只重绘地图，不改动用户选中的类别。
+    const body = functionBody(appCode, 'setMapDisplayMode');
+    assert.ok(body, 'setMapDisplayMode 函数体未找到');
+    assert.doesNotMatch(body, /typeFilter\s*=/);
+    assert.doesNotMatch(body, /syncTypeFilterButtons/);
+    assert.doesNotMatch(body, /applyRangeFilter/);
+    assert.match(body, /renderMap\(readGeoView\(mapChart\), true\)/);
+  });
+
+  it('hides the mileage card when an emu trip has no real path', () => {
     assert.match(html, /id="stat-mileage-card"[^>]*hidden/);
     assert.match(html, /id="stat-mileage"/);
     assert.match(appCode, /mileageCardState\(\)/);
-    assert.match(appCode, /summary\.covered === summary\.total/);
+    const body = functionBody(appCode, 'mileageCardState');
+    // 完整性只按动车组判定：普速干线分批扩充，未连通的普速行程不否决卡片。
+    assert.match(body, /summary\.uncoveredEmu === 0/);
+    assert.doesNotMatch(body, /covered === summary\.total/);
     assert.match(appCode, /cards\.classList\.toggle\('has-mileage', state\.show\)/);
     assert.match(css, /\.stat-cards\.has-mileage\s*\{[^}]*repeat\(4, var\(--stat-card-width\)\)/);
     assert.match(css, /@media\s*\(max-width:\s*1024px\)[\s\S]*?\.stat-cards\.has-mileage\s*\{[^}]*repeat\(2, minmax\(0, 1fr\)\)/);

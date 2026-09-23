@@ -84,5 +84,36 @@ class ExcelWriteTests(unittest.TestCase):
         self.assertEqual(excel_to_js.read_records(self.excel_path), original)
 
 
+class StationCoordLookupTests(unittest.TestCase):
+    """站名坐标：手工表优先，铁路网络节点锚点兜底。"""
+
+    def test_network_nodes_supply_coords_for_line_stations(self):
+        coords = excel_to_js.network_station_coords()
+        # 宁蓉试点站与徐兰高铁沿线站都只在网络里有坐标。
+        for name in ("麻城北", "天水南", "宝鸡南"):
+            self.assertEqual(len(coords[name]), 2, name)
+
+    def test_stations_for_falls_back_to_network_anchor(self):
+        rec = {**SAMPLE_RECORDS[0], "from": "天水南", "to": "宝鸡南"}
+        out = excel_to_js.stations_for([rec])
+        network = excel_to_js.network_station_coords()
+        self.assertEqual(out["天水南"], network["天水南"])
+
+    def test_manual_table_wins_over_network_anchor(self):
+        # 手工表里 2 位小数粗坐标是按正线校准过的历史值，不能被覆盖。
+        lookup = excel_to_js.station_coord_lookup()
+        for name, coord in excel_to_js.STATION_COORDS.items():
+            self.assertEqual(lookup[name], coord)
+
+    def test_unparseable_or_missing_route_data_is_tolerated(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(
+                excel_to_js.network_station_coords(Path(tmp) / "rail-route-data.js"), {}
+            )
+            broken = Path(tmp) / "rail-route-data.js"
+            broken.write_text("(function(){ var RAIL_ROUTE_DATA = {\"nodes\": [oops};", "utf-8")
+            self.assertEqual(excel_to_js.network_station_coords(broken), {})
+
+
 if __name__ == "__main__":
     unittest.main()

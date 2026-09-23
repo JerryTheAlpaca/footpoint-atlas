@@ -1,4 +1,4 @@
-// 宁蓉走廊铁路网络寻径纯函数。
+// 铁路网络寻径纯函数（高铁/城际 + 普速干线）。
 // 依赖 window.RAIL_ROUTE_DATA（js/rail-route-data.js），不依赖 DOM 与其余业务模块。
 // 所有坐标为 [lon, lat]，与 data.js stations、ECharts 一致。
 (function (root) {
@@ -8,9 +8,44 @@
   var MODE_CURVE = 'curve';
   var MODE_REAL = 'real';
   var VALID_MODES = [MODE_CURVE, MODE_REAL];
+  // 列车类别：与 TrainStats.trainTypeOf 同一判定（车次前缀 G/D/C 为动车组）。
+  var KIND_EMU = 'emu';
+  var KIND_CONV = 'conv';
+  // 未标注 trains 的区段视为仅动车组走行（既有高铁/城际产物即此语义）。
+  var DEFAULT_KINDS = [KIND_EMU];
 
   function routeData() {
     return root.RAIL_ROUTE_DATA || null;
+  }
+
+  // —— 记录 / 区段的列车类别 ——
+  // 普速不得借道只开动车组的高速正线，动车组也不得被新建的普速干线
+  // 改道：两类记录各自在可运行的区段子图上寻径，既有径路因此稳定。
+  function recordKind(record) {
+    var train = String((record && record.train) || '').trim();
+    return /^[GDC]/i.test(train) ? KIND_EMU : KIND_CONV;
+  }
+
+  function trainsForSegment(seg, linesById) {
+    var declared = seg.trains;
+    if (!declared || !declared.length) {
+      declared = [];
+      var ids = seg.lineIds || [];
+      for (var i = 0; i < ids.length; i++) {
+        var line = linesById[ids[i]];
+        if (line && line.trains) declared = declared.concat(line.trains);
+      }
+    }
+    return declared.length ? declared : DEFAULT_KINDS;
+  }
+
+  function segmentAllowsKind(seg, kind) {
+    if (!seg) return false;
+    var kinds = seg.trains || DEFAULT_KINDS;
+    for (var i = 0; i < kinds.length; i++) {
+      if (kinds[i] === kind) return true;
+    }
+    return false;
   }
 
   function isValidMode(value) {
@@ -76,27 +111,33 @@
     if (!data) return null;
     var byId = {};
     var byPair = {};
+    var linesById = {};
     var segments = data.segments || [];
+    (data.lines || []).forEach(function (line) {
+      if (line && line.id) linesById[line.id] = line;
+    });
     for (var i = 0; i < segments.length; i++) {
       var seg = segments[i];
+      seg.trains = trainsForSegment(seg, linesById);
       byId[seg.id] = seg;
-      byPair[seg.from + '|' + seg.to] = seg;
       byPair[seg.to + '|' + seg.from] = seg;
+      byPair[seg.from + '|' + seg.to] = seg;
     }
     return { byId: byId, byPair: byPair, list: segments };
   }
 
-  // —— 区段在行程日期是否可用（serviceDate 为开通日） ——
-  function segmentUsable(seg, date) {
+  // —— 区段在行程日期是否可用（serviceDate 为开通日）且承接该列车类别 ——
+  function segmentUsable(seg, date, kind) {
+    if (!segmentAllowsKind(seg, kind)) return false;
     if (!date || !seg.serviceDate) return true;
     return seg.serviceDate <= date;
   }
 
-  function buildAdjacency(maps, date) {
+  function buildAdjacency(maps, date, kind) {
     var adj = {};
     for (var i = 0; i < maps.list.length; i++) {
       var seg = maps.list[i];
-      if (!segmentUsable(seg, date)) continue;
+      if (!segmentUsable(seg, date, kind)) continue;
       (adj[seg.from] = adj[seg.from] || []).push(seg);
       (adj[seg.to] = adj[seg.to] || []).push(seg);
     }
@@ -107,7 +148,7 @@
   // 覆盖必须是一条从出发节点到目的节点的连续完整路径，且每个区段
   // 在行程日期已开通；只给开头一小段、或用不连续 ID 拼凑的覆盖
   // 一律拒绝（回退自动寻径），不能靠坐标远近猜连接方向。
-  function overrideSegmentsValid(segIds, maps, record) {
+  function overrideSegmentsValid(segIds, maps, record, kind) {
     var fromNode = nodeByName(record.from);
     var toNode = nodeByName(record.to);
     if (!fromNode || !toNode) return false;
@@ -115,7 +156,7 @@
     for (var i = 0; i < segIds.length; i++) {
       var seg = maps.byId[segIds[i]];
       if (!seg) return false;
-      if (!segmentUsable(seg, record.date)) return false;
+      if (!segmentUsable(seg, record.date, kind)) return false;
       if (seg.from === cur) cur = seg.to;
       else if (seg.to === cur) cur = seg.from;
       else return false;
@@ -123,7 +164,7 @@
     return cur === toNode.id;
   }
 
-  function matchOverride(record, overrides, maps) {
+  function matchOverride(record, overrides, maps, kind) {
     if (!record || !overrides || !overrides.length) return null;
     var best = null;
     var bestScore = 0;
@@ -143,7 +184,7 @@
         score += 1;
       }
       var segs = validSegmentIds(ov.segments, maps);
-      if (!segs || !overrideSegmentsValid(segs, maps, record)) continue;
+      if (!segs || !overrideSegmentsValid(segs, maps, record, kind)) continue;
       if (score > bestScore) {
         best = segs;
         bestScore = score;
@@ -163,9 +204,9 @@
   // —— Dijkstra 最短路，边权 = estLengthKm，平局取字典序小区段序列 ——
   // date：行程日期；晚于开通日（serviceDate）的区段不参与寻径，
   // 避免历史记录"提前"用上尚未开通的线路（如 2020 年记录走 2024
-  // 年开通的池黄高铁）。
-  function shortestPath(fromId, toId, maps, date) {
-    var adj = buildAdjacency(maps, date);
+  // 年开通的池黄高铁）。kind：列车类别；不承接该类别的区段同样不参与。
+  function shortestPath(fromId, toId, maps, date, kind) {
+    var adj = buildAdjacency(maps, date, kind);
     var dist = {};
     var prevSeg = {};
     var prevNode = {};
@@ -262,15 +303,16 @@
   function resolveRecordRoute(record) {
     var maps = segmentMaps();
     if (!maps || !record) return null;
+    var kind = recordKind(record);
     var fromName = String(record.from || '').trim();
     var toName = String(record.to || '').trim();
     var fromNode = nodeByName(fromName);
     var toNode = nodeByName(toName);
 
-    var segIds = matchOverride(record, (routeData() || {}).overrides, maps);
+    var segIds = matchOverride(record, (routeData() || {}).overrides, maps, kind);
     if (!segIds) {
       if (!fromNode || !toNode) return null;
-      var path = shortestPath(fromNode.id, toNode.id, maps, record.date);
+      var path = shortestPath(fromNode.id, toNode.id, maps, record.date, kind);
       if (!path) return null;
       segIds = path.segIds;
     }
@@ -308,20 +350,31 @@
   }
 
   // —— 里程汇总：仅统计有真实路径的乘车 ——
+  // uncoveredEmu / uncoveredConv：按列车类别分开计未覆盖条数。普速干线
+  // 在分批扩充（批次 F），单条尚未连通的普速行程不该否决"总里程"卡；
+  // 动车未覆盖则说明网络缺线，属于真漏。
   function mileageSummary(records, resolve) {
     var fn = typeof resolve === 'function' ? resolve : resolveRecordRoute;
     var list = records || [];
     var totalKm = 0;
     var covered = 0;
+    var uncoveredEmu = 0;
+    var uncoveredConv = 0;
     for (var i = 0; i < list.length; i++) {
       var route = fn(list[i]);
-      if (!route) continue;
+      if (!route) {
+        if (recordKind(list[i]) === KIND_EMU) uncoveredEmu += 1;
+        else uncoveredConv += 1;
+        continue;
+      }
       covered += 1;
       totalKm += route.km;
     }
     return {
       total: list.length,
       covered: covered,
+      uncoveredEmu: uncoveredEmu,
+      uncoveredConv: uncoveredConv,
       totalKm: Math.round(totalKm * 10) / 10,
     };
   }
@@ -339,8 +392,12 @@
     DISPLAY_STORAGE_KEY: DISPLAY_STORAGE_KEY,
     MODE_CURVE: MODE_CURVE,
     MODE_REAL: MODE_REAL,
+    KIND_EMU: KIND_EMU,
+    KIND_CONV: KIND_CONV,
     readDisplayMode: readDisplayMode,
     writeDisplayMode: writeDisplayMode,
+    recordKind: recordKind,
+    segmentAllowsKind: segmentAllowsKind,
     nodeByName: nodeByName,
     stationCoord: stationCoord,
     resolveRecordRoute: resolveRecordRoute,

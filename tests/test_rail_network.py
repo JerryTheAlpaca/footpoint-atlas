@@ -7,7 +7,8 @@
 - 线路所（via）按显式站对声明插入，站序不再由空间距离猜测；
 - 同站对两条不同物理走廊均保留为独立区段，同走廊才合并；
 - 端点吸附阈值单位为公里；
-- 线路约束白名单含 osm_names/osm_bounds/link_names。
+- 线路约束白名单含 osm_names/osm_bounds/link_names；
+- 列车类别 trains：缺省仅动车组、共走廊合并取并集且顺序恒定。
 """
 
 import os
@@ -22,6 +23,7 @@ from rail_network.build import (  # noqa: E402
     cut_line_segments,
     insert_via_stops,
     line_allowed_names,
+    line_trains,
     NodeRegistry,
 )
 from rail_network.geometry import (  # noqa: E402
@@ -29,6 +31,7 @@ from rail_network.geometry import (  # noqa: E402
     haversine_km,
     polyline_km,
 )
+from rail_network.lines import BATCH_ORDER, LINES  # noqa: E402
 
 
 class Node:
@@ -203,6 +206,66 @@ class TestSamePairMultiCorridor(unittest.TestCase):
         self.assertEqual(out_segments[first_id]["serviceDate"], "2019-01-01")
 
 
+class TestSegmentTrains(unittest.TestCase):
+    """列车类别（trains）声明、区段归属与共线合并。"""
+
+    A = [110.0, 30.0]
+    B = [110.4, 30.0]
+    CORRIDOR = [[110.0, 30.0], [110.2, 30.002], [110.4, 30.0]]
+
+    def _line(self, line_id, **kw):
+        line = {"id": line_id, "name": line_id, "serviceDate": "2000-01-01"}
+        line.update(kw)
+        return line
+
+    def _run(self, line, out_segments):
+        resolved = [("甲站", self.A, "osm"), ("乙站", self.B, "osm")]
+        blocks = [{"a": "甲站", "b": "乙站",
+                   "pts": [list(p) for p in self.CORRIDOR],
+                   "legacy": None, "serviceDate": line["serviceDate"]}]
+        breaks = [("甲站", 0), ("乙站", len(self.CORRIDOR) - 1)]
+        cut_line_segments(
+            line, resolved, blocks, [list(p) for p in self.CORRIDOR], breaks,
+            _registry_with("甲站", self.A, "乙站", self.B),
+            {"stations": []}, [], out_segments)
+
+    def test_default_is_emu_only(self):
+        """未声明 trains 的线路（既有高铁清单）不会被普速记录借用。"""
+        self.assertEqual(line_trains(self._line("hsr")), ["emu"])
+        self.assertEqual(line_trains(self._line("mix", trains=["conv", "emu"])),
+                         ["emu", "conv"])
+
+    def test_unknown_kind_fails_loud(self):
+        with self.assertRaises(SystemExit):
+            line_trains(self._line("bad", trains=["EMU"]))
+
+    def test_segment_carries_line_trains(self):
+        for line, expect in ((self._line("conv", trains=["conv"]), ["conv"]),
+                             (self._line("hsr"), ["emu"])):
+            out = {}
+            self._run(line, out)
+            self.assertEqual([s["trains"] for s in out.values()], [expect])
+
+    def test_shared_corridor_unions_kinds(self):
+        """高铁与既有线共走廊：合并后的区段两类列车都可走行。"""
+        out = {}
+        self._run(self._line("hsr"), out)
+        self._run(self._line("conv", trains=["conv"]), out)
+        self.assertEqual(len(out), 1)
+        self.assertEqual(next(iter(out.values()))["trains"], ["emu", "conv"])
+
+    def test_merge_order_independent(self):
+        """类别并集顺序恒定，不随线路处理顺序变化（产物 diff 才稳定）。"""
+        forward, backward = {}, {}
+        hsr, conv = self._line("hsr"), self._line("conv", trains=["conv"])
+        for line, out in ((hsr, forward), (conv, forward),
+                          (conv, backward), (hsr, backward)):
+            self._run(line, out)
+        self.assertEqual([s["trains"] for s in forward.values()],
+                         [s["trains"] for s in backward.values()])
+        self.assertEqual(next(iter(forward.values()))["trains"], ["emu", "conv"])
+
+
 class TestEndpointSnapKm(unittest.TestCase):
     def test_snap_threshold_is_kilometers(self):
         """端点吸附阈值是公里：>2km 的偏移不得改写折线端点。"""
@@ -241,6 +304,35 @@ class TestLineAllowedNames(unittest.TestCase):
         self.assertIn("京九线", allowed)
         self.assertIn("沪蓉线", allowed)
         self.assertNotIn("沪宁城际线", allowed)
+
+
+class TestLineList(unittest.TestCase):
+    """线路清单自身的一致性（人工维护的数据文件，构建前先把住关）。"""
+
+    def test_every_line_declares_valid_kinds_and_batch(self):
+        for line in LINES:
+            kinds = line_trains(line)
+            self.assertTrue(kinds, line["id"])
+            self.assertTrue(set(kinds) <= {"emu", "conv"}, line["id"])
+            self.assertIn(line["batch"], BATCH_ORDER, line["id"])
+
+    def test_line_ids_are_unique(self):
+        ids = [line["id"] for line in LINES]
+        self.assertEqual(len(ids), len(set(ids)))
+
+    def test_ningrong_carries_both_kinds(self):
+        """沪汉蓉通道动车组与普速共用：标两类，否则普速记录在
+        汉口—成都东间没有实际径路，只能回退曲线。"""
+        line = next(l for l in LINES if l["id"] == "ningrong")
+        self.assertEqual(line_trains(line), ["emu", "conv"])
+
+    def test_conventional_lines_have_a_batch(self):
+        """批次 F 存在且至少一条线声明 conv：普速网络不能是空承诺。"""
+        self.assertIn("F", BATCH_ORDER)
+        conv = [l for l in LINES if "conv" in line_trains(l)]
+        self.assertTrue(conv)
+        for line in conv:
+            self.assertTrue(line["stations"], line["id"])
 
 
 if __name__ == "__main__":

@@ -1259,15 +1259,6 @@
     if (window.TrainRoutes) {
       window.TrainRoutes.writeDisplayMode(window.localStorage, mode);
     }
-    // 切换显示模式时同步默认列车类别筛选：曲线→全部，真实路径优先→动车
-    var defaultType = mode === 'real' ? 'emu' : 'all';
-    if (typeFilter !== defaultType) {
-      typeFilter = defaultType;
-      syncTypeFilterButtons();
-      applyRangeFilter();
-      syncMapDisplayControls();
-      return;
-    }
     if (timelinePlaying) {
       stopPlay();
     } else if (focusedRecordIndex != null || tripPlayRaf) {
@@ -2823,7 +2814,9 @@
   }
 
   // 总里程独立于显示模式，按每次乘车的有效真实路径累计；
-  // 仅当全部记录都有真实路径时才显示（计划：试点阶段保持隐藏）。
+  // 动车组记录必须全部有实际路径，普速干线仍在分批扩充，未连通的
+  // 普速行程只让自己缺席累计，不否决整张卡（否则一条 Z 车能把
+  // 里程卡永久压住）。
   function mileageCardState() {
     var state = { show: false, text: '' };
     if (!window.TrainRoutes || !window.RAIL_ROUTE_DATA) return state;
@@ -2833,7 +2826,8 @@
     } catch (err) {
       return state;
     }
-    if (summary && summary.total > 0 && summary.covered === summary.total) {
+    if (summary && summary.total > 0 && summary.covered > 0 &&
+        summary.uncoveredEmu === 0) {
       state.show = true;
       state.text = summary.totalKm.toLocaleString('zh-CN') + ' km';
     }

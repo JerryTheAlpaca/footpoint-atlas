@@ -10,14 +10,16 @@
 用 python tools/serve.py 打开网页后，添加 / 编辑 / 删除行程会同时写回
 js/data.js 和本表。
 
-如果出现尚未收录坐标的新车站，脚本会列出站名并退出；
-把该站的 [经度, 纬度] 补进 STATION_COORDS 后再跑一次。
+如果出现尚未收录坐标的新车站，先看它是否已在铁路网络里（js/rail-route-data.js
+节点坐标自动可用）；仍缺失时脚本会列出站名并退出，把该站的
+[经度, 纬度] 补进 STATION_COORDS 后再跑一次。
 """
 
 from __future__ import annotations
 
 import json
 import os
+import re
 import stat
 import sys
 import tempfile
@@ -113,6 +115,41 @@ STATION_COORDS = {
 # 以后新增"南京南→麻城北"等行程时不再要求手工补坐标。
 NETWORK_STATION_NAMES = {"全椒", "肥东", "金寨", "麻城北", "红安西"}
 
+ROUTE_DATA_PATH = ROOT / "js" / "rail-route-data.js"
+
+
+def network_station_coords(path: Path = ROUTE_DATA_PATH) -> dict[str, list[float]]:
+    """铁路网络节点坐标（OSM 压线锚点，与真实径路同源）。
+
+    普速干线并入网络后，沿线新增车站（安康、十堰、天水…）直接从这里取
+    坐标，不必再逐站手工补 STATION_COORDS。
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return {}
+    body = re.search(r"var RAIL_ROUTE_DATA = (\{.*\});", text, re.S)
+    if not body:
+        return {}
+    try:
+        data = json.loads(body.group(1))
+    except ValueError:
+        return {}
+    coords = {}
+    for node in data.get("nodes") or []:
+        name = str(node.get("name") or "").strip()
+        coord = node.get("coord")
+        if not name or node.get("kind") not in (None, "station"):
+            continue
+        if isinstance(coord, (list, tuple)) and len(coord) >= 2:
+            coords[name] = [float(coord[0]), float(coord[1])]
+    return coords
+
+
+def station_coord_lookup() -> dict[str, list[float]]:
+    """站名 → 坐标：手工表优先（已按正线校准），网络节点锚点兜底。"""
+    return {**network_station_coords(), **STATION_COORDS}
+
 
 def normalize_date(value) -> str:
     if isinstance(value, datetime):
@@ -164,13 +201,14 @@ def stations_for(records: list[dict]) -> dict[str, list[float]]:
     names = {rec["from"] for rec in records} | {rec["to"] for rec in records}
     names |= NETWORK_STATION_NAMES
     ordered = sorted(names)
-    missing = [name for name in ordered if name not in STATION_COORDS]
+    coords = station_coord_lookup()
+    missing = [name for name in ordered if name not in coords]
     if missing:
         sys.stderr.write("以下车站还没有坐标，请补进 tools/excel_to_js.py 的 STATION_COORDS：\n")
         for name in missing:
             sys.stderr.write(f"  - {name}\n")
         sys.exit(1)
-    return {name: STATION_COORDS[name] for name in ordered}
+    return {name: coords[name] for name in ordered}
 
 
 def write_data_js(records: list[dict], stations: dict, path: Path = OUTPUT_PATH) -> None:
