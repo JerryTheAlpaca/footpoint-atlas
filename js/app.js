@@ -833,7 +833,13 @@
         fallback.push(rec);
         return;
       }
+      // 同一条记录对同一区段只算一次：枢纽站场会有真实折返（K146/K148
+      // 在 安康东—安康 掉头，segIds 里同一段出现两遍），按出现次数累加
+      // 会让 tooltip 把同一趟车列两遍、线宽也多算一档。
+      var credited = {};
       route.segIds.forEach(function (segId) {
+        if (credited[segId]) return;
+        credited[segId] = true;
         if (!segGroups[segId]) segGroups[segId] = { segId: segId, records: [] };
         segGroups[segId].records.push(rec);
       });

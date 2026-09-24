@@ -130,14 +130,20 @@
     }
     // 站 → 申报该站为客运站的线路集合（lines[].stops，来自线路清单）。
     var stopsToLines = {};
+    // 线路 → 它声明借用的枢纽联络线（lines[].links）：反向索引，
+    // 用于把联络线并进它所连接的干线。
+    var connectorOf = {};
     (data.lines || []).forEach(function (line) {
       if (!line || !line.id) return;
       (line.stops || []).forEach(function (nid) {
         (stopsToLines[nid] = stopsToLines[nid] || []).push(line.id);
       });
+      (line.links || []).forEach(function (target) {
+        (connectorOf[target] = connectorOf[target] || []).push(line.id);
+      });
     });
     return { byId: byId, byPair: byPair, list: segments,
-             stopsToLines: stopsToLines };
+             stopsToLines: stopsToLines, connectorOf: connectorOf };
   }
 
   // —— 区段在行程日期是否可用（serviceDate 为开通日）且承接该列车类别 ——
@@ -448,7 +454,17 @@
         if (best) step = [best.id];
       }
       if (!step) {
-        var path = shortestPath(a.id, b.id, maps, date, kind, null, prefer);
+        // 先只在本车次的线路家族里找路：并行走廊之间常只差几公里，
+        // 全网最短路会让一趟 沪宁城际 的车在 镇江 跳上 京沪高铁 抄近路
+        // 进 南京南（66.2km vs 走自家城际+仙宁线 74.8km），两列车的径路
+        // 于是在同一段高铁正线上叠画几十公里。家族内确实不通（跨线车、
+        // 清单站序不全）才放开约束走全网。
+        var path = prefer
+          ? shortestPath(a.id, b.id, maps, date, kind, function (seg) {
+              return segOnPreferred(seg, prefer);
+            })
+          : null;
+        if (!path) path = shortestPath(a.id, b.id, maps, date, kind, null, prefer);
         step = path ? path.segIds : null;
       }
       if (!step) return { gap: [a.name, b.name] };
@@ -520,6 +536,15 @@
     var out = {};
     Object.keys(votes).forEach(function (id) {
       if (votes[id] === max) out[id] = true;
+    });
+    // 枢纽联络线并进它所连接的干线：一趟 沪宁城际 的车在 南京 换
+    // "沪宁城际南京联络线"（仙宁线）进 南京南 是正路，不该被当成
+    // "离开偏好线路"，否则它会输给一段 京沪高铁 的近似捷径，
+    // 两列车的径路因此在同一段高铁上叠画几十公里。
+    Object.keys(out).forEach(function (id) {
+      (maps.connectorOf[id] || []).forEach(function (conn) {
+        out[conn] = true;
+      });
     });
     return out;
   }

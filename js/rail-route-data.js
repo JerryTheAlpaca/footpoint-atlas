@@ -51,7 +51,8 @@
     "bao-hua-shan",
     "xian-lin",
     "nan-jing"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "jingha-hsr",
@@ -86,7 +87,8 @@
     "de-hui-xi",
     "shuang-cheng-bei",
     "ha-er-bin-xi"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "jinghu-hsr",
@@ -122,7 +124,8 @@
     "su-zhou-bei",
     "kun-shan-nan",
     "shang-hai-hong-qiao"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "ninghang-hsr",
@@ -146,7 +149,8 @@
     "hu-zhou",
     "de-qing",
     "hang-zhou-dong"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "guangshengang-hsr",
@@ -166,7 +170,8 @@
     "shen-zhen-bei",
     "fu-tian",
     "xiang-gang-xi-jiu-long"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "jingguang-hsr",
@@ -214,7 +219,8 @@
     "qing-yuan",
     "guang-zhou-bei",
     "guang-zhou-nan"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "hukun-hsr",
@@ -274,7 +280,8 @@
     "qu-jing-bei",
     "song-ming",
     "kun-ming-nan"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "lanxin-hsr",
@@ -304,7 +311,8 @@
     "tu-ha",
     "tu-lu-fan-bei",
     "wu-lu-mu-qi"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "ningrong",
@@ -344,7 +352,8 @@
     "he-chuan",
     "sui-ning",
     "cheng-du-dong"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "xicheng-hsr",
@@ -371,7 +380,8 @@
     "de-yang",
     "guang-han-bei",
     "cheng-du-dong"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "xulan-hsr",
@@ -406,7 +416,8 @@
     "tong-wei",
     "ding-xi-bei",
     "lan-zhou-xi"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "anjiu-hsr",
@@ -425,7 +436,8 @@
     "su-song-dong",
     "huang-mei-nan",
     "lu-shan"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "changgan-hsr",
@@ -449,6 +461,9 @@
     "tai-he",
     "wan-an-xian",
     "gan-zhou-xi"
+   ],
+   "links": [
+    "hanghuang-hsr"
    ]
   },
   {
@@ -468,7 +483,8 @@
     "gong-qing-cheng",
     "yong-xiu",
     "nan-chang"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "ganshen-hsr",
@@ -492,6 +508,9 @@
     "hui-zhou-bei",
     "dong-guan-nan",
     "shen-zhen-bei"
+   ],
+   "links": [
+    "guangshengang-hsr"
    ]
   },
   {
@@ -512,6 +531,9 @@
     "tong-cheng-dong",
     "huai-ning",
     "an-qing"
+   ],
+   "links": [
+    "ningrong"
    ]
   },
   {
@@ -531,7 +553,8 @@
     "gu-an-dong",
     "ba-zhou-bei",
     "xiong-an"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "shanghehang-north",
@@ -555,7 +578,8 @@
     "shui-jia-hu",
     "he-fei-bei-cheng",
     "hefei-south"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "shanghehang-south",
@@ -578,6 +602,9 @@
     "lang-xi-nan",
     "guang-de-nan",
     "hu-zhou"
+   ],
+   "links": [
+    "ningrong"
    ]
   },
   {
@@ -596,6 +623,9 @@
     "huang-shan-xi",
     "yi-xian-dong",
     "huang-shan-bei"
+   ],
+   "links": [
+    "hanghuang-hsr"
    ]
   },
   {
@@ -618,6 +648,10 @@
     "ji-xi-bei",
     "she-xian-bei",
     "huang-shan-bei"
+   ],
+   "links": [
+    "hukun-hsr",
+    "shanghai-hangzhou"
    ]
   },
   {
@@ -636,6 +670,15 @@
     "qi-chun-nan",
     "wu-xue-bei",
     "huang-mei-nan"
+   ],
+   "links": [
+    "wugang-int",
+    "xiongshang-hsr",
+    "shanghehang-north",
+    "hean-hsr",
+    "anjiu-hsr",
+    "changgan-hsr",
+    "ganshen-hsr"
    ]
   },
   {
@@ -651,7 +694,8 @@
    "stops": [
     "hu-zhou",
     "hang-zhou-xi"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "nanjing-link",
@@ -666,6 +710,10 @@
    "stops": [
     "nan-jing",
     "nanjing-south"
+   ],
+   "links": [
+    "huning-int",
+    "ninghang-hsr"
    ]
   },
   {
@@ -689,7 +737,8 @@
     "tong-ling",
     "chi-zhou",
     "an-qing"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "shanghai-hangzhou",
@@ -711,7 +760,8 @@
     "hai-ning-xi",
     "lin-ping-nan",
     "hang-zhou-dong"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "wugang-int",
@@ -729,7 +779,8 @@
     "hua-rong-dong",
     "huang-gang-xi",
     "huang-gang-dong"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "wuxiao-int",
@@ -745,7 +796,8 @@
     "hankou",
     "tian-he-ji-chang",
     "xiao-gan-dong"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "baocheng-conventional",
@@ -769,7 +821,8 @@
     "mian-yang",
     "de-yang",
     "cheng-du"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "handan-conventional",
@@ -794,14 +847,15 @@
     "lao-he-kou-dong",
     "lao-he-kou",
     "dan-jiang"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "hukun-bypass-hangzhou",
    "name": "沪昆绕行线（钱塘江大桥）",
    "batch": "F",
    "from": "jian-qiao",
-   "to": "hang-zhou-nan",
+   "to": "xiao-shan",
    "serviceDate": "1937-09-26",
    "trains": [
     "conv"
@@ -812,8 +866,9 @@
     "nan-xing-qiao",
     "qian-tang-jiang",
     "xiao-shan-xi",
-    "hang-zhou-nan"
-   ]
+    "xiao-shan"
+   ],
+   "links": []
   },
   {
    "id": "hukun-conventional",
@@ -841,6 +896,9 @@
     "hang-zhou-nan",
     "jia-xing",
     "shang-hai"
+   ],
+   "links": [
+    "jinghu-conventional"
    ]
   },
   {
@@ -869,7 +927,8 @@
     "zhang-jia-jie",
     "ji-shou",
     "huai-hua"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "jingguang-conventional",
@@ -904,7 +963,8 @@
     "chen-zhou",
     "shao-guan-dong",
     "guang-zhou"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "jinghu-conventional",
@@ -936,7 +996,8 @@
     "su-zhou",
     "kun-shan",
     "shang-hai"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "jingjiu-conventional",
@@ -967,7 +1028,8 @@
     "he-yuan",
     "hui-zhou",
     "dong-guan-dong"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "lanqing-conventional",
@@ -986,7 +1048,8 @@
     "le-du",
     "ping-an-yi",
     "xi-ning"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "lanxin-conventional",
@@ -1008,7 +1071,8 @@
     "jia-yu-guan",
     "yu-men",
     "liu-yuan"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "longhai-conventional",
@@ -1048,6 +1112,10 @@
     "long-xi",
     "ding-xi",
     "lan-zhou"
+   ],
+   "links": [
+    "lanxin-conventional",
+    "lanqing-conventional"
    ]
   },
   {
@@ -1073,6 +1141,9 @@
     "shang-nan",
     "dan-feng",
     "xi-an"
+   ],
+   "links": [
+    "longhai-conventional"
    ]
   },
   {
@@ -1097,7 +1168,8 @@
     "dou-chang",
     "hu-kou",
     "jiu-jiang"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "wujiu-conventional",
@@ -1118,6 +1190,9 @@
     "yang-xin",
     "rui-chang",
     "lu-shan"
+   ],
+   "links": [
+    "jingguang-conventional"
    ]
   },
   {
@@ -1142,7 +1217,8 @@
     "wan-yuan",
     "da-zhou",
     "guang-an"
-   ]
+   ],
+   "links": []
   },
   {
    "id": "xikang-conventional",
@@ -1163,6 +1239,10 @@
     "xiao-he-zhen",
     "xun-yang-bei",
     "an-kang"
+   ],
+   "links": [
+    "longhai-conventional",
+    "xiangyu-conventional"
    ]
   }
  ],
@@ -69766,7 +69846,6 @@
    "to": "ba-qiao",
    "lineIds": [
     "longhai-conventional",
-    "xikang-conventional",
     "ningxi-conventional"
    ],
    "trains": [
@@ -79904,9 +79983,9 @@
    ]
   },
   {
-   "id": "yao-cun-2-tian-wang",
+   "id": "ba-qiao-tian-wang",
    "name": "西康铁路",
-   "from": "yao-cun-2",
+   "from": "ba-qiao",
    "to": "tian-wang",
    "lineIds": [
     "xikang-conventional"
@@ -79916,27 +79995,39 @@
     "conv"
    ],
    "serviceDate": "2001-10-01",
-   "estLengthKm": 6.16,
+   "estLengthKm": 7.17,
    "polyline": [
     [
-     109.12359,
-     34.3463
+     109.05396,
+     34.30153
     ],
     [
-     109.10514,
-     34.33632
+     109.06083,
+     34.3063
     ],
     [
-     109.09878,
-     34.32927
+     109.06777,
+     34.31459
     ],
     [
-     109.09809,
-     34.3218
+     109.08023,
+     34.32225
     ],
     [
-     109.10406,
-     34.31027
+     109.0862,
+     34.32336
+    ],
+    [
+     109.09459,
+     34.32106
+    ],
+    [
+     109.09986,
+     34.31722
+    ],
+    [
+     109.10422,
+     34.30919
     ],
     [
      109.10397,
@@ -99134,10 +99225,10 @@
    ]
   },
   {
-   "id": "xiao-shan-xi-hang-zhou-nan",
+   "id": "xiao-shan-xi-xiao-shan",
    "name": "沪昆绕行线（钱塘江大桥）",
    "from": "xiao-shan-xi",
-   "to": "hang-zhou-nan",
+   "to": "xiao-shan",
    "lineIds": [
     "hukun-bypass-hangzhou"
    ],
@@ -99145,43 +99236,31 @@
     "conv"
    ],
    "serviceDate": "1937-09-26",
-   "estLengthKm": 6.25,
+   "estLengthKm": 9.09,
    "polyline": [
     [
      120.25176,
      30.17191
     ],
     [
-     120.25968,
-     30.16938
+     120.25733,
+     30.16977
     ],
     [
-     120.26561,
-     30.16878
+     120.25867,
+     30.16778
     ],
     [
-     120.26841,
-     30.16991
+     120.25308,
+     30.14119
     ],
     [
-     120.27607,
-     30.18338
+     120.25815,
+     30.11059
     ],
     [
-     120.28232,
-     30.18805
-    ],
-    [
-     120.28475,
-     30.18819
-    ],
-    [
-     120.28711,
-     30.18689
-    ],
-    [
-     120.29108,
-     30.17358
+     120.25707,
+     30.09475
     ]
    ]
   },

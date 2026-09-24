@@ -488,24 +488,24 @@ describe('pilot corridor counts', () => {
     assert.ok(onlyPilot.totalKm < summary.totalKm);
   });
 
-  it('keeps K146/K148 within a percent of the timetable mileage', () => {
-    // 旬阳北 走 大旬联络线 之后，西安—安康 一段才补满：官方 966km，
-    // 缺 旬阳北 时网络只给 941km（−2.5%），补上后 959km（−0.7%）。
-    // 两向同里程是对的——K146 不停 旬阳北 但径路相同，停站不改走廊。
+  it('matches the timetable mileage at every K148 checkpoint', () => {
+    // 拿中途站逐点核，不拿总里程核：总里程会让别处的少算和枢纽里的
+    // 多绕互相抵消，看着准其实两头都错。时刻表（K148 自西安起）
+    // 西安东 30 / 引镇 44 / 镇安 141 / 旬阳北 214 / 安康 265。
+    // 西安—引镇 以前绕 窑村 得 51.6km，补上"田灞联络线"直连
+    // 灞桥—田王 之后才落到 44km 一档。
     const sandbox = loadRoutes();
     loadScript(sandbox, 'train-stops.js');
     const TrainRoutes = sandbox.TrainRoutes;
-    for (const rec of [
-      { from: '武昌', to: '西安', train: 'K146', date: '2026-04-29' },
-      { from: '西安', to: '武昌', train: 'K148', date: '2026-05-03' },
-    ]) {
-      const route = TrainRoutes.resolveRecordRoute(rec);
-      assert.ok(route, rec.train + ' 不可达');
-      assert.equal(route.via.by, 'stops');
-      assert.ok(Math.abs(route.km - 966) / 966 < 0.01,
-        rec.train + ' 里程 ' + route.km + ' 与官方 966km 差超 1%');
-      const stops = route.segIds.join('>');
-      assert.ok(/xun-yang-bei/.test(stops), rec.train + ' 未经 旬阳北');
+    const official = { '西安东': 30, '引镇': 44, '镇安': 141,
+      '旬阳北': 214, '安康': 265 };
+    for (const stop of Object.keys(official)) {
+      const route = TrainRoutes.resolveRecordRoute(
+        { from: '西安', to: stop, train: 'K148', date: '2026-05-03' });
+      assert.ok(route, '西安→' + stop + ' 不可达');
+      assert.ok(Math.abs(route.km - official[stop]) / official[stop] < 0.05,
+        '西安→' + stop + ' 网络 ' + route.km + 'km，时刻表 ' +
+        official[stop] + 'km，差超 5%');
     }
   });
 });

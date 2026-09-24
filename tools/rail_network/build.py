@@ -802,6 +802,29 @@ def main(argv=None):
 
     line_graphs = {}
 
+    # OSM 来源名 → 拥有该名的线路 id：枢纽联络线用 link_names 声明它借谁
+    # 的站场接入，这里把来源名翻成线路 id，一并写进产物（lines[].links）。
+    # JS 侧据此把联络线并进它所连接的干线，见 js/rail-routes.js
+    # preferredLines——否则一趟 沪宁城际 的车在 南京 换自家联络线进
+    # 南京南 会被当成"离开偏好线路"，反而输给一段 京沪高铁 的捷径。
+    # 只认"不限界使用该来源"的主人：兰新线 按 bbox 借 陇海线 引入兰州，
+    # 若把它也算成 陇海线 的所有者，西康线 的 links 里会凭空多出兰新线。
+    owners_by_source = {}
+    for ln in active_lines:
+        bounded = ln.get("osm_bounds") or {}
+        for nm in ln["osm_names"]:
+            if nm in bounded:
+                continue
+            owners_by_source.setdefault(nm, []).append(ln["id"])
+
+    def line_links(line):
+        out = []
+        for nm in line.get("link_names") or []:
+            for oid in owners_by_source.get(nm, []):
+                if oid != line["id"] and oid not in out:
+                    out.append(oid)
+        return out
+
     out_segments = {}     # seg_id -> segment dict（含 _legacySeg 内部标记；
                           # 同站对允许多个不同物理走廊的区段共存）
     line_summaries = []
@@ -841,6 +864,7 @@ def main(argv=None):
                 # JS 侧据此把车次的停靠站对应到线，并行走廊里选对那一条
                 # （沪宁城际 停 常州/丹阳，同走廊的 京沪线 停 常州 但无 丹阳）。
                 "stops": [registry.get(n)["id"] for n, _, _ in resolved],
+                "links": line_links(line),
             })
         except SystemExit as exc:
             if line.get("optional"):
