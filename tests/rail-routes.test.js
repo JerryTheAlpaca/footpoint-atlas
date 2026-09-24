@@ -630,3 +630,160 @@ describe('map display integration', () => {
     }
   });
 });
+
+describe('train via resolution', () => {
+  function loadWithStops(overrides) {
+    const sandbox = loadRoutes(overrides);
+    loadScript(sandbox, 'train-stops.js');
+    return sandbox;
+  }
+
+  function withStops(sandbox, trains) {
+    sandbox.TRAIN_STOPS = { meta: {}, trains: trains };
+    return sandbox.TrainRoutes;
+  }
+
+  // 并行走廊测试网：甲—乙—丁（北线 100km）与 甲—丙—丁（南线 110km）。
+  // 南线更长，所以纯最短路必选北线；判据必须能把停在丙的车判到南线。
+  // 里程比 1.1，落在真实走廊的范围内（南京南—上海虹桥 295/311/333）。
+  function corridorNetwork() {
+    return {
+      nodes: [
+        { id: 'a', name: '甲', kind: 'station', coord: [110.0, 30.0] },
+        { id: 'b', name: '乙', kind: 'station', coord: [110.5, 30.0] },
+        { id: 'c', name: '丙', kind: 'station', coord: [110.5, 30.5] },
+        { id: 'd', name: '丁', kind: 'station', coord: [111.0, 30.0] },
+      ],
+      segments: [
+        { id: 'ab', name: '北线', from: 'a', to: 'b', lineIds: ['n'], serviceDate: '2010-01-01', estLengthKm: 40, polyline: [[110.0, 30.0], [110.5, 30.0]] },
+        { id: 'bd', name: '北线', from: 'b', to: 'd', lineIds: ['n'], serviceDate: '2010-01-01', estLengthKm: 60, polyline: [[110.5, 30.0], [111.0, 30.0]] },
+        { id: 'ac', name: '南线', from: 'a', to: 'c', lineIds: ['s'], serviceDate: '2010-01-01', estLengthKm: 55, polyline: [[110.0, 30.0], [110.5, 30.5]] },
+        { id: 'cd', name: '南线', from: 'c', to: 'd', lineIds: ['s'], serviceDate: '2010-01-01', estLengthKm: 55, polyline: [[110.5, 30.5], [111.0, 30.0]] },
+      ],
+      overrides: [],
+    };
+  }
+
+  const record = { from: '甲', to: '丁', train: 'G1', date: '2025-01-01' };
+
+  it('picks the longer corridor when the train stopped on it', () => {
+    // 无站序时最短路选北线（100km）；停靠站里有丙就必须改判南线（110km）。
+    const plain = loadRoutes(corridorNetwork()).TrainRoutes;
+    assert.deepEqual(plain.resolveRecordRoute(record).segIds, ['ab', 'bd']);
+
+    const Routes = withStops(loadRoutes(corridorNetwork()), {
+      G1: { trainNo: 'x', asOf: '2025-01-01', stops: ['甲', '丙', '丁'] },
+    });
+    const route = Routes.resolveRecordRoute(record);
+    assert.deepEqual(route.segIds, ['ac', 'cd']);
+    assert.equal(route.via.by, 'stops');
+    assert.equal(route.via.confidence, 'high');
+  });
+
+  it('reads the stop sequence in travel direction either way', () => {
+    const Routes = withStops(loadRoutes(corridorNetwork()), {
+      G1: { trainNo: 'x', asOf: '2025-01-01', stops: ['丁', '丙', '甲'] },
+    });
+    assert.deepEqual(Routes.resolveRecordRoute(record).segIds, ['ac', 'cd']);
+  });
+
+  it('breaks a nonstop tie with the official cumulative mileage', () => {
+    // 甲→丁 一站直达，没有中间站可判，只能靠里程：100→北线，110→南线。
+    const north = withStops(loadRoutes(corridorNetwork()), {
+      G1: { trainNo: 'x', asOf: '2025-01-01', stops: ['甲', '丁'], km: { 甲: 0, 丁: 100 } },
+    });
+    const northRoute = north.resolveRecordRoute(record);
+    assert.deepEqual(northRoute.segIds, ['ab', 'bd']);
+    assert.equal(northRoute.via.by, 'mileage');
+
+    const south = withStops(loadRoutes(corridorNetwork()), {
+      G1: { trainNo: 'x', asOf: '2025-01-01', stops: ['甲', '丁'], km: { 甲: 0, 丁: 110 } },
+    });
+    const southRoute = south.resolveRecordRoute(record);
+    assert.deepEqual(southRoute.segIds, ['ac', 'cd']);
+    assert.equal(southRoute.via.by, 'mileage');
+    assert.equal(southRoute.via.confidence, 'high');
+  });
+
+  it('flags a nonstop without mileage as low confidence', () => {
+    const Routes = withStops(loadRoutes(corridorNetwork()), {
+      G1: { trainNo: 'x', asOf: '2025-01-01', stops: ['甲', '丁'] },
+    });
+    const route = Routes.resolveRecordRoute(record);
+    assert.deepEqual(route.segIds, ['ab', 'bd']);
+    assert.equal(route.via.by, 'shortest');
+    assert.equal(route.via.confidence, 'low');
+  });
+
+  it('refuses to judge when the record stations are not on the stop list', () => {
+    // 车次号跨运行图会被复用：站序里没有 甲/丁 就说明这不是当年那趟车，
+    // 必须退回最短路并标记低置信，绝不能拿别的车的经由套用。
+    const Routes = withStops(loadRoutes(corridorNetwork()), {
+      G1: { trainNo: 'x', asOf: '2025-01-01', stops: ['戊', '己', '庚'] },
+    });
+    const route = Routes.resolveRecordRoute(record);
+    assert.deepEqual(route.segIds, ['ab', 'bd']);
+    assert.equal(route.via.by, 'shortest');
+    assert.equal(route.via.confidence, 'low');
+  });
+
+  it('keeps judging when only an intermediate station is missing from the network', () => {
+    // 站序里出现未收录的站（缺线）不该否决整条判定：约束来自认得的站，
+    // 未收录的站名要写进 note，作为补线路清单的输入。
+    const Routes = withStops(loadRoutes(corridorNetwork()), {
+      G1: { trainNo: 'x', asOf: '2025-01-01', stops: ['甲', '乙', '未知站', '丁'] },
+    });
+    const route = Routes.resolveRecordRoute(record);
+    assert.deepEqual(route.segIds, ['ab', 'bd']);
+    assert.equal(route.via.by, 'stops');
+    assert.match(route.via.note, /未知站/);
+  });
+
+  it('slices the record segment out of the whole-train stop list', () => {
+    const sandbox = loadRoutes(corridorNetwork());
+    const entry = { stops: ['始发', '甲', '丙', '丁', '终到'] };
+    const seq = sandbox.TrainRoutes.viaStopSequence;
+    assert.deepEqual(seq(entry, '甲', '丁'), ['甲', '丙', '丁']);
+    assert.deepEqual(seq(entry, '丁', '甲'), ['丁', '丙', '甲']);
+    // 站序里没有的站、以及起终点同站，都判为不可用。
+    assert.equal(seq(entry, '甲', '不存在'), null);
+    assert.equal(seq(entry, '甲', '甲'), null);
+  });
+
+  it('routes a real record onto the corridor its stops belong to', () => {
+    // G7726 无锡→南京南 停 昆山南/苏州/无锡/常州/丹阳 —— 全是沪宁城际的站；
+    // 京沪高铁在同走廊停的是 苏州北/无锡东/丹阳北/镇江南，站名不同，不能混。
+    // 末段借京沪高铁经六摆渡进南京南是真实径路（该车接着转宁安城际），
+    // 所以断言的是"不得经过京沪高铁的并行停靠站"，而非"一段都不许上"。
+    const sandbox = loadWithStops();
+    const lines = sandbox.RAIL_ROUTE_DATA.lines;
+    const intercity = lines.find(l => l.name.indexOf('沪宁城际') >= 0
+      && l.name.indexOf('联络线') < 0);
+    assert.ok(intercity, '产物里应有沪宁城际本线');
+
+    const record = { from: '无锡', to: '南京南', train: 'G7726', date: '2023-10-02' };
+    const route = sandbox.TrainRoutes.resolveRecordRoute(record);
+    assert.ok(route);
+    assert.equal(route.via.by, 'stops');
+
+    const byId = {};
+    sandbox.RAIL_ROUTE_DATA.segments.forEach(s => { byId[s.id] = s; });
+    const nodeName = {};
+    sandbox.RAIL_ROUTE_DATA.nodes.forEach(n => { nodeName[n.id] = n.name; });
+    const passed = route.segIds.map(id => nodeName[byId[id].from])
+      .concat(nodeName[byId[route.segIds[route.segIds.length - 1]].to]);
+
+    for (const jinghuStop of ['无锡东', '苏州北', '丹阳北', '镇江南']) {
+      assert.ok(passed.indexOf(jinghuStop) < 0,
+        '沪宁城际的车不该停 ' + jinghuStop + '（京沪高铁站）');
+    }
+    assert.ok(passed.indexOf('常州') >= 0 && passed.indexOf('丹阳') >= 0,
+      '应经过沪宁城际的 常州/丹阳');
+
+    // 网络里程与官方累计里程差应在容差内（官方 311-126=185km）。
+    const entry = sandbox.TRAIN_STOPS.trains.G7726;
+    const official = entry.km['南京南'] - entry.km['无锡'];
+    assert.ok(Math.abs(route.km - official) / official < 0.08,
+      '里程偏差过大：网络 ' + route.km + ' vs 官方 ' + official);
+  });
+});

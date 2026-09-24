@@ -343,6 +343,7 @@
    "to": "cheng-du",
    "serviceDate": "1958-01-01",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -353,6 +354,18 @@
    "from": "hankou",
    "to": "dan-jiang",
    "serviceDate": "1966-01-01",
+   "trains": [
+    "emu",
+    "conv"
+   ]
+  },
+  {
+   "id": "hukun-bypass-hangzhou",
+   "name": "沪昆绕行线（钱塘江大桥）",
+   "batch": "F",
+   "from": "hang-zhou",
+   "to": "hang-zhou-nan",
+   "serviceDate": "1937-09-26",
    "trains": [
     "conv"
    ]
@@ -365,6 +378,7 @@
    "to": "shang-hai",
    "serviceDate": "1972-10-01",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -376,6 +390,7 @@
    "to": "huai-hua",
    "serviceDate": "1987-12-31",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -387,6 +402,7 @@
    "to": "guang-zhou",
    "serviceDate": "1957-10-15",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -398,6 +414,7 @@
    "to": "shang-hai",
    "serviceDate": "1968-09-30",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -409,6 +426,7 @@
    "to": "dong-guan-dong",
    "serviceDate": "1996-09-01",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -420,6 +438,7 @@
    "to": "xi-ning",
    "serviceDate": "1960-02-01",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -442,6 +461,7 @@
    "to": "lan-zhou",
    "serviceDate": "1953-07-15",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -453,6 +473,7 @@
    "to": "jiu-jiang",
    "serviceDate": "2017-12-28",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -464,6 +485,7 @@
    "to": "lu-shan",
    "serviceDate": "1990-10-01",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -475,6 +497,7 @@
    "to": "guang-an",
    "serviceDate": "1978-01-01",
    "trains": [
+    "emu",
     "conv"
    ]
   },
@@ -486,6 +509,7 @@
    "to": "an-kang",
    "serviceDate": "2001-10-01",
    "trains": [
+    "emu",
     "conv"
    ]
   }
@@ -16838,17 +16862,6 @@
    ]
   },
   {
-   "id": "hang-zhou",
-   "name": "杭州",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    120.17835,
-    30.24597
-   ]
-  },
-  {
    "id": "jia-xing",
    "name": "嘉兴",
    "aliases": [],
@@ -17462,6 +17475,50 @@
    "coord": [
     120.88785,
     30.84038
+   ]
+  },
+  {
+   "id": "hang-zhou",
+   "name": "杭州",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    120.17835,
+    30.24597
+   ]
+  },
+  {
+   "id": "nan-xing-qiao",
+   "name": "南星桥",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    120.16696,
+    30.21961
+   ]
+  },
+  {
+   "id": "qian-tang-jiang",
+   "name": "钱塘江",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    120.15491,
+    30.17973
+   ]
+  },
+  {
+   "id": "xiao-shan-xi",
+   "name": "萧山西",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    120.25176,
+    30.17191
    ]
   },
   {
@@ -32078,12 +32135,14 @@
    "to": "ying-ning",
    "lineIds": [
     "hukun-hsr",
-    "hanghuang-hsr"
+    "hanghuang-hsr",
+    "hukun-conventional"
    ],
    "trains": [
-    "emu"
+    "emu",
+    "conv"
    ],
-   "serviceDate": "2016-12-28",
+   "serviceDate": "1972-10-01",
    "estLengthKm": 9.62,
    "polyline": [
     [
@@ -38254,7 +38313,7 @@
     "emu"
    ],
    "serviceDate": "2014-12-26",
-   "estLengthKm": 50.83,
+   "estLengthKm": 50.86,
    "polyline": [
     [
      103.74928,
@@ -50101,6 +50160,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50157,6 +50217,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50197,6 +50258,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50229,6 +50291,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50273,6 +50336,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50305,6 +50369,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50329,6 +50394,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50361,6 +50427,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50389,6 +50456,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50417,6 +50485,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50445,6 +50514,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50473,6 +50543,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50497,6 +50568,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50521,6 +50593,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50565,6 +50638,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50589,6 +50663,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50621,6 +50696,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50665,6 +50741,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50701,6 +50778,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50749,6 +50827,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50777,6 +50856,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50805,6 +50885,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50833,6 +50914,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50869,6 +50951,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50897,6 +50980,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50933,6 +51017,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -50965,6 +51050,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51013,6 +51099,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51045,6 +51132,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51077,6 +51165,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51113,6 +51202,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51149,6 +51239,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51181,6 +51272,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51229,6 +51321,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51257,6 +51350,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51281,6 +51375,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51313,6 +51408,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51345,6 +51441,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51369,6 +51466,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51405,6 +51503,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51437,6 +51536,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51481,6 +51581,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51521,6 +51622,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51557,6 +51659,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51585,6 +51688,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51625,6 +51729,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51665,6 +51770,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51709,6 +51815,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51749,6 +51856,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51781,6 +51889,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51817,6 +51926,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51861,6 +51971,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51909,6 +52020,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -51953,6 +52065,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52001,6 +52114,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52045,6 +52159,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52081,6 +52196,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52125,6 +52241,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52153,6 +52270,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52201,6 +52319,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52233,6 +52352,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52257,6 +52377,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52329,6 +52450,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52353,6 +52475,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52381,6 +52504,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52413,6 +52537,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52441,6 +52566,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52473,6 +52599,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52501,6 +52628,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52549,6 +52677,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52613,6 +52742,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52653,6 +52783,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52681,6 +52812,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52713,6 +52845,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52737,6 +52870,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52773,6 +52907,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52809,6 +52944,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52857,6 +52993,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52889,6 +53026,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52933,6 +53071,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -52969,6 +53108,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53001,6 +53141,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53025,6 +53166,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53061,6 +53203,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53093,6 +53236,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53121,6 +53265,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53169,6 +53314,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53201,6 +53347,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53229,6 +53376,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53253,6 +53401,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53277,6 +53426,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53313,6 +53463,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53337,6 +53488,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53369,6 +53521,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53401,6 +53554,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53433,6 +53587,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53477,6 +53632,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53501,6 +53657,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53525,6 +53682,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53569,6 +53727,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53597,6 +53756,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53629,6 +53789,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53689,6 +53850,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53717,6 +53879,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53757,6 +53920,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53809,6 +53973,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53861,6 +54026,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53905,6 +54071,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53949,6 +54116,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -53977,6 +54145,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54009,6 +54178,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54045,6 +54215,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54069,6 +54240,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54097,6 +54269,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54121,6 +54294,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54161,6 +54335,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54201,6 +54376,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54229,6 +54405,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54277,6 +54454,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54313,6 +54491,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54349,6 +54528,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54381,6 +54561,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54425,6 +54606,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54453,6 +54635,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54477,6 +54660,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54501,6 +54685,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54525,6 +54710,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54557,6 +54743,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54581,6 +54768,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54625,6 +54813,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54661,6 +54850,7 @@
     "jinghu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1968-09-30",
@@ -54697,6 +54887,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -54725,6 +54916,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -54753,6 +54945,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -54781,6 +54974,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -54805,6 +54999,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -54837,6 +55032,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -54877,6 +55073,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -54905,6 +55102,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -54945,6 +55143,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -54985,6 +55184,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55021,6 +55221,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55057,6 +55258,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55085,6 +55287,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55141,6 +55344,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55165,6 +55369,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55189,6 +55394,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55225,6 +55431,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55249,6 +55456,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55273,6 +55481,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55309,6 +55518,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55341,6 +55551,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55373,6 +55584,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55405,6 +55617,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55437,6 +55650,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55481,6 +55695,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55513,6 +55728,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55541,6 +55757,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55565,6 +55782,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55589,6 +55807,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55621,6 +55840,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55673,6 +55893,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55705,6 +55926,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55737,6 +55959,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55773,6 +55996,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55813,6 +56037,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55845,6 +56070,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55889,6 +56115,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55917,6 +56144,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -55957,6 +56185,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56005,6 +56234,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56049,6 +56279,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56089,6 +56320,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56129,6 +56361,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56165,6 +56398,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56189,6 +56423,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56217,6 +56452,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56281,6 +56517,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56309,6 +56546,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56341,6 +56579,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56365,6 +56604,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56389,6 +56629,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56413,6 +56654,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56441,6 +56683,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56469,6 +56712,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56493,6 +56737,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56521,6 +56766,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56557,6 +56803,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56593,6 +56840,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56633,6 +56881,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56661,6 +56910,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56689,6 +56939,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56717,6 +56968,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56741,6 +56993,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56773,6 +57026,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56805,6 +57059,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56837,6 +57092,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56869,6 +57125,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56901,6 +57158,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56929,6 +57187,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56965,6 +57224,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -56989,6 +57249,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57013,6 +57274,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57041,6 +57303,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57081,6 +57344,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57109,6 +57373,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57145,6 +57410,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57185,6 +57451,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57233,6 +57500,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57265,6 +57533,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57301,6 +57570,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57353,6 +57623,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57409,6 +57680,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57445,6 +57717,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57481,6 +57754,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57513,6 +57787,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57541,6 +57816,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57569,6 +57845,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57597,6 +57874,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57649,6 +57927,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57677,6 +57956,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57733,6 +58013,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57769,6 +58050,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57809,6 +58091,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57873,6 +58156,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57913,6 +58197,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57941,6 +58226,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -57989,6 +58275,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58017,6 +58304,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58049,6 +58337,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58081,6 +58370,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58121,6 +58411,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58161,6 +58452,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58197,6 +58489,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58246,6 +58539,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58275,6 +58569,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58299,6 +58594,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58323,6 +58619,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58359,6 +58656,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58407,6 +58705,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58455,6 +58754,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58487,6 +58787,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58527,6 +58828,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58555,6 +58857,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58587,6 +58890,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58647,6 +58951,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58691,6 +58996,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58727,6 +59033,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58771,6 +59078,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58807,6 +59115,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58867,6 +59176,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58923,6 +59233,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -58971,6 +59282,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59027,6 +59339,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59059,6 +59372,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59091,6 +59405,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59135,6 +59450,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59195,6 +59511,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59247,6 +59564,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59291,6 +59609,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59363,6 +59682,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59391,6 +59711,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59431,6 +59752,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59475,6 +59797,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59523,6 +59846,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59559,6 +59883,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59591,6 +59916,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59647,6 +59973,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59671,6 +59998,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59695,6 +60023,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59723,6 +60052,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59755,6 +60085,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59783,6 +60114,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59823,6 +60155,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59859,6 +60192,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59887,6 +60221,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59911,6 +60246,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59951,6 +60287,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -59979,6 +60316,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60015,6 +60353,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60059,6 +60398,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60083,6 +60423,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60115,6 +60456,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60151,6 +60493,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60199,6 +60542,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60255,6 +60599,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60299,6 +60644,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60331,6 +60677,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60399,6 +60746,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60443,6 +60791,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60479,6 +60828,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60511,6 +60861,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60539,6 +60890,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60575,6 +60927,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60615,6 +60968,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60651,6 +61005,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60715,6 +61070,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60771,6 +61127,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60843,6 +61200,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60887,6 +61245,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -60963,6 +61322,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61019,6 +61379,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61083,6 +61444,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61131,6 +61493,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61187,6 +61550,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61235,6 +61599,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61287,6 +61652,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61331,6 +61697,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61407,6 +61774,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61467,6 +61835,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61519,6 +61888,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61543,6 +61913,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61575,6 +61946,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61627,6 +61999,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61667,6 +62040,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61719,6 +62093,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61771,6 +62146,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61847,6 +62223,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61887,6 +62264,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -61955,6 +62333,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62019,6 +62398,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62051,6 +62431,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62119,6 +62500,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62163,6 +62545,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62215,6 +62598,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62259,6 +62643,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62331,6 +62716,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62431,6 +62817,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62479,6 +62866,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62523,6 +62911,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62579,6 +62968,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62611,6 +63001,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62667,6 +63058,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62691,6 +63083,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62723,6 +63116,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62751,6 +63145,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62787,6 +63182,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62819,6 +63215,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62851,6 +63248,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62879,6 +63277,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62907,6 +63306,7 @@
     "jingguang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1957-10-15",
@@ -62939,6 +63339,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -62967,6 +63368,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -62991,6 +63393,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63023,6 +63426,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63055,6 +63459,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63083,6 +63488,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63123,6 +63529,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63147,6 +63554,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63175,6 +63583,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63211,6 +63620,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63239,6 +63649,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63263,6 +63674,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63287,6 +63699,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63315,6 +63728,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63343,6 +63757,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63375,6 +63790,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63407,6 +63823,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63443,6 +63860,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63471,6 +63889,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63495,6 +63914,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63523,6 +63943,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63547,6 +63968,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63575,6 +63997,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63599,6 +64022,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63631,6 +64055,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63659,6 +64084,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63683,6 +64109,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63707,6 +64134,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63731,6 +64159,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63759,6 +64188,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63791,6 +64221,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63839,6 +64270,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63879,6 +64311,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63915,6 +64348,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63947,6 +64381,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -63975,6 +64410,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64007,6 +64443,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64035,6 +64472,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64063,6 +64501,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64091,6 +64530,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64139,6 +64579,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64175,6 +64616,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64215,6 +64657,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64239,6 +64682,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64271,6 +64715,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64307,6 +64752,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64339,6 +64785,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64367,6 +64814,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64395,6 +64843,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64423,6 +64872,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64447,6 +64897,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64515,6 +64966,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64587,6 +65039,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64647,6 +65100,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64691,6 +65145,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64731,6 +65186,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64759,6 +65215,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64787,6 +65244,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64823,6 +65281,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64855,6 +65314,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64887,6 +65347,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64923,6 +65384,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -64983,6 +65445,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65027,6 +65490,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65063,6 +65527,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65127,6 +65592,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65163,6 +65629,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65211,6 +65678,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65251,6 +65719,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65307,6 +65776,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65347,6 +65817,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65383,6 +65854,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65427,6 +65899,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65495,6 +65968,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65535,6 +66009,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65563,6 +66038,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65607,6 +66083,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65635,6 +66112,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65659,6 +66137,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65707,6 +66186,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65751,6 +66231,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65799,6 +66280,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65851,6 +66333,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65931,6 +66414,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -65991,6 +66475,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66051,6 +66536,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66091,6 +66577,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66139,6 +66626,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66191,6 +66679,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66231,6 +66720,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66267,6 +66757,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66299,6 +66790,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66339,6 +66831,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66379,6 +66872,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66415,6 +66909,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66475,6 +66970,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66527,6 +67023,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66555,6 +67052,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66587,6 +67085,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66631,6 +67130,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66667,6 +67167,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66700,6 +67201,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66733,6 +67235,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66770,6 +67273,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66798,6 +67302,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66822,6 +67327,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66850,6 +67356,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66874,6 +67381,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66902,6 +67410,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66934,6 +67443,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66962,6 +67472,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -66986,6 +67497,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67018,6 +67530,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67054,6 +67567,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67086,6 +67600,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67114,6 +67629,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67158,6 +67674,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67202,6 +67719,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67234,6 +67752,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67274,6 +67793,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67310,6 +67830,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67350,6 +67871,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67374,6 +67896,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67406,6 +67929,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67454,6 +67978,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67490,6 +68015,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67550,6 +68076,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67606,6 +68133,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67646,6 +68174,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67678,6 +68207,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67702,6 +68232,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67746,6 +68277,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67822,6 +68354,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67898,6 +68431,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67934,6 +68468,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -67982,6 +68517,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68022,6 +68558,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68074,6 +68611,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68114,6 +68652,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68178,6 +68717,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68254,6 +68794,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68310,6 +68851,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68354,6 +68896,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68390,6 +68933,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68434,6 +68978,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68486,6 +69031,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68550,6 +69096,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68614,6 +69161,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68682,6 +69230,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68766,6 +69315,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68814,6 +69364,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68858,6 +69409,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68918,6 +69470,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -68978,6 +69531,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -69022,6 +69576,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -69078,6 +69633,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -69122,6 +69678,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -69162,6 +69719,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -69198,6 +69756,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -69266,6 +69825,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -69314,6 +69874,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -69362,6 +69923,7 @@
     "longhai-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1953-07-15",
@@ -72222,6 +72784,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72254,6 +72817,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72306,6 +72870,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72350,6 +72915,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72414,6 +72980,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72462,6 +73029,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72534,6 +73102,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72594,6 +73163,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72630,6 +73200,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72674,6 +73245,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72706,6 +73278,7 @@
     "lanqing-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1960-02-01",
@@ -72750,6 +73323,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -72786,6 +73360,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -72834,6 +73409,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -72882,6 +73458,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -72914,6 +73491,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -72970,6 +73548,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73022,6 +73601,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73078,6 +73658,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73142,6 +73723,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73186,6 +73768,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73218,6 +73801,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73266,6 +73850,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73302,6 +73887,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73334,6 +73920,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73382,6 +73969,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73438,6 +74026,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73482,6 +74071,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73526,6 +74116,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73566,6 +74157,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73606,6 +74198,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73646,6 +74239,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73686,6 +74280,7 @@
     "handan-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1966-01-01",
@@ -73750,6 +74345,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -73810,6 +74406,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -73854,6 +74451,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -73910,6 +74508,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -73954,6 +74553,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74010,6 +74610,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74062,6 +74663,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74118,6 +74720,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74174,6 +74777,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74250,6 +74854,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74310,6 +74915,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74354,6 +74960,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74398,6 +75005,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74446,6 +75054,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74478,6 +75087,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74502,6 +75112,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74534,6 +75145,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74578,6 +75190,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74618,6 +75231,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74675,6 +75289,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74719,6 +75334,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74763,6 +75379,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74831,6 +75448,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74875,6 +75493,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74919,6 +75538,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -74959,6 +75579,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75003,6 +75624,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75035,6 +75657,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75067,6 +75690,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75107,6 +75731,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75131,6 +75756,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75167,6 +75793,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75215,6 +75842,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75287,6 +75915,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75355,6 +75984,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75379,6 +76009,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75423,6 +76054,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75467,6 +76099,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75511,6 +76144,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75559,6 +76193,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75603,6 +76238,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75663,6 +76299,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75707,6 +76344,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75751,6 +76389,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75807,6 +76446,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75851,6 +76491,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75911,6 +76552,7 @@
     "xiangyu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1978-01-01",
@@ -75975,6 +76617,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76015,6 +76658,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76059,6 +76703,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76083,6 +76728,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76139,6 +76785,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76219,6 +76866,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76255,6 +76903,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76307,6 +76956,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76355,6 +77005,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76403,6 +77054,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76439,6 +77091,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76475,6 +77128,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76543,6 +77197,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76579,6 +77234,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76619,6 +77275,7 @@
     "xikang-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2001-10-01",
@@ -76683,6 +77340,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -76727,6 +77385,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -76787,6 +77446,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -76847,6 +77507,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -76903,6 +77564,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -76955,6 +77617,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77023,6 +77686,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77103,6 +77767,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77179,6 +77844,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77271,6 +77937,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77319,6 +77986,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77371,6 +78039,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77423,6 +78092,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77455,6 +78125,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77507,6 +78178,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77571,6 +78243,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77627,6 +78300,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77707,6 +78381,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77779,6 +78454,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77823,6 +78499,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77887,6 +78564,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -77947,6 +78625,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78011,6 +78690,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78063,6 +78743,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78111,6 +78792,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78191,6 +78873,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78247,6 +78930,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78331,6 +79015,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78399,6 +79084,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78431,6 +79117,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78483,6 +79170,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78543,6 +79231,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78579,6 +79268,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78667,6 +79357,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78719,6 +79410,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78767,6 +79459,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78811,6 +79504,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78839,6 +79533,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78903,6 +79598,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -78947,6 +79643,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79031,6 +79728,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79067,6 +79765,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79115,6 +79814,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79151,6 +79851,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79203,6 +79904,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79271,6 +79973,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79343,6 +80046,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79395,6 +80099,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79447,6 +80152,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79475,6 +80181,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79555,6 +80262,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79635,6 +80343,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79739,6 +80448,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79823,6 +80533,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79887,6 +80598,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79915,6 +80627,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79951,6 +80664,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -79987,6 +80701,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -80019,6 +80734,7 @@
     "baocheng-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1958-01-01",
@@ -80055,6 +80771,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80099,6 +80816,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80147,6 +80865,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80195,6 +80914,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80247,6 +80967,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80295,6 +81016,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80335,6 +81057,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80415,6 +81138,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80459,6 +81183,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80495,6 +81220,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80539,6 +81265,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80595,6 +81322,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80643,6 +81371,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80703,6 +81432,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80759,6 +81489,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80835,6 +81566,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80863,6 +81595,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80895,6 +81628,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80935,6 +81669,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -80971,6 +81706,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81007,6 +81743,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81035,6 +81772,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81067,6 +81805,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81107,6 +81846,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81175,6 +81915,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81219,6 +81960,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81271,6 +82013,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81315,6 +82058,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81371,6 +82115,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81407,6 +82152,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81455,6 +82201,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81491,6 +82238,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81551,6 +82299,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81583,6 +82332,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81631,6 +82381,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81663,6 +82414,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81707,6 +82459,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81747,6 +82500,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81783,6 +82537,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81819,6 +82574,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81843,6 +82599,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81875,6 +82632,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81903,6 +82661,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81943,6 +82702,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -81987,6 +82747,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82039,6 +82800,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82075,6 +82837,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82115,6 +82878,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82163,6 +82927,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82195,6 +82960,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82231,6 +82997,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82255,6 +83022,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82327,6 +83095,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82371,6 +83140,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82419,6 +83189,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82459,6 +83230,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82507,6 +83279,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82587,6 +83360,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82635,6 +83409,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82671,6 +83446,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82695,6 +83471,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82739,6 +83516,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82795,6 +83573,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82851,6 +83630,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82883,6 +83663,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -82975,6 +83756,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83027,6 +83809,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83075,6 +83858,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83147,6 +83931,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83211,6 +83996,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83287,6 +84073,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83339,6 +84126,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83383,6 +84171,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83423,6 +84212,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83487,6 +84277,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83535,6 +84326,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83571,6 +84363,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83611,6 +84404,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83651,6 +84445,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83703,6 +84498,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83759,6 +84555,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83819,6 +84616,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83863,6 +84661,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83903,6 +84702,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83927,6 +84727,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -83979,6 +84780,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84011,6 +84813,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84047,6 +84850,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84099,6 +84903,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84143,6 +84948,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84195,6 +85001,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84247,6 +85054,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84295,6 +85103,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84331,6 +85140,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84387,6 +85197,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84447,6 +85258,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84471,6 +85283,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84507,6 +85320,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84543,6 +85357,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84583,6 +85398,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84627,6 +85443,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84663,6 +85480,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84711,6 +85529,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84767,6 +85586,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84815,6 +85635,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84859,6 +85680,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84915,6 +85737,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -84955,6 +85778,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -85003,6 +85827,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -85051,6 +85876,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -85099,6 +85925,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -85143,6 +85970,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -85191,6 +86019,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -85239,6 +86068,7 @@
     "jiaoliu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1987-12-31",
@@ -85275,6 +86105,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85315,6 +86146,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85339,6 +86171,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85375,6 +86208,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85423,6 +86257,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85459,6 +86294,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85491,6 +86327,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85535,6 +86372,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85571,6 +86409,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85603,6 +86442,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85671,6 +86511,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85707,6 +86548,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85739,6 +86581,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85767,6 +86610,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85815,6 +86659,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85847,6 +86692,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85883,6 +86729,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85927,6 +86774,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -85991,6 +86839,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -86063,6 +86912,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -86107,6 +86957,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -86155,6 +87006,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -86223,6 +87075,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -86247,6 +87100,7 @@
     "wujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1990-10-01",
@@ -86295,6 +87149,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86363,6 +87218,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86403,6 +87259,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86439,6 +87296,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86479,6 +87337,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86515,6 +87374,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86567,6 +87427,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86631,6 +87492,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86707,6 +87569,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86791,6 +87654,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86839,6 +87703,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86919,6 +87784,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -86987,6 +87853,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -87047,6 +87914,7 @@
     "qujiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "2017-12-28",
@@ -87079,6 +87947,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87135,6 +88004,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87215,6 +88085,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87263,6 +88134,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87287,6 +88159,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87339,6 +88212,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87383,6 +88257,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87431,6 +88306,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87475,6 +88351,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87511,6 +88388,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87551,6 +88429,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87627,6 +88506,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87671,6 +88551,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87707,6 +88588,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87759,6 +88641,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87819,6 +88702,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87855,6 +88739,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87879,6 +88764,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87919,6 +88805,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -87991,6 +88878,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88031,6 +88919,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88075,6 +88964,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88111,6 +89001,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88155,6 +89046,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88211,6 +89103,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88251,6 +89144,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88303,6 +89197,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88351,6 +89246,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88399,6 +89295,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88471,6 +89368,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88523,6 +89421,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88587,6 +89486,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88627,6 +89527,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88679,6 +89580,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88735,6 +89637,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88795,6 +89698,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88859,6 +89763,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88887,6 +89792,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -88935,6 +89841,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89003,6 +89910,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89047,6 +89955,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89079,6 +89988,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89103,6 +90013,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89183,6 +90094,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89211,6 +90123,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89247,6 +90160,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89295,6 +90209,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89331,6 +90246,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89375,6 +90291,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89407,6 +90324,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89455,6 +90373,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89495,6 +90414,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89539,6 +90459,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89579,6 +90500,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89623,6 +90545,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89671,6 +90594,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89715,6 +90639,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89779,10 +90704,11 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 10.42,
+   "estLengthKm": 10.48,
    "polyline": [
     [
      120.25707,
@@ -89813,76 +90739,12 @@
      30.16306
     ],
     [
+     120.29006,
+     30.173
+    ],
+    [
      120.29108,
      30.17358
-    ]
-   ]
-  },
-  {
-   "id": "ying-ning-hang-zhou",
-   "name": "沪昆铁路（既有线）",
-   "from": "ying-ning",
-   "to": "hang-zhou",
-   "lineIds": [
-    "hukun-conventional"
-   ],
-   "trains": [
-    "conv"
-   ],
-   "serviceDate": "1972-10-01",
-   "estLengthKm": 13.66,
-   "polyline": [
-    [
-     120.26663,
-     30.22794
-    ],
-    [
-     120.25986,
-     30.24194
-    ],
-    [
-     120.25299,
-     30.26145
-    ],
-    [
-     120.21716,
-     30.28259
-    ],
-    [
-     120.17835,
-     30.24597
-    ]
-   ]
-  },
-  {
-   "id": "hang-zhou-hang-zhou-dong",
-   "name": "沪昆铁路（既有线）",
-   "from": "hang-zhou",
-   "to": "hang-zhou-dong",
-   "lineIds": [
-    "hukun-conventional"
-   ],
-   "trains": [
-    "conv"
-   ],
-   "serviceDate": "1972-10-01",
-   "estLengthKm": 7.03,
-   "polyline": [
-    [
-     120.17835,
-     30.24597
-    ],
-    [
-     120.21716,
-     30.28259
-    ],
-    [
-     120.2122,
-     30.29032
-    ],
-    [
-     120.2082,
-     30.29355
     ]
    ]
   },
@@ -89895,6 +90757,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89927,6 +90790,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89971,6 +90835,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -89999,6 +90864,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90035,6 +90901,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90063,6 +90930,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90115,6 +90983,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90155,6 +91024,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90183,6 +91053,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90211,6 +91082,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90239,6 +91111,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90263,6 +91136,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90295,6 +91169,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90355,6 +91230,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90395,6 +91271,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90431,6 +91308,7 @@
     "hukun-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1972-10-01",
@@ -90467,6 +91345,166 @@
    ]
   },
   {
+   "id": "hang-zhou-nan-xing-qiao",
+   "name": "沪昆绕行线（钱塘江大桥）",
+   "from": "hang-zhou",
+   "to": "nan-xing-qiao",
+   "lineIds": [
+    "hukun-bypass-hangzhou"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1937-09-26",
+   "estLengthKm": 3.24,
+   "polyline": [
+    [
+     120.17835,
+     30.24597
+    ],
+    [
+     120.17301,
+     30.23816
+    ],
+    [
+     120.1725,
+     30.22768
+    ],
+    [
+     120.16696,
+     30.21961
+    ]
+   ]
+  },
+  {
+   "id": "nan-xing-qiao-qian-tang-jiang",
+   "name": "沪昆绕行线（钱塘江大桥）",
+   "from": "nan-xing-qiao",
+   "to": "qian-tang-jiang",
+   "lineIds": [
+    "hukun-bypass-hangzhou"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1937-09-26",
+   "estLengthKm": 8.14,
+   "polyline": [
+    [
+     120.16696,
+     30.21961
+    ],
+    [
+     120.16311,
+     30.21569
+    ],
+    [
+     120.153,
+     30.20988
+    ],
+    [
+     120.13475,
+     30.20701
+    ],
+    [
+     120.13109,
+     30.20272
+    ],
+    [
+     120.14216,
+     30.18235
+    ],
+    [
+     120.14759,
+     30.18027
+    ],
+    [
+     120.15491,
+     30.17973
+    ]
+   ]
+  },
+  {
+   "id": "qian-tang-jiang-xiao-shan-xi",
+   "name": "沪昆绕行线（钱塘江大桥）",
+   "from": "qian-tang-jiang",
+   "to": "xiao-shan-xi",
+   "lineIds": [
+    "hukun-bypass-hangzhou"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1937-09-26",
+   "estLengthKm": 9.76,
+   "polyline": [
+    [
+     120.15491,
+     30.17973
+    ],
+    [
+     120.24047,
+     30.17693
+    ],
+    [
+     120.25176,
+     30.17191
+    ]
+   ]
+  },
+  {
+   "id": "xiao-shan-xi-hang-zhou-nan",
+   "name": "沪昆绕行线（钱塘江大桥）",
+   "from": "xiao-shan-xi",
+   "to": "hang-zhou-nan",
+   "lineIds": [
+    "hukun-bypass-hangzhou"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1937-09-26",
+   "estLengthKm": 6.25,
+   "polyline": [
+    [
+     120.25176,
+     30.17191
+    ],
+    [
+     120.25968,
+     30.16938
+    ],
+    [
+     120.26561,
+     30.16878
+    ],
+    [
+     120.26841,
+     30.16991
+    ],
+    [
+     120.27607,
+     30.18338
+    ],
+    [
+     120.28232,
+     30.18805
+    ],
+    [
+     120.28475,
+     30.18819
+    ],
+    [
+     120.28711,
+     30.18689
+    ],
+    [
+     120.29108,
+     30.17358
+    ]
+   ]
+  },
+  {
    "id": "ba-zhou-wen-an",
    "name": "京九铁路",
    "from": "ba-zhou",
@@ -90475,6 +91513,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90539,6 +91578,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90587,6 +91627,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90639,6 +91680,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90663,6 +91705,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90699,6 +91742,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90731,6 +91775,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90779,6 +91824,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90811,6 +91857,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90855,6 +91902,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90895,6 +91943,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90931,6 +91980,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -90971,6 +92021,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91011,6 +92062,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91043,6 +92095,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91079,6 +92132,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91119,6 +92173,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91175,6 +92230,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91219,6 +92275,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91259,6 +92316,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91295,6 +92353,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91343,6 +92402,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91375,6 +92435,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91419,6 +92480,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91455,6 +92517,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91499,6 +92562,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91547,6 +92611,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91579,6 +92644,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91639,6 +92705,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91675,6 +92742,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91723,6 +92791,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91763,6 +92832,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91803,6 +92873,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91843,6 +92914,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91887,6 +92959,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91931,6 +93004,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91967,6 +93041,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -91999,6 +93074,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92047,6 +93123,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92079,6 +93156,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92131,6 +93209,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92191,6 +93270,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92235,6 +93315,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92283,6 +93364,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92343,6 +93425,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92383,6 +93466,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92427,6 +93511,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92475,6 +93560,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92531,6 +93617,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92575,6 +93662,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92627,6 +93715,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92687,6 +93776,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92751,6 +93841,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92787,6 +93878,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92823,6 +93915,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92871,6 +93964,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -92935,6 +94029,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93027,6 +94122,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93059,6 +94155,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93111,6 +94208,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93159,6 +94257,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93211,6 +94310,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93279,6 +94379,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93327,6 +94428,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93379,6 +94481,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93427,6 +94530,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93467,6 +94571,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93535,6 +94640,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93607,6 +94713,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93655,6 +94762,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93695,6 +94803,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93719,6 +94828,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93751,6 +94861,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93783,6 +94894,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93847,6 +94959,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93907,6 +95020,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -93955,6 +95069,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94007,6 +95122,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94067,6 +95183,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94119,6 +95236,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94195,6 +95313,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94247,6 +95366,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94307,6 +95427,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94359,6 +95480,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94411,6 +95533,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94451,6 +95574,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94523,6 +95647,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94587,6 +95712,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94631,6 +95757,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94727,6 +95854,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94807,6 +95935,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94847,6 +95976,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94919,6 +96049,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -94967,6 +96098,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95039,6 +96171,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95091,6 +96224,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95127,6 +96261,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95167,6 +96302,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95211,6 +96347,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95279,6 +96416,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95347,6 +96485,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95403,6 +96542,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95455,6 +96595,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95547,6 +96688,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95611,6 +96753,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95679,6 +96822,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95751,6 +96895,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95795,6 +96940,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95875,6 +97021,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -95991,6 +97138,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96035,6 +97183,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96079,6 +97228,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96107,6 +97257,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96171,6 +97322,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96251,6 +97403,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96315,6 +97468,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96351,6 +97505,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96431,6 +97586,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96487,6 +97643,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96539,6 +97696,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96595,6 +97753,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96659,6 +97818,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96731,6 +97891,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96775,6 +97936,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96815,6 +97977,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96843,6 +98006,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",
@@ -96879,6 +98043,7 @@
     "jingjiu-conventional"
    ],
    "trains": [
+    "emu",
     "conv"
    ],
    "serviceDate": "1996-09-01",

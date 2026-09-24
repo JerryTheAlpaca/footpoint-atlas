@@ -133,11 +133,12 @@
     return seg.serviceDate <= date;
   }
 
-  function buildAdjacency(maps, date, kind) {
+  function buildAdjacency(maps, date, kind, allowSeg) {
     var adj = {};
     for (var i = 0; i < maps.list.length; i++) {
       var seg = maps.list[i];
       if (!segmentUsable(seg, date, kind)) continue;
+      if (allowSeg && !allowSeg(seg)) continue;
       (adj[seg.from] = adj[seg.from] || []).push(seg);
       (adj[seg.to] = adj[seg.to] || []).push(seg);
     }
@@ -205,8 +206,10 @@
   // date：行程日期；晚于开通日（serviceDate）的区段不参与寻径，
   // 避免历史记录"提前"用上尚未开通的线路（如 2020 年记录走 2024
   // 年开通的池黄高铁）。kind：列车类别；不承接该类别的区段同样不参与。
-  function shortestPath(fromId, toId, maps, date, kind) {
-    var adj = buildAdjacency(maps, date, kind);
+  // allowSeg：可选谓词，用于把寻径限制在某条走廊内（枚举并行径路时
+  // 逐条禁用线路）。
+  function shortestPath(fromId, toId, maps, date, kind, allowSeg) {
+    var adj = buildAdjacency(maps, date, kind, allowSeg);
     var dist = {};
     var prevSeg = {};
     var prevNode = {};
@@ -299,7 +302,215 @@
     return points.length >= 2 ? points : null;
   }
 
-  // —— 单条记录解析：人工覆盖优先，否则自动寻径；不可达返回 null ——
+  // —— 车次经由判定 ——
+  // 两站之间常有多条并行线（南京南—上海虹桥 就有 京沪高铁 / 沪宁城际 /
+  // 沪宁沿江，还能绕 宁杭+沪杭），单纯按里程取最短会在并行走廊里瞎选。
+  // 停靠站序列能直接判出走廊：并行走廊的中间站几乎不相交（京沪高铁停
+  // 苏州北/无锡东，沪宁城际停 苏州/无锡，沪宁沿江停 金坛/武进/张家港）。
+  // 一站直达没有中间站可判，改用官方累计里程匹配（南京南—上海虹桥 的
+  // 京沪高铁 295km / 沪宁城际 311km / 沪宁沿江 333km 各成一簇，簇间距
+  // 远大于误差）。都判不出才退回全网最短路，并标记低置信。
+  // 站序数据见 js/train-stops.js，由 tools/fetch_train_stops.py 抓取。
+
+  // 枚举并行走廊时，替代径路里程超过最短径路这个倍数就不算候选。
+  var CORRIDOR_RATIO = 1.3;
+  // 判定里程与官方里程的容差，超出即降为低置信。
+  var KM_TOLERANCE = 0.08;
+
+  function trainStopEntry(record) {
+    var source = root.TRAIN_STOPS;
+    if (!source || !source.trains || !record) return null;
+    var entry = source.trains[String(record.train || '').trim()];
+    if (!entry || !entry.stops || entry.stops.length < 2) return null;
+    return entry;
+  }
+
+  // 记录区段在本车次全程站序中的子序列，按行进方向排列。
+  // from/to 有一个不在站序里就返回 null：车次号跨运行图会被复用，站序
+  // 对不上说明抓到的不是记录当年那趟车，宁可退回最短路也不能判错线。
+  function viaStopSequence(entry, fromName, toName) {
+    var list = entry.stops;
+    var i = list.indexOf(fromName);
+    var j = list.indexOf(toName);
+    if (i < 0 || j < 0 || i === j) return null;
+    return j < i ? list.slice(j, i + 1).reverse() : list.slice(i, j + 1);
+  }
+
+  // 记录区段的官方累计里程差（km）。缺任一端的里程则返回 null。
+  function viaDistanceKm(entry, fromName, toName) {
+    var table = entry.km || {};
+    var a = table[fromName];
+    var b = table[toName];
+    if (typeof a !== 'number' || typeof b !== 'number') return null;
+    return Math.abs(b - a);
+  }
+
+  function pathKm(segIds, maps) {
+    var km = 0;
+    for (var i = 0; i < segIds.length; i++) {
+      km += Number(maps.byId[segIds[i]].estLengthKm) || 0;
+    }
+    return km;
+  }
+
+  // 逐站链接：相邻停靠站优先取直连区段（多数情况就是一站一区间），
+  // 没有直连才在这一跳上跑 Dijkstra。任一跳不通即失败并给出断点。
+  function chainViaStops(viaNodes, maps, date, kind) {
+    var segIds = [];
+    for (var i = 1; i < viaNodes.length; i++) {
+      var a = viaNodes[i - 1];
+      var b = viaNodes[i];
+      var direct = maps.byPair[a.id + '|' + b.id];
+      var step = null;
+      if (direct && segmentUsable(direct, date, kind)) {
+        step = [direct.id];
+      } else {
+        var path = shortestPath(a.id, b.id, maps, date, kind);
+        step = path ? path.segIds : null;
+      }
+      if (!step) return { gap: [a.name, b.name] };
+      segIds = segIds.concat(step);
+    }
+    if (!segIds.length) return { gap: [viaNodes[0].name, viaNodes[1].name] };
+    return { segIds: segIds };
+  }
+
+  // 枚举并行走廊：反复禁用当前解用到的线路再求最短路，收集里程可比的
+  // 替代径路。用于一站直达、没有中间站可判的情形。
+  function corridorCandidates(fromId, toId, maps, date, kind) {
+    var best = shortestPath(fromId, toId, maps, date, kind);
+    if (!best) return [];
+    var bestKm = pathKm(best.segIds, maps);
+    var seen = {};
+    seen[best.segIds.join('>')] = true;
+    var out = [{ segIds: best.segIds, km: bestKm }];
+    var lineIds = {};
+    for (var i = 0; i < best.segIds.length; i++) {
+      var ids = maps.byId[best.segIds[i]].lineIds || [];
+      for (var j = 0; j < ids.length; j++) lineIds[ids[j]] = true;
+    }
+    Object.keys(lineIds).forEach(function (lineId) {
+      var alt = shortestPath(fromId, toId, maps, date, kind, function (seg) {
+        return (seg.lineIds || []).indexOf(lineId) < 0;
+      });
+      if (!alt) return;
+      var km = pathKm(alt.segIds, maps);
+      if (km > bestKm * CORRIDOR_RATIO) return;
+      var key = alt.segIds.join('>');
+      if (seen[key]) return;
+      seen[key] = true;
+      out.push({ segIds: alt.segIds, km: km });
+    });
+    return out;
+  }
+
+  // 经由判定。成功返回 { segIds, km, by, officialKm, confidence, note }；
+  // 判不出返回 { reason, unknown }——reason 同时就是缺线报告，指出网络里
+  // 少了哪一段，是后续补线路清单的输入。
+  // by 取值：stops 由中间停靠站判定 / mileage 由里程在多走廊中判定 /
+  // unique 网络里只有一条走廊 / shortest 多走廊但无里程，退回最短。
+  function resolveVia(record, maps, kind) {
+    var fromName = String((record && record.from) || '').trim();
+    var toName = String((record && record.to) || '').trim();
+    var entry = trainStopEntry(record);
+    if (!entry) return { reason: '无站序数据' };
+    var seq = viaStopSequence(entry, fromName, toName);
+    if (!seq) return { reason: '站序对不上（车次可能已改号或停运）' };
+    var fromNode = nodeByName(fromName);
+    var toNode = nodeByName(toName);
+    if (!fromNode || !toNode) return { reason: '区段两端不在网络里' };
+
+    // 站序里网络不认识的站（尚未收录的线）跳过但记下来，它们正是缺线
+    // 线索。跳过不影响判定：约束来自认得的那些站的先后顺序。
+    var viaNodes = [fromNode];
+    var unknown = [];
+    for (var i = 1; i < seq.length - 1; i++) {
+      var node = nodeByName(seq[i]);
+      if (node) viaNodes.push(node);
+      else unknown.push(seq[i]);
+    }
+    viaNodes.push(toNode);
+
+    var officialKm = viaDistanceKm(entry, fromName, toName);
+    var segIds;
+    var by;
+    if (viaNodes.length > 2) {
+      var chained = chainViaStops(viaNodes, maps, record.date, kind);
+      if (chained.gap) {
+        return {
+          reason: '缺线：' + chained.gap[0] + '→' + chained.gap[1] + ' 之间无通路',
+          unknown: unknown,
+        };
+      }
+      segIds = chained.segIds;
+      by = 'stops';
+    } else {
+      var candidates = corridorCandidates(fromNode.id, toNode.id, maps,
+        record.date, kind);
+      if (!candidates.length) return { reason: '两站之间无通路', unknown: unknown };
+      var pick = candidates[0];
+      if (candidates.length === 1) {
+        by = 'unique';
+      } else if (officialKm === null) {
+        by = 'shortest';
+      } else {
+        by = 'mileage';
+        for (var c = 1; c < candidates.length; c++) {
+          if (Math.abs(candidates[c].km - officialKm) <
+            Math.abs(pick.km - officialKm)) pick = candidates[c];
+        }
+      }
+      segIds = pick.segIds;
+    }
+
+    var km = pathKm(segIds, maps);
+    var notes = [];
+    var confidence = 'high';
+    if (by === 'shortest') {
+      confidence = 'low';
+      notes.push('一站直达且无官方里程，按最短径路');
+    }
+    if (officialKm !== null) {
+      var dev = Math.abs(km - officialKm) / officialKm;
+      if (dev > KM_TOLERANCE) {
+        confidence = 'low';
+        notes.push('里程与官方差 ' + Math.round(dev * 100) + '%');
+      }
+    }
+    if (unknown.length) notes.push('站序中未收录：' + unknown.join('/'));
+    return {
+      segIds: segIds,
+      km: km,
+      by: by,
+      officialKm: officialKm,
+      confidence: confidence,
+      note: notes.length ? notes.join('；') : null,
+    };
+  }
+
+  // 经由判定汇总：逐条记录给出判定方式或失败原因，是补线路清单的输入。
+  function viaDiagnostics(records) {
+    var maps = segmentMaps();
+    var out = [];
+    if (!maps) return out;
+    var overrides = (routeData() || {}).overrides;
+    var list = records || [];
+    for (var i = 0; i < list.length; i++) {
+      var record = list[i];
+      var kind = recordKind(record);
+      if (matchOverride(record, overrides, maps, kind)) {
+        out.push({ record: record, by: 'override', confidence: 'high' });
+        continue;
+      }
+      var judged = resolveVia(record, maps, kind);
+      out.push(judged.segIds
+        ? { record: record, by: judged.by, confidence: judged.confidence, note: judged.note }
+        : { record: record, by: 'shortest', confidence: 'low', note: judged.reason });
+    }
+    return out;
+  }
+
+  // —— 单条记录解析：人工覆盖 → 车次经由 → 全网最短路；不可达返回 null ——
   function resolveRecordRoute(record) {
     var maps = segmentMaps();
     if (!maps || !record) return null;
@@ -310,21 +521,30 @@
     var toNode = nodeByName(toName);
 
     var segIds = matchOverride(record, (routeData() || {}).overrides, maps, kind);
+    var via = segIds ? { by: 'override', confidence: 'high', note: null } : null;
     if (!segIds) {
-      if (!fromNode || !toNode) return null;
-      var path = shortestPath(fromNode.id, toNode.id, maps, record.date, kind);
-      if (!path) return null;
-      segIds = path.segIds;
+      var judged = resolveVia(record, maps, kind);
+      if (judged.segIds) {
+        segIds = judged.segIds;
+        via = { by: judged.by, confidence: judged.confidence, note: judged.note };
+      } else {
+        if (!fromNode || !toNode) return null;
+        var path = shortestPath(fromNode.id, toNode.id, maps, record.date, kind);
+        if (!path) return null;
+        segIds = path.segIds;
+        via = { by: 'shortest', confidence: 'low', note: judged.reason };
+      }
     }
     // 首段按行进起点定向：自动寻径与人工覆盖都可能以反方向存储，
     // 不校验会让动画从折线存储起点出发先反向跑（可见折返）。
     var points = stitchPolyline(segIds, maps, fromNode ? fromNode.coord : null);
     if (!points) return null;
-    var km = 0;
-    for (var i = 0; i < segIds.length; i++) {
-      km += Number(maps.byId[segIds[i]].estLengthKm) || 0;
-    }
-    return { segIds: segIds, points: points, km: Math.round(km * 100) / 100 };
+    return {
+      segIds: segIds,
+      points: points,
+      km: Math.round(pathKm(segIds, maps) * 100) / 100,
+      via: via,
+    };
   }
 
   // —— 最小物理区段聚合：方向无关，正反向共同累计 ——
@@ -400,6 +620,9 @@
     segmentAllowsKind: segmentAllowsKind,
     nodeByName: nodeByName,
     stationCoord: stationCoord,
+    viaStopSequence: viaStopSequence,
+    resolveVia: resolveVia,
+    viaDiagnostics: viaDiagnostics,
     resolveRecordRoute: resolveRecordRoute,
     aggregateSegments: aggregateSegments,
     mileageSummary: mileageSummary,
