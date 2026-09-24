@@ -19,7 +19,8 @@
   var DEFAULT_GEO_CENTER_COMPACT = [104.2, 34.0];
   var DEFAULT_GEO_ZOOM = 1.45;
   var GEO_ZOOM_MIN = 0.8;
-  var GEO_ZOOM_MAX = 100;
+  // 只兜住手动缩放；播放动画的 zoom 由 tripPlayGeoView 的 55/span 决定，峰值本就是 100。
+  var GEO_ZOOM_MAX = 500;
   var charts = [];
   var rankLayouts = [];
   var mapChart;

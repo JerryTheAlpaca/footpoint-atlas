@@ -29,7 +29,7 @@ describe('buildGeoOption', () => {
     const geo = buildGeoOption();
 
     assert.equal(geo.scaleLimit.min, 0.8);
-    assert.equal(geo.scaleLimit.max, 100);
+    assert.equal(geo.scaleLimit.max, 500);
   });
 
   it('keeps the current view so later setOption calls do not reset user zoom', () => {
