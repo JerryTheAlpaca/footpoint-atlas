@@ -450,15 +450,14 @@ describe('pilot corridor counts', () => {
     }
   });
 
-  it('covers 36 of 37 records and reports the rest as fallback', () => {
+  it('covers all 37 records with a real path', () => {
     const { TrainRoutes } = loadRoutes();
     const data = loadData();
     const coverage = TrainRoutes.coverageSummary(data.records);
     assert.equal(coverage.total, 37);
-    // 批次 F 普速干线并入后，Z45/K146/K148 也有实际路径；唯一未覆盖的
-    // 是 K1352 西宁→西安：兰州站—河口南 在 OSM 断开约 8.8km，接它要扩
-    // 无名线提取框到 兰州西（高铁场），会改动已验收的高铁几何。
-    assert.equal(coverage.matched, 36);
+    // 批次 F 补上 兰州西—兰州（借 陇海线 引入段）与 大旬联络线 后，
+    // 最后一条不通的 K1352 西宁→西安 也出了实际路径。
+    assert.equal(coverage.matched, 37);
   });
 
   it('counts direction-agnostic usage and keeps record references', () => {
@@ -478,16 +477,36 @@ describe('pilot corridor counts', () => {
     const data = loadData();
     const summary = TrainRoutes.mileageSummary(data.records);
     assert.equal(summary.total, 37);
-    assert.equal(summary.covered, 36);
+    assert.equal(summary.covered, 37);
     assert.ok(summary.totalKm > 0);
-    // 未覆盖仅剩 K1352（兰州枢纽断档）；动车 33 条全覆盖。
     assert.equal(summary.uncoveredEmu, 0);
-    assert.equal(summary.uncoveredConv, 1);
+    assert.equal(summary.uncoveredConv, 0);
     const onlyPilot = TrainRoutes.mileageSummary(pilotRecords());
     assert.equal(onlyPilot.covered, 11);
     assert.ok(onlyPilot.totalKm > 0);
     // 宁蓉走廊里程是全国总量的一部分（试点结果保持不变）。
     assert.ok(onlyPilot.totalKm < summary.totalKm);
+  });
+
+  it('keeps K146/K148 within a percent of the timetable mileage', () => {
+    // 旬阳北 走 大旬联络线 之后，西安—安康 一段才补满：官方 966km，
+    // 缺 旬阳北 时网络只给 941km（−2.5%），补上后 959km（−0.7%）。
+    // 两向同里程是对的——K146 不停 旬阳北 但径路相同，停站不改走廊。
+    const sandbox = loadRoutes();
+    loadScript(sandbox, 'train-stops.js');
+    const TrainRoutes = sandbox.TrainRoutes;
+    for (const rec of [
+      { from: '武昌', to: '西安', train: 'K146', date: '2026-04-29' },
+      { from: '西安', to: '武昌', train: 'K148', date: '2026-05-03' },
+    ]) {
+      const route = TrainRoutes.resolveRecordRoute(rec);
+      assert.ok(route, rec.train + ' 不可达');
+      assert.equal(route.via.by, 'stops');
+      assert.ok(Math.abs(route.km - 966) / 966 < 0.01,
+        rec.train + ' 里程 ' + route.km + ' 与官方 966km 差超 1%');
+      const stops = route.segIds.join('>');
+      assert.ok(/xun-yang-bei/.test(stops), rec.train + ' 未经 旬阳北');
+    }
   });
 });
 

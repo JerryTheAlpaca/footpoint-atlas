@@ -992,13 +992,14 @@
    "id": "lanxin-conventional",
    "name": "兰新铁路（既有线）",
    "batch": "F",
-   "from": "he-kou-nan",
+   "from": "lan-zhou",
    "to": "liu-yuan",
    "serviceDate": "1962-12-09",
    "trains": [
     "conv"
    ],
    "stops": [
+    "lan-zhou",
     "he-kou-nan",
     "yong-deng",
     "wu-wei",
@@ -1160,6 +1161,7 @@
     "zha-shui",
     "zhen-an",
     "xiao-he-zhen",
+    "xun-yang-bei",
     "an-kang"
    ]
   }
@@ -13871,6 +13873,39 @@
    ]
   },
   {
+   "id": "xi-gu",
+   "name": "西固",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    103.60191,
+    36.10436
+   ]
+  },
+  {
+   "id": "fu-li-qu",
+   "name": "福利区",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    103.6256,
+    36.0962
+   ]
+  },
+  {
+   "id": "po-di-xia",
+   "name": "坡底下",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    103.51309,
+    36.13741
+   ]
+  },
+  {
    "id": "shi-men-he",
    "name": "石门河",
    "aliases": [],
@@ -13890,6 +13925,17 @@
    "coord": [
     103.40342,
     36.34593
+   ]
+  },
+  {
+   "id": "chen-guan-ying",
+   "name": "陈官营",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    103.66175,
+    36.08548
    ]
   },
   {
@@ -13959,6 +14005,17 @@
    ]
   },
   {
+   "id": "xi-gu-cheng",
+   "name": "西固城",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    103.5954,
+    36.10778
+   ]
+  },
+  {
    "id": "wu-wei-nan",
    "name": "武威南",
    "aliases": [],
@@ -13978,6 +14035,28 @@
    "coord": [
     102.06023,
     38.37355
+   ]
+  },
+  {
+   "id": "liu-jia-ying",
+   "name": "柳家营",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    103.73916,
+    36.06884
+   ]
+  },
+  {
+   "id": "lan-zhou-dong-chuan",
+   "name": "兰州东川",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    103.48636,
+    36.16611
    ]
   },
   {
@@ -15078,6 +15157,17 @@
    "coord": [
     109.1519,
     33.11439
+   ]
+  },
+  {
+   "id": "xun-yang-bei",
+   "name": "旬阳北",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    109.29284,
+    32.84209
    ]
   },
   {
@@ -72483,6 +72573,302 @@
    ]
   },
   {
+   "id": "lan-zhou-lan-zhou-xi",
+   "name": "兰新铁路（既有线）",
+   "from": "lan-zhou",
+   "to": "lan-zhou-xi",
+   "lineIds": [
+    "lanxin-conventional"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1962-12-09",
+   "estLengthKm": 10.16,
+   "polyline": [
+    [
+     103.84851,
+     36.03418
+    ],
+    [
+     103.82306,
+     36.04064
+    ],
+    [
+     103.80784,
+     36.05727
+    ],
+    [
+     103.74928,
+     36.06758
+    ]
+   ]
+  },
+  {
+   "id": "lan-zhou-xi-liu-jia-ying",
+   "name": "兰新铁路（既有线）",
+   "from": "lan-zhou-xi",
+   "to": "liu-jia-ying",
+   "lineIds": [
+    "lanxin-conventional"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1962-12-09",
+   "estLengthKm": 0.93,
+   "polyline": [
+    [
+     103.74928,
+     36.06758
+    ],
+    [
+     103.73916,
+     36.06884
+    ]
+   ]
+  },
+  {
+   "id": "liu-jia-ying-chen-guan-ying",
+   "name": "兰新铁路（既有线）",
+   "from": "liu-jia-ying",
+   "to": "chen-guan-ying",
+   "lineIds": [
+    "lanxin-conventional"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1962-12-09",
+   "estLengthKm": 7.37,
+   "polyline": [
+    [
+     103.73916,
+     36.06884
+    ],
+    [
+     103.7075,
+     36.0708
+    ],
+    [
+     103.68801,
+     36.07809
+    ],
+    [
+     103.67342,
+     36.08018
+    ],
+    [
+     103.66175,
+     36.08548
+    ]
+   ]
+  },
+  {
+   "id": "chen-guan-ying-fu-li-qu",
+   "name": "兰新铁路（既有线）",
+   "from": "chen-guan-ying",
+   "to": "fu-li-qu",
+   "lineIds": [
+    "lanxin-conventional"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1962-12-09",
+   "estLengthKm": 3.47,
+   "polyline": [
+    [
+     103.66175,
+     36.08548
+    ],
+    [
+     103.6256,
+     36.0962
+    ]
+   ]
+  },
+  {
+   "id": "fu-li-qu-xi-gu",
+   "name": "兰新铁路（既有线）",
+   "from": "fu-li-qu",
+   "to": "xi-gu",
+   "lineIds": [
+    "lanxin-conventional"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1962-12-09",
+   "estLengthKm": 2.32,
+   "polyline": [
+    [
+     103.6256,
+     36.0962
+    ],
+    [
+     103.60191,
+     36.10436
+    ]
+   ]
+  },
+  {
+   "id": "xi-gu-xi-gu-cheng",
+   "name": "兰新铁路（既有线）",
+   "from": "xi-gu",
+   "to": "xi-gu-cheng",
+   "lineIds": [
+    "lanxin-conventional"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1962-12-09",
+   "estLengthKm": 0.7,
+   "polyline": [
+    [
+     103.60191,
+     36.10436
+    ],
+    [
+     103.5954,
+     36.10778
+    ]
+   ]
+  },
+  {
+   "id": "xi-gu-cheng-po-di-xia",
+   "name": "兰新铁路（既有线）",
+   "from": "xi-gu-cheng",
+   "to": "po-di-xia",
+   "lineIds": [
+    "lanxin-conventional"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1962-12-09",
+   "estLengthKm": 9.71,
+   "polyline": [
+    [
+     103.5954,
+     36.10778
+    ],
+    [
+     103.58337,
+     36.11379
+    ],
+    [
+     103.57335,
+     36.11564
+    ],
+    [
+     103.56973,
+     36.11498
+    ],
+    [
+     103.55994,
+     36.10922
+    ],
+    [
+     103.55065,
+     36.10845
+    ],
+    [
+     103.53897,
+     36.11277
+    ],
+    [
+     103.53546,
+     36.11609
+    ],
+    [
+     103.53158,
+     36.12291
+    ],
+    [
+     103.52849,
+     36.13324
+    ],
+    [
+     103.52544,
+     36.13605
+    ],
+    [
+     103.52267,
+     36.13754
+    ],
+    [
+     103.51309,
+     36.13741
+    ]
+   ]
+  },
+  {
+   "id": "po-di-xia-lan-zhou-dong-chuan",
+   "name": "兰新铁路（既有线）",
+   "from": "po-di-xia",
+   "to": "lan-zhou-dong-chuan",
+   "lineIds": [
+    "lanxin-conventional"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1962-12-09",
+   "estLengthKm": 4.44,
+   "polyline": [
+    [
+     103.51309,
+     36.13741
+    ],
+    [
+     103.50249,
+     36.14079
+    ],
+    [
+     103.50044,
+     36.14372
+    ],
+    [
+     103.49471,
+     36.16228
+    ],
+    [
+     103.49201,
+     36.16477
+    ],
+    [
+     103.48636,
+     36.16611
+    ]
+   ]
+  },
+  {
+   "id": "lan-zhou-dong-chuan-he-kou-nan",
+   "name": "兰新铁路（既有线）",
+   "from": "lan-zhou-dong-chuan",
+   "to": "he-kou-nan",
+   "lineIds": [
+    "lanxin-conventional"
+   ],
+   "trains": [
+    "conv"
+   ],
+   "serviceDate": "1962-12-09",
+   "estLengthKm": 2.95,
+   "polyline": [
+    [
+     103.48636,
+     36.16611
+    ],
+    [
+     103.45387,
+     36.1637
+    ]
+   ]
+  },
+  {
    "id": "he-kou-nan-da-lu",
    "name": "兰新铁路（既有线）",
    "from": "he-kou-nan",
@@ -80176,9 +80562,54 @@
    ]
   },
   {
-   "id": "da-ling-pu-an-kang-dong",
+   "id": "da-ling-pu-xun-yang-bei",
    "name": "西康铁路",
    "from": "da-ling-pu",
+   "to": "xun-yang-bei",
+   "lineIds": [
+    "xikang-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2001-10-01",
+   "estLengthKm": 10.73,
+   "polyline": [
+    [
+     109.24476,
+     32.92052
+    ],
+    [
+     109.25015,
+     32.90872
+    ],
+    [
+     109.25956,
+     32.89351
+    ],
+    [
+     109.27077,
+     32.86383
+    ],
+    [
+     109.27538,
+     32.85559
+    ],
+    [
+     109.27925,
+     32.85128
+    ],
+    [
+     109.29284,
+     32.84209
+    ]
+   ]
+  },
+  {
+   "id": "xun-yang-bei-an-kang-dong",
+   "name": "西康铁路",
+   "from": "xun-yang-bei",
    "to": "an-kang-dong",
    "lineIds": [
     "xikang-conventional"
@@ -80188,27 +80619,51 @@
     "conv"
    ],
    "serviceDate": "2001-10-01",
-   "estLengthKm": 28.15,
+   "estLengthKm": 35.15,
    "polyline": [
     [
-     109.24476,
-     32.92052
+     109.29284,
+     32.84209
     ],
     [
-     109.2532,
-     32.90477
+     109.2858,
+     32.84729
+    ],
+    [
+     109.28129,
+     32.86009
+    ],
+    [
+     109.27293,
+     32.86929
+    ],
+    [
+     109.27446,
+     32.88143
+    ],
+    [
+     109.25977,
+     32.89478
+    ],
+    [
+     109.25515,
+     32.90277
     ],
     [
      109.25255,
      32.90036
     ],
     [
-     109.24504,
-     32.88503
+     109.24652,
+     32.88707
     ],
     [
-     109.23938,
-     32.87958
+     109.24292,
+     32.88259
+    ],
+    [
+     109.23102,
+     32.8752
     ],
     [
      109.21467,
