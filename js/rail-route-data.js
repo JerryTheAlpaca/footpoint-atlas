@@ -50,6 +50,7 @@
     "zhen-jiang",
     "bao-hua-shan",
     "xian-lin",
+    "nan-jing-dong",
     "nan-jing"
    ],
    "links": []
@@ -701,14 +702,14 @@
    "id": "nanjing-link",
    "name": "沪宁城际南京联络线",
    "batch": "E",
-   "from": "nan-jing",
+   "from": "nan-jing-dong",
    "to": "nanjing-south",
    "serviceDate": "2010-07-01",
    "trains": [
     "emu"
    ],
    "stops": [
-    "nan-jing",
+    "nan-jing-dong",
     "nanjing-south"
    ],
    "links": [
@@ -2609,6 +2610,17 @@
    "coord": [
     118.90757,
     32.12488
+   ]
+  },
+  {
+   "id": "nan-jing-dong",
+   "name": "南京东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    118.90331,
+    32.13208
    ]
   },
   {
@@ -8318,17 +8330,6 @@
    "coord": [
     117.81711,
     30.86202
-   ]
-  },
-  {
-   "id": "nan-jing-dong",
-   "name": "南京东",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    118.90218,
-    32.12216
    ]
   },
   {
@@ -25212,9 +25213,33 @@
    ]
   },
   {
-   "id": "xian-lin-xing-wei-cun",
+   "id": "xian-lin-nan-jing-dong",
    "name": "沪宁城际铁路",
    "from": "xian-lin",
+   "to": "nan-jing-dong",
+   "lineIds": [
+    "huning-int"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2010-07-01",
+   "estLengthKm": 0.9,
+   "polyline": [
+    [
+     118.90757,
+     32.12488
+    ],
+    [
+     118.90331,
+     32.13208
+    ]
+   ]
+  },
+  {
+   "id": "nan-jing-dong-xing-wei-cun",
+   "name": "沪宁城际铁路",
+   "from": "nan-jing-dong",
    "to": "xing-wei-cun",
    "lineIds": [
     "huning-int"
@@ -25223,19 +25248,23 @@
     "emu"
    ],
    "serviceDate": "2010-07-01",
-   "estLengthKm": 5.91,
+   "estLengthKm": 6.59,
    "polyline": [
     [
-     118.90757,
-     32.12488
+     118.90331,
+     32.13208
     ],
     [
-     118.87878,
-     32.10955
+     118.90526,
+     32.12392
     ],
     [
-     118.86657,
-     32.10641
+     118.88615,
+     32.11286
+    ],
+    [
+     118.8712,
+     32.10731
     ],
     [
      118.8509,
@@ -25249,8 +25278,7 @@
    "from": "xing-wei-cun",
    "to": "nan-jing",
    "lineIds": [
-    "huning-int",
-    "nanjing-link"
+    "huning-int"
    ],
    "trains": [
     "emu"
@@ -50537,34 +50565,6 @@
    ]
   },
   {
-   "id": "xing-wei-cun-nan-jing-dong",
-   "name": "沪宁城际南京联络线",
-   "from": "xing-wei-cun",
-   "to": "nan-jing-dong",
-   "lineIds": [
-    "nanjing-link"
-   ],
-   "trains": [
-    "emu"
-   ],
-   "serviceDate": "2010-07-01",
-   "estLengthKm": 5.31,
-   "polyline": [
-    [
-     118.8509,
-     32.10474
-    ],
-    [
-     118.87646,
-     32.10874
-    ],
-    [
-     118.90218,
-     32.12216
-    ]
-   ]
-  },
-  {
    "id": "nan-jing-dong-zi-jin-shan",
    "name": "沪宁城际南京联络线",
    "from": "nan-jing-dong",
@@ -50576,11 +50576,15 @@
     "emu"
    ],
    "serviceDate": "2010-07-01",
-   "estLengthKm": 4.96,
+   "estLengthKm": 6.23,
    "polyline": [
     [
-     118.90218,
-     32.12216
+     118.90331,
+     32.13208
+    ],
+    [
+     118.90526,
+     32.12392
     ],
     [
      118.8866,
