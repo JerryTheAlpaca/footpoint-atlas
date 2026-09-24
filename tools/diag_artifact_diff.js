@@ -1,10 +1,10 @@
 // 产物回归验收：同一批记录，分别用"改造前的产物 + 改造前的解析逻辑"与
 // "新产物 + 新经由判定"解析，逐条对比。用法：node tools/diag_artifact_diff.js
-// 基线产物：build-cache/rail-route-data.before-xunyang.js（已提交、用户核对过）
+// 基线产物：build-cache/rail-route-data.before-hubfix.js（已提交、用户核对过）
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.join(__dirname, '..');
-const BASELINE = path.join(ROOT, 'build-cache', 'rail-route-data.before-xunyang.js');
+const BASELINE = path.join(ROOT, 'build-cache', 'rail-route-data.before-hubfix.js');
 
 function loadScript(sandbox, file) {
   const code = fs.readFileSync(path.join(ROOT, 'js', file), 'utf8');
