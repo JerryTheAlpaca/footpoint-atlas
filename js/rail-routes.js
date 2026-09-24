@@ -120,10 +120,24 @@
       var seg = segments[i];
       seg.trains = trainsForSegment(seg, linesById);
       byId[seg.id] = seg;
-      byPair[seg.to + '|' + seg.from] = seg;
-      byPair[seg.from + '|' + seg.to] = seg;
+      // 同一站对可能有两条并行物理走廊（沪宁城际 与 京沪线 在 常州—新闸镇
+      // 各有一条），索引必须留全部候选，逐站链接时才能挑出"接得上上一段"
+      // 的那条。
+      var key = seg.from + '|' + seg.to;
+      var revKey = seg.to + '|' + seg.from;
+      (byPair[key] = byPair[key] || []).push(seg);
+      if (revKey !== key) (byPair[revKey] = byPair[revKey] || []).push(seg);
     }
-    return { byId: byId, byPair: byPair, list: segments };
+    // 站 → 申报该站为客运站的线路集合（lines[].stops，来自线路清单）。
+    var stopsToLines = {};
+    (data.lines || []).forEach(function (line) {
+      if (!line || !line.id) return;
+      (line.stops || []).forEach(function (nid) {
+        (stopsToLines[nid] = stopsToLines[nid] || []).push(line.id);
+      });
+    });
+    return { byId: byId, byPair: byPair, list: segments,
+             stopsToLines: stopsToLines };
   }
 
   // —— 区段在行程日期是否可用（serviceDate 为开通日）且承接该列车类别 ——
@@ -202,71 +216,116 @@
     return ids.slice();
   }
 
-  // —— Dijkstra 最短路，边权 = estLengthKm，平局取字典序小区段序列 ——
+  // —— 最短路：Dijkstra，边权 = estLengthKm，平局取字典序小区段序列 ——
   // date：行程日期；晚于开通日（serviceDate）的区段不参与寻径，
   // 避免历史记录"提前"用上尚未开通的线路（如 2020 年记录走 2024
   // 年开通的池黄高铁）。kind：列车类别；不承接该类别的区段同样不参与。
   // allowSeg：可选谓词，用于把寻径限制在某条走廊内（枚举并行径路时
   // 逐条禁用线路）。
-  function shortestPath(fromId, toId, maps, date, kind, allowSeg) {
-    var adj = buildAdjacency(maps, date, kind, allowSeg);
-    var dist = {};
-    var prevSeg = {};
-    var prevNode = {};
-    var settled = {};
-    dist[fromId] = 0;
-    var queue = [{ id: fromId, cost: 0, key: '' }];
+  //
+  // 状态取 (所在节点, 到达所用的区段) 而不是只取节点：并行走廊在同一站对
+  // 上常只差几十米（沪宁城际 与 京沪线 在 常州—新闸镇 差 0.01km），纯按
+  // 里程取最短路会在两条线之间来回切换，一趟车被画成一半在高铁正线、
+  // 一半在普速正线。并入上一段后，换线计 LINE_SWITCH_KM 的当量代价，
+  // 路径就会沿一条线走完再换；真需要换线（转联络线、跨场）时惩罚量远
+  // 小于绕行代价，仍然会换。
+  var LINE_SWITCH_KM = 3;
+  // 站序判得出的线之外的区段，每段再计的当量代价：并行走廊之间常只差
+  // 几十米里程，光靠换线惩罚压不住"整条平行线略短一点"的情况。
+  var OFF_PREFERRED_KM = 5;
 
-    function pathKey(nodeId) {
-      var segs = [];
-      var cur = nodeId;
-      while (prevSeg[cur] !== undefined) {
-        segs.unshift(prevSeg[cur].id);
-        cur = prevNode[cur];
-      }
-      return segs.join('>');
+  function sharesLine(seg, inSeg) {
+    var ids = seg.lineIds || [];
+    var mine = inSeg.lineIds || [];
+    for (var i = 0; i < ids.length; i++) {
+      if (mine.indexOf(ids[i]) >= 0) return true;
     }
+    return false;
+  }
 
-    while (queue.length) {
-      var minIdx = 0;
-      for (var q = 1; q < queue.length; q++) {
-        var a = queue[q];
-        var b = queue[minIdx];
-        if (a.cost < b.cost || (a.cost === b.cost && pathKey(a.id) < pathKey(b.id))) {
-          minIdx = q;
+  function segOnPreferred(seg, prefer) {
+    var ids = seg.lineIds || [];
+    for (var i = 0; i < ids.length; i++) {
+      if (prefer[ids[i]]) return true;
+    }
+    return false;
+  }
+
+  function shortestPath(fromId, toId, maps, date, kind, allowSeg, prefer) {
+    var adj = buildAdjacency(maps, date, kind, allowSeg);
+    var start = fromId + '|';
+    var dist = {}, settled = {};
+    var prevState = {}, prevSeg = {}, stateNode = {}, stateKey = {};
+    dist[start] = 0;
+    stateNode[start] = fromId;
+    stateKey[start] = '';
+    var heap = [];
+
+    function less(a, b) {
+      return a.cost < b.cost || (a.cost === b.cost && a.key < b.key);
+    }
+    function push(item) {
+      heap.push(item);
+      for (var i = heap.length - 1; i > 0;) {
+        var p = (i - 1) >> 1;
+        if (!less(heap[i], heap[p])) break;
+        var t = heap[p]; heap[p] = heap[i]; heap[i] = t; i = p;
+      }
+    }
+    function pop() {
+      var top = heap[0], last = heap.pop();
+      if (heap.length) {
+        heap[0] = last;
+        for (var i = 0;;) {
+          var l = 2 * i + 1, r = l + 1, m = i;
+          if (l < heap.length && less(heap[l], heap[m])) m = l;
+          if (r < heap.length && less(heap[r], heap[m])) m = r;
+          if (m === i) break;
+          var t = heap[m]; heap[m] = heap[i]; heap[i] = t; i = m;
         }
       }
-      var current = queue.splice(minIdx, 1)[0];
-      if (settled[current.id]) continue;
-      settled[current.id] = true;
-      if (current.id === toId) break;
-      var neighbours = adj[current.id] || [];
+      return top;
+    }
+
+    push({ state: start, cost: 0, key: '' });
+    var end = null;
+    while (heap.length) {
+      var cur = pop();
+      if (settled[cur.state]) continue;
+      settled[cur.state] = true;
+      var node = stateNode[cur.state];
+      if (node === toId) { end = cur.state; break; }
+      var inSeg = prevSeg[cur.state];
+      var neighbours = adj[node] || [];
       for (var i = 0; i < neighbours.length; i++) {
         var seg = neighbours[i];
-        var next = seg.from === current.id ? seg.to : seg.from;
-        if (settled[next]) continue;
-        var nd = current.cost + (Number(seg.estLengthKm) || 0);
-        var nextEntry = { id: next, cost: nd, key: pathKey(current.id) + '>' + seg.id };
-        var known = dist[next];
-        var better = known === undefined || nd < known ||
-          (nd === known && nextEntry.key < pathKey(next));
-        if (better) {
-          dist[next] = nd;
-          prevSeg[next] = seg;
-          prevNode[next] = current.id;
-          queue.push(nextEntry);
+        var next = seg.from === node ? seg.to : seg.from;
+        var st = next + '|' + seg.id;
+        if (settled[st]) continue;
+        var add = Number(seg.estLengthKm) || 0;
+        if (inSeg && !sharesLine(seg, inSeg)) add += LINE_SWITCH_KM;
+        if (prefer && !segOnPreferred(seg, prefer)) add += OFF_PREFERRED_KM;
+        var nd = cur.cost + add;
+        var key = cur.key ? cur.key + '>' + seg.id : seg.id;
+        var known = dist[st];
+        if (known === undefined || nd < known || (nd === known && key < stateKey[st])) {
+          dist[st] = nd;
+          stateKey[st] = key;
+          prevState[st] = cur.state;
+          prevSeg[st] = seg;
+          stateNode[st] = next;
+          push({ state: st, cost: nd, key: key });
         }
       }
     }
-    if (!settled[toId]) return null;
+    if (!end) return null;
     var segIds = [];
-    var nodePath = [toId];
-    var cur = toId;
-    while (prevSeg[cur] !== undefined) {
-      segIds.unshift(prevSeg[cur].id);
-      cur = prevNode[cur];
-      nodePath.unshift(cur);
+    var nodePath = [];
+    for (var s = end; prevSeg[s]; s = prevState[s]) {
+      segIds.unshift(prevSeg[s].id);
+      nodePath.unshift(stateNode[s]);
     }
+    nodePath.unshift(fromId);
     return segIds.length ? { segIds: segIds, nodePath: nodePath } : null;
   }
 
@@ -355,30 +414,65 @@
 
   // 逐站链接：相邻停靠站优先取直连区段（多数情况就是一站一区间），
   // 没有直连才在这一跳上跑 Dijkstra。任一跳不通即失败并给出断点。
-  function chainViaStops(viaNodes, maps, date, kind) {
+  // 直连候选可能有多条并行物理走廊，取票高的：先接得上上一段所在的线，
+  // 再取本车次经由判出的线，最后比里程（见 shortestPath 的换线代价）。
+  function sharedLineCount(seg, lineIds) {
+    var ids = seg.lineIds || [];
+    var n = 0;
+    for (var i = 0; i < ids.length; i++) {
+      if (lineIds[ids[i]]) n++;
+    }
+    return n;
+  }
+
+  function chainViaStops(viaNodes, maps, date, kind, prefer) {
     var segIds = [];
+    var lastLines = {};
     for (var i = 1; i < viaNodes.length; i++) {
       var a = viaNodes[i - 1];
       var b = viaNodes[i];
-      var direct = maps.byPair[a.id + '|' + b.id];
+      var cands = maps.byPair[a.id + '|' + b.id];
       var step = null;
-      if (direct && segmentUsable(direct, date, kind)) {
-        step = [direct.id];
-      } else {
-        var path = shortestPath(a.id, b.id, maps, date, kind);
+      if (cands && cands.length) {
+        var best = null, bestScore = null, bestKm = 0;
+        for (var c = 0; c < cands.length; c++) {
+          var seg = cands[c];
+          if (!segmentUsable(seg, date, kind)) continue;
+          var score = [sharedLineCount(seg, lastLines),
+                       prefer && segOnPreferred(seg, prefer) ? 1 : 0];
+          var km = Number(seg.estLengthKm) || 0;
+          if (!best || betterCand(score, km, bestScore, bestKm)) {
+            best = seg; bestScore = score; bestKm = km;
+          }
+        }
+        if (best) step = [best.id];
+      }
+      if (!step) {
+        var path = shortestPath(a.id, b.id, maps, date, kind, null, prefer);
         step = path ? path.segIds : null;
       }
       if (!step) return { gap: [a.name, b.name] };
       segIds = segIds.concat(step);
+      var last = maps.byId[step[step.length - 1]];
+      lastLines = {};
+      (last.lineIds || []).forEach(function (id) { lastLines[id] = true; });
     }
     if (!segIds.length) return { gap: [viaNodes[0].name, viaNodes[1].name] };
     return { segIds: segIds };
   }
 
+  // 字典序比较：分数逐项从高到低，最后比里程（小者胜）。
+  function betterCand(score, km, bestScore, bestKm) {
+    for (var i = 0; i < score.length; i++) {
+      if (score[i] !== bestScore[i]) return score[i] > bestScore[i];
+    }
+    return km < bestKm;
+  }
+
   // 枚举并行走廊：反复禁用当前解用到的线路再求最短路，收集里程可比的
   // 替代径路。用于一站直达、没有中间站可判的情形。
-  function corridorCandidates(fromId, toId, maps, date, kind) {
-    var best = shortestPath(fromId, toId, maps, date, kind);
+  function corridorCandidates(fromId, toId, maps, date, kind, prefer) {
+    var best = shortestPath(fromId, toId, maps, date, kind, null, prefer);
     if (!best) return [];
     var bestKm = pathKm(best.segIds, maps);
     var seen = {};
@@ -392,7 +486,7 @@
     Object.keys(lineIds).forEach(function (lineId) {
       var alt = shortestPath(fromId, toId, maps, date, kind, function (seg) {
         return (seg.lineIds || []).indexOf(lineId) < 0;
-      });
+      }, prefer);
       if (!alt) return;
       var km = pathKm(alt.segIds, maps);
       if (km > bestKm * CORRIDOR_RATIO) return;
@@ -400,6 +494,32 @@
       if (seen[key]) return;
       seen[key] = true;
       out.push({ segIds: alt.segIds, km: km });
+    });
+    return out;
+  }
+
+  // 本车次这一段经由实际走在哪几条线上：拿停靠站去投票各线的申报站表
+  // （lines[].stops），票最多的线就是它。并行走廊在这一段停的站几乎不
+  // 重合——沪宁城际 停 常州/丹阳，同走廊的 京沪线 有 常州 但无 丹阳，
+  // 京沪高铁 停的是 常州北/丹阳北。取票数与最高票持平的线（并列即并列
+  // 候选，襄阳/安康 那类跨线车一次经由会投出多条）；不足两票说明信号
+  // 太弱，不做偏好。
+  function preferredLines(maps, viaNodes) {
+    var votes = {};
+    var max = 0;
+    for (var i = 0; i < viaNodes.length; i++) {
+      var owners = maps.stopsToLines[viaNodes[i].id];
+      if (!owners) continue;
+      for (var j = 0; j < owners.length; j++) {
+        var n = (votes[owners[j]] || 0) + 1;
+        votes[owners[j]] = n;
+        if (n > max) max = n;
+      }
+    }
+    if (max < 2) return null;
+    var out = {};
+    Object.keys(votes).forEach(function (id) {
+      if (votes[id] === max) out[id] = true;
     });
     return out;
   }
@@ -432,10 +552,11 @@
     viaNodes.push(toNode);
 
     var officialKm = viaDistanceKm(entry, fromName, toName);
+    var prefer = preferredLines(maps, viaNodes);
     var segIds;
     var by;
     if (viaNodes.length > 2) {
-      var chained = chainViaStops(viaNodes, maps, record.date, kind);
+      var chained = chainViaStops(viaNodes, maps, record.date, kind, prefer);
       if (chained.gap) {
         return {
           reason: '缺线：' + chained.gap[0] + '→' + chained.gap[1] + ' 之间无通路',
@@ -446,7 +567,7 @@
       by = 'stops';
     } else {
       var candidates = corridorCandidates(fromNode.id, toNode.id, maps,
-        record.date, kind);
+        record.date, kind, prefer);
       if (!candidates.length) return { reason: '两站之间无通路', unknown: unknown };
       var pick = candidates[0];
       if (candidates.length === 1) {

@@ -5,7 +5,7 @@
 - 平行边（上下行/渡线）：寻径返回松弛选中的边几何，而非端点间第一条边；
 - 枢纽补桥：边权为 haversine 公里，半径外缺口不加桥；
 - 线路所（via）按显式站对声明插入，站序不再由空间距离猜测；
-- 同站对两条不同物理走廊均保留为独立区段，同走廊才合并；
+- 同站对两条不同物理走廊均保留为独立区段，走了同一批 OSM way 才合并；
 - 端点吸附阈值单位为公里；
 - 线路约束白名单含 osm_names/osm_bounds/link_names；
 - 列车类别 trains：缺省仅动车组、共走廊合并取并集且顺序恒定；
@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
 
 from rail_network.build import (  # noqa: E402
+    corridor_way_ids,
     cut_line_segments,
     extract_wanted,
     insert_via_stops,
@@ -29,6 +30,8 @@ from rail_network.build import (  # noqa: E402
     line_trains,
     line_ways,
     NodeRegistry,
+    same_track,
+    way_point_index,
 )
 from rail_network.geometry import (  # noqa: E402
     WayGraph,
@@ -208,6 +211,77 @@ class TestSamePairMultiCorridor(unittest.TestCase):
         first_id = next(iter(out_segments))
         self._run(out_segments, self.NORTH, service_date="2019-01-01")
         self.assertEqual(out_segments[first_id]["serviceDate"], "2019-01-01")
+
+
+class TestCorridorWayIdentity(unittest.TestCase):
+    """同走廊合并按"实际骑行了哪条 OSM way"判定，不按形状猜。
+
+    回归场景：沪昆线（既有线）与沪昆高速线在浙江并行走行，最近处只隔
+    300m（实测两走廊中点距离 p50 321m）。旧的 CORRIDOR_TOL=0.02°（约
+    2.2km）把两者当同一条线合并，既有线折线被整段丢弃，Z45 武昌→杭州
+    因此被画在沪昆高铁正线上。
+    """
+
+    A = [110.0, 30.0]
+    B = [110.01, 30.0]
+
+    def _index(self, ways):
+        return way_point_index(ways)
+
+    def test_parallel_ways_are_not_the_same_corridor(self):
+        hsr = {"id": 1, "src": "沪昆高速线",
+               "pts": [[110.0, 30.0], [110.005, 30.001], [110.01, 30.0]]}
+        conv = {"id": 2, "src": "沪昆线",
+                "pts": [[110.0, 30.0], [110.005, 29.998], [110.01, 30.0]]}
+        idx = self._index([hsr, conv])
+        a = corridor_way_ids(hsr["pts"], idx)
+        b = corridor_way_ids(conv["pts"], idx)
+        self.assertEqual((a, b), ({1}, {2}))
+        self.assertFalse(same_track(hsr["pts"], a, conv["pts"], b))
+
+    def test_shared_way_merges_even_with_few_points(self):
+        """两线借同一条 way（如 武九线 借 京广线 引入武昌）必须仍合并。"""
+        track = {"id": 7, "src": "京广线",
+                 "pts": [[110.0, 30.0], [110.004, 30.0], [110.01, 30.0]]}
+        idx = self._index([track])
+        whole = corridor_way_ids(track["pts"], idx)
+        short = corridor_way_ids(track["pts"][:2], idx)
+        self.assertEqual(whole, {7})
+        self.assertTrue(same_track(track["pts"], whole,
+                                   track["pts"][:2], short))
+
+    def test_geometry_fallback_without_way_evidence(self):
+        """legacy 折线查不到 way 归属时退回几何判据。"""
+        self.assertTrue(same_track(self._pts(0.001), set(),
+                                   self._pts(0.001), set()))
+        self.assertFalse(same_track(self._pts(0.0), set(),
+                                    self._pts(0.05), set()))
+
+    def _pts(self, offset):
+        return [[self.A[0], self.A[1]], [self.B[0], self.B[1] + offset]]
+
+    def test_cut_line_segments_keeps_both_parallel_corridors(self):
+        """同站对、相距约 1km 的两条走廊，传入 way 索引后各自成段。"""
+        hsr = {"id": 11, "src": "沪昆高速线",
+               "pts": [[110.0, 30.0], [110.2, 30.01], [110.4, 30.0]]}
+        conv = {"id": 12, "src": "沪昆线",
+                "pts": [[110.0, 30.0], [110.2, 30.0], [110.4, 30.0]]}
+        idx = self._index([hsr, conv])
+        line = {"id": "t", "name": "t", "serviceDate": "2020-01-01"}
+        resolved = [("甲站", hsr["pts"][0], "osm"), ("乙站", hsr["pts"][-1], "osm")]
+        out = {}
+        for w, lid in ((hsr, "hsr"), (conv, "conv")):
+            ln = dict(line, id=lid)
+            pts = [list(p) for p in w["pts"]]
+            cut_line_segments(ln, resolved,
+                              [{"a": "甲站", "b": "乙站", "pts": pts,
+                                "legacy": None, "serviceDate": "2020-01-01"}],
+                              pts, [("甲站", 0), ("乙站", len(pts) - 1)],
+                              _registry_with("甲站", pts[0], "乙站", pts[-1]),
+                              {"stations": []}, [], out, way_index=idx)
+        self.assertEqual(len(out), 2)
+        self.assertEqual({frozenset(s["lineIds"]) for s in out.values()},
+                         {frozenset(["hsr"]), frozenset(["conv"])})
 
 
 class TestSegmentTrains(unittest.TestCase):

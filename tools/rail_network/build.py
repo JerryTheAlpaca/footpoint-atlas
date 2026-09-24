@@ -7,8 +7,8 @@
 3. 逐线路解析必须站坐标（OSM 站节点优先，data.js 粗坐标吸附走廊兜底），
    相邻站对在 way 图上 Dijkstra 寻径，与 legacy 区段按无序站对复用合并；
 4. 自动补充走廊 1.1km 内的客运站节点，按全线折线里程切分区段；
-5. 全局合并共享站对区段（lineIds 多重归属），写入状态日期、可运行
-   列车类别（trains）与中途节点索引；
+5. 全局合并同走廊区段（走了同一批 OSM way 才算同一条线，lineIds 多重
+   归属），写入状态日期、可运行列车类别（trains）与中途节点索引；
 6. 硬校验（端点衔接、连通、长度合理、无重复坐标/区段）后原子写出。
 
 产物：js/rail-route-data.js —— window.RAIL_ROUTE_DATA。
@@ -115,9 +115,46 @@ def pair_key(a, b):
 
 
 # 同站对两条折线视为同一物理走廊的最大相互顶点偏差（度，约 2km）。
-# 上下行/站场几米差异、Douglas-Peucker 简化抖动都在容差内；
-# 真正的另一条走廊（如同站对南北两线）偏差远超此值，必须分开保留。
+# 仅用于无 way 归属可查的场合（legacy 试点折线、枢纽虚拟桥）。
 CORRIDOR_TOL = 0.02
+
+
+def way_point_index(all_ways):
+    """坐标 → 落在该点上的 OSM way id 集合（way 顶点坐标逐字取自 PBF）。"""
+    idx = {}
+    for w in all_ways:
+        for p in w["pts"]:
+            bucket = idx.get((p[0], p[1]))
+            if bucket is None:
+                idx[(p[0], p[1])] = bucket = set()
+            bucket.add(w["id"])
+    return idx
+
+
+def corridor_way_ids(pts, way_index):
+    """折线实际骑在哪些 OSM way 上：逐查相邻顶点对的共属 way。
+
+    区段归属必须由"走了哪条轨道"判定，不能只看形状。同站对的高铁正线
+    与既有线在浙江最近只隔 300m（沪昆线 / 沪昆高速线 实测 p50 321m），
+    按几何容差合并会把既有线折线整段丢掉、普速车画到高铁正线上。
+    """
+    out = set()
+    for a, b in zip(pts, pts[1:]):
+        sa = way_index.get((a[0], a[1]))
+        if not sa:
+            continue
+        sb = way_index.get((b[0], b[1]))
+        if sb:
+            out |= sa & sb
+    return out
+
+
+def same_track(pts_a, ways_a, pts_b, ways_b):
+    """同一物理走廊判据：优先比 way 归属，无归属可比时退回几何。"""
+    if ways_a and ways_b:
+        smaller = min(len(ways_a), len(ways_b))
+        return len(ways_a & ways_b) * 2 >= smaller
+    return same_corridor(pts_a, pts_b)
 
 
 # 列车类别：动车组 / 普速。线路以 trains 声明自身可运行的类别，区段取
@@ -488,7 +525,8 @@ def prune_excursions(pts, eps=2.5e-3, min_gap=3):
 
 
 def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
-                      payload, legacy_nodes, out_segments, legacy_km_map=None):
+                      payload, legacy_nodes, out_segments, legacy_km_map=None,
+                      way_index=None):
     """块区间 → 自动补站 → 切分区段 → 全局合并。
 
     返回 (补站数, 新增区段数)；数据异常（must 站断点重叠/过近、
@@ -580,6 +618,9 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
         if ib <= ia:
             continue
         seg_pts = pts_all[ia:ib + 1]
+        # way 归属在修剪/吸附/简化之前取：三者都会改写端点，改写后的
+        # 坐标在 way 顶点索引里查不到。
+        seg_ways = corridor_way_ids(seg_pts, way_index) if way_index else set()
         # legacy 块折线逐点等价迁移，禁用修剪；其余块剪掉折返毛刺。
         block = next(b for b, lo, hi in block_ranges if lo <= ia < hi)
         if not block["legacy"]:
@@ -603,15 +644,15 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
             raise SystemExit("线路 %s：区段 %s-%s 绕行比异常 %.1f（%.1fkm）"
                              % (lid, na, nb, full_km / straight, full_km))
         simplified = [[round(x, 5), round(y, 5)] for x, y in dp_simplify(seg_pts)]
-        # 同站对合并判据：物理走廊一致才并入（补 lineIds/开通日期）。
-        # 两条不同线路连接同一对站（如同站对南北两线）是不同物理区段，
-        # 必须都保留——此前按无序站对直接去重，第二条折线被丢弃，
-        # 其 lineIds 却并进第一条，后续选径无法找回备选路线。
+        # 同站对合并判据：走的是同一批 OSM way 才算同一物理走廊（比不了
+        # way 归属时退回几何）。两条不同线路连接同一对站（同站对南北两线、
+        # 高铁正线与并行既有线）是不同物理区段，必须都保留——只按形状
+        # 合并会把后建那条的折线整段丢掉，普速车因此被画到高铁正线上。
         seg_key = pair_key(na, nb)
         dup = next(
             (s for s in out_segments.values()
              if s.get("_pairKey") == seg_key
-             and same_corridor(s["polyline"], simplified)),
+             and same_track(s["polyline"], s.get("_ways"), simplified, seg_ways)),
             None)
         if dup is not None:
             if lid not in dup["lineIds"]:
@@ -621,6 +662,7 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
             # 共线区段（如高铁与既有线在同一站对共走廊）任一类别可运行
             # 即可供该类记录走行。
             dup["trains"] = merge_trains(dup.get("trains"), trains)
+            dup["_ways"] |= seg_ways
             continue
         # legacy 块的里程沿用试点固化值（等价迁移：折线与里程均不变）。
         est_km = round(full_km, 2)
@@ -642,6 +684,8 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
             "estLengthKm": est_km,
             "polyline": simplified,
             "_legacySeg": block["legacy"],
+            # 实际骑行的 OSM way id 集合（同走廊合并判据用，写产物前剥掉）。
+            "_ways": set(seg_ways),
             # 站名空间的站对 key（from/to 是节点 id，两种 key 空间
             # 不能混用；写产物前剥掉）。
             "_pairKey": seg_key,
@@ -726,6 +770,7 @@ def main(argv=None):
     # 传入副本：WayGraph 持有列表引用，全局补桥的虚拟 way（无 src）
     # 不得回流进 all_ways，否则分线约束筛选会 KeyError。
     waygraph = WayGraph(list(all_ways))
+    way_index = way_point_index(all_ways)
     # 补桥半径 0.004°（~450m）：只弥合站内渡线/道岔的毫厘级断点。
     # 0.015° 曾一次生成 600 条未核验虚拟桥，且桥权重量级错误时
     # 会制造远短于真实铁路的假捷径。
@@ -784,13 +829,18 @@ def main(argv=None):
                 line, resolved, blocks, pts_all, breaks, registry,
                 payload, legacy_nodes, out_segments,
                 legacy_km_map={s["id"]: s["estLengthKm"]
-                               for s in legacy_segments})
+                               for s in legacy_segments},
+                way_index=way_index)
             line_summaries.append({
                 "id": lid, "name": line["name"], "batch": line["batch"],
                 "from": registry.get(line["from"])["id"],
                 "to": registry.get(line["to"])["id"],
                 "serviceDate": line["serviceDate"],
                 "trains": trains,
+                # 申报客运站（业务断言，不含走廊 1.1km 内的自动补站）：
+                # JS 侧据此把车次的停靠站对应到线，并行走廊里选对那一条
+                # （沪宁城际 停 常州/丹阳，同走廊的 京沪线 停 常州 但无 丹阳）。
+                "stops": [registry.get(n)["id"] for n, _, _ in resolved],
             })
         except SystemExit as exc:
             if line.get("optional"):
@@ -835,6 +885,7 @@ def main(argv=None):
     for entry in out_segments.values():
         entry.pop("_legacySeg", None)
         entry.pop("_pairKey", None)
+        entry.pop("_ways", None)
         final_segments.append(entry)
 
     validate(final_segments, registry)

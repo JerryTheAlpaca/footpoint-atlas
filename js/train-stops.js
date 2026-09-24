@@ -4,7 +4,7 @@
   'use strict';
   var TRAIN_STOPS = {
  "meta": {
-  "generated": "2026-09-23",
+  "generated": "2026-09-24",
   "count": 22,
   "note": "停靠站序列来自 12306（station_name.js + leftTicket + czxx/queryByTrainNo），为 asOf 那天的运行图；累计里程 km 来自第三方时刻表，仅用于并行走廊判别。"
  },
