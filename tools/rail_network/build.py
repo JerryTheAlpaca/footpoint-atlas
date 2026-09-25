@@ -39,6 +39,14 @@ ATTRIBUTION = "铁路几何 © OpenStreetMap contributors · ODbL"
 
 # 自动补站的最大走廊距离（度，约 1.1km）。
 AUTO_STATION_TOL = 0.01
+# 复用他线已注册同名节点的门槛（km）。尖角的来源在这里：两条平行走廊
+# （六摆渡 处 沪宁城际 与 京沪高铁 相距 1.05km）都来认领同一个站，节点
+# 只有一个坐标，后到的那条只能把折线端点拽到对方走廊上去。本线投影与
+# 已注册坐标对不上就说明这不是本线的站，不补这个断点。
+AUTO_STATION_REUSE_KM = 0.3
+# OSM 站节点吸附到本线走廊顶点的最大距离（度，约 3.3km）。超过就照抄
+# 原坐标：顶点可能落在站场的另一端，挪过去更离谱。
+STATION_SNAP_MAX = 0.03
 # 区段长度合理区间（km）。
 SEG_KM_MIN, SEG_KM_MAX = 0.3, 300.0
 # 相邻站里程与直线距离的最大比值（直线 >20km 才启用）。
@@ -71,9 +79,12 @@ MANUAL_ROUTE_OVERRIDES = [
         # 自动寻径取合武+合安北线（约 655km，比南线短约 5km），与实际不符。
         # 黄黄高铁在 hh-junction（黄梅东站西南道岔）并入安九段：列车
         # 转向黄梅东→宿松东，不经黄梅南站。
+        # 首段是 武汉—何刘 一整段，没有 武昌东 断点：那个节点被先行
+        # 建成的 京广高铁 注册在自己走廊上（两走廊相距 0.5km），武冈
+        # 城际 再切一刀就得把折线拽过去，画出来是个尖角。
         "from": "武汉", "to": "黄山西", "train": "G1435",
         "segments": [
-            "wuhan-wu-chang-dong", "wu-chang-dong-he-liu",
+            "wuhan-he-liu",
             "he-liu-hua-shan-nan", "hua-shan-nan-xin-dian",
             "xin-dian-zuo-ling", "zuo-ling-ge-dian-nan",
             "ge-dian-nan-hua-rong", "hua-rong-hua-rong-dong",
@@ -339,27 +350,32 @@ class NodeRegistry:
 
 
 def match_osm_station(name, station_index, waygraph, ref_pt):
-    """按名匹配 OSM 客运站节点；多候选取距参考点最近且贴走廊者。
+    """按名匹配 OSM 客运站节点，坐标吸附到 waygraph 走廊的落点。
 
-    贴走廊校验用 way 全部顶点（站场节点常贴正线 way 中部，
-    仅查端点会误判枢纽大站缺失）。
+    多候选取距参考点最近且贴走廊者。吸附而不是照抄 OSM 节点：站节点
+    常偏离正线几百米（阳新 0.63km、遂宁 2.71km），照抄进折线就是一根
+    出站再原路回来的支刺，画出来是尖角。
     """
     cands = station_index.get(norm_name(name))
     if not cands:
         return None
     ref = ref_pt if ref_pt is not None else cands[0]["coord"]
     for s in sorted(cands, key=lambda s: dist(s["coord"], ref)):
-        d, _ = waygraph.nearest_vertex(s["coord"], radius=SNAP_MAX)
-        if d is not None:
-            return s["coord"]
+        d, p = waygraph.nearest_vertex(s["coord"], radius=SNAP_MAX)
+        if d is None:
+            continue
+        # 远到不像"站在线旁"就别硬挪：走廊顶点可能落在站场另一端。
+        return list(p) if d <= STATION_SNAP_MAX else s["coord"]
     return None
 
 
-def resolve_line_stations(line, station_index, waygraph, data_coords, registry):
+def resolve_line_stations(line, station_index, graphs, data_coords, registry):
     """解析线路必须站坐标，返回 [(站名, coord, src)]。
 
     优先级：全局注册表（legacy/先行线路已定位的枢纽站直接复用）
     → OSM 站节点 → data.js 粗坐标吸附走廊 → 线路清单 hints 吸附走廊。
+    graphs 是按序尝试的 way 图：先本线走廊（吸附落点必须是这条线自己
+    的正线），本线找不到再退全局图。
     """
     hints = line.get("station_hints", {})
     resolved = []
@@ -367,20 +383,31 @@ def resolve_line_stations(line, station_index, waygraph, data_coords, registry):
     for name in line["stations"]:
         ref = resolved[-1][1] if resolved else None
         node = registry.get(name)
-        # 复用全局注册站前校验其坐标贴本线走廊，防止同名异站
+        # 复用全局注册站前校验其坐标贴走廊，防止同名异站
         # （如天津/浙江曹庄）把别线坐标错位注入本线。
-        if node is not None and waygraph.nearest_vertex(
-                node["coord"], radius=SNAP_MAX)[0] is not None:
+        if node is not None and any(
+                g.nearest_vertex(node["coord"], radius=SNAP_MAX)[0] is not None
+                for g in graphs):
             resolved.append((name, node["coord"], node["source"]))
             continue
-        coord = match_osm_station(name, station_index, waygraph, ref)
+        coord = None
         src = "osm"
-        if coord is None and name in data_coords:
-            coord = snap_rough(waygraph, list(data_coords[name]))
-            src = "data-snap"
-        if coord is None and name in hints:
-            coord = snap_rough(waygraph, list(hints[name]))
-            src = "hint-snap"
+        for g in graphs:
+            coord = match_osm_station(name, station_index, g, ref)
+            if coord is not None:
+                break
+        if coord is None:
+            for raw, label in ((data_coords.get(name), "data-snap"),
+                               (hints.get(name), "hint-snap")):
+                if raw is None:
+                    continue
+                for g in graphs:
+                    coord = snap_rough(g, list(raw))
+                    if coord is not None:
+                        src = label
+                        break
+                if coord is not None:
+                    break
         if coord is None:
             missing.append((name, ref))
             continue
@@ -568,16 +595,18 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
             # 与必须站同站场（更名站如上海松江/松江南），跳过避免
             # 同位双节点产生零长度区段。
             continue
-        node = registry.get(name)
-        if node is not None and dist(node["coord"], coord) > SNAP_MAX:
-            # 同名异站（已有同名节点且位置明显不同）：跳过注册与断点，
-            # 避免 registry 坐标与本线折线位置错位导致校验断裂。
-            print("    ! 跳过同名异站 %s（本线 %s，已注册 %s）"
-                  % (name, coord, node["coord"]))
-            continue
         # 新站以折线投影点注册：节点 coord 与区段折线端点保持一致
         # （OSM 站点原始坐标可偏离轨道 ~1.1km，会导致端点脱钩）。
         proj = [float(pts_all[gi][0]), float(pts_all[gi][1])]
+        node = registry.get(name)
+        if node is not None:
+            gap_km = haversine_km(node["coord"], proj)
+            if gap_km > AUTO_STATION_REUSE_KM:
+                # 同名异站，或本线只是与注册那条走廊平行（六摆渡）：
+                # 拽过去就是一个尖角，不补这个断点。
+                print("    ! 跳过补站 %s：节点在本线投影外 %.2fkm"
+                      % (node["id"], gap_km))
+                continue
         registry.register(name, proj, source="osm")
         kept_auto.append((name, gi))
 
@@ -870,14 +899,15 @@ def main(argv=None):
         try:
             if not n_line_ways:
                 raise SystemExit("OSM 无任何 way（names=%s）" % line["osm_names"])
-            resolved = resolve_line_stations(line, station_index, waygraph,
-                                             data_coords, registry)
-            for name, coord, src in resolved:
-                registry.register(name, coord, source=src)
             graph = line_graphs.get(lid)
             if graph is None:
                 graph = line_graph(line)
                 line_graphs[lid] = graph
+            resolved = resolve_line_stations(line, station_index,
+                                             (graph, waygraph),
+                                             data_coords, registry)
+            for name, coord, src in resolved:
+                registry.register(name, coord, source=src)
             blocks, pts_all, breaks = stitch_line(
                 line, resolved, graph, legacy_pair_map, registry)
             n_auto, _n_new = cut_line_segments(
