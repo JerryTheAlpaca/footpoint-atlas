@@ -756,6 +756,38 @@ def main(argv=None):
             print("    ! %s 来源名无提取结果（检查拼写，或按 osm_bounds 借用）：%s"
                   % (line["id"], silent))
     station_index = build_station_index(payload["stations"])
+
+    # legacy 试点节点存的是 data.js 里两位小数的粗坐标（南京南 实测偏
+    # 1.62km、汉口 偏 1.02km）。注册表在最开头就被 legacy 灌满，之后每条
+    # 线解析站名都先命中它，OSM 的精确站坐标再也没机会覆盖。枢纽站是
+    # 五六条线的汇聚点，锚点偏一公里，所有线到这儿都要拐一下。
+    # 只认"坐标正好是整两位小数"这个粗坐标指纹，避免误伤已吸附过的站。
+    def _is_rough(coord):
+        return abs(coord[0] * 100 - round(coord[0] * 100)) < 1e-9             and abs(coord[1] * 100 - round(coord[1] * 100)) < 1e-9
+
+    upgraded = 0
+    for node in registry.by_id.values():
+        if not _is_rough(node["coord"]):
+            continue
+        cands = station_index.get(norm_name(node["name"])) or []
+        if not cands:
+            continue
+        best = min(cands, key=lambda s: dist(s["coord"], node["coord"]))
+        # 3.3km 以上多半是同名异站，宁可不改。
+        if dist(best["coord"], node["coord"]) > 0.03:
+            continue
+        old_coord = list(node["coord"])
+        node["coord"] = [round(best["coord"][0], 5), round(best["coord"][1], 5)]
+        # legacy 试点的折线是照旧坐标冻结迁移的，节点挪了端点必须跟着挪，
+        # 否则 validate 会报"端点与折线断裂"（合肥西 校正后断 2.32km）。
+        for seg in legacy_segments:
+            if seg["from"] == node["id"] and dist(seg["polyline"][0], old_coord) < 1e-6:
+                seg["polyline"][0] = list(node["coord"])
+            if seg["to"] == node["id"] and dist(seg["polyline"][-1], old_coord) < 1e-6:
+                seg["polyline"][-1] = list(node["coord"])
+        upgraded += 1
+    if upgraded:
+        print("legacy 粗坐标已按 OSM 站节点校正：%d 个" % upgraded)
     meta = payload.get("meta", {})
 
     # 全网合并图：枢纽站本就是多线交汇，分线建图会在站场端点处断裂；
