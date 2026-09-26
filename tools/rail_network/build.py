@@ -309,20 +309,38 @@ def build_station_index(osm_stations):
     return idx
 
 
+def grid_key(coord):
+    """整度坐标网格键，给同音站名的 id 加**与注册顺序无关**的后缀。
+
+    以前靠 _slug_seen 计数，谁先注册谁拿光名：枣阳 与 早阳 都拼 zao-yang，
+    加一条线就可能给不相干的区段改号。后缀取自坐标，输入不变则 id 不变。
+    """
+    return "e%03dn%02d" % (int(round(coord[0])), int(round(coord[1])))
+
+
 class NodeRegistry:
     """全局车站节点注册表：规范化站名 → node dict。"""
 
     def __init__(self):
         self.by_name = {}
         self.by_id = {}
-        self._slug_seen = {}
 
     def slug(self, name):
         from pypinyin import lazy_pinyin
-        base = "-".join(lazy_pinyin(norm_name(name)))
-        n = self._slug_seen.get(base, 0)
-        self._slug_seen[base] = n + 1
-        return base if n == 0 else "%s-%d" % (base, n + 1)
+        return "-".join(lazy_pinyin(norm_name(name)))
+
+    def new_id(self, name, coord, fixed_id=None):
+        if fixed_id:
+            return fixed_id
+        base = self.slug(name)
+        if base not in self.by_id:
+            return base
+        node_id = "%s-%s" % (base, grid_key(coord))
+        n = 2
+        while node_id in self.by_id:      # 同网格再来一个，极罕见
+            node_id = "%s-%s-%d" % (base, grid_key(coord), n)
+            n += 1
+        return node_id
 
     def register(self, name, coord, kind="station", source="osm",
                  aliases=None, fixed_id=None):
@@ -334,7 +352,7 @@ class NodeRegistry:
                       % (name, node["coord"], coord))
             return node
         node = {
-            "id": fixed_id or self.slug(name),
+            "id": self.new_id(name, coord, fixed_id),
             "name": str(name).strip(),
             "aliases": aliases or [],
             "kind": kind,
@@ -571,23 +589,26 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
         start = end
 
     # 自动补站：走廊 1.1km 内、仅落在本线新提取（非 legacy）块上。
+    # 站序改成显式声明的线（no_auto_stations）连这一段都不走：断点只来自
+    # 声明站序 + via_nodes，补不出来的站由调用方在报告里列成待办，不再猜。
     auto_added = []
     seen_names = {norm_name(s[0]) for s in resolved}
     seen_names.update(norm_name(n["name"]) for n in legacy_nodes)
     seen_names.update(norm_name(n["name"]) for n in MANUAL_NODES)
-    for s in payload["stations"]:
-        nm = norm_name(s["name"])
-        if nm in seen_names:
-            continue
-        for blk, lo, hi in block_ranges:
-            if blk["legacy"]:
+    if not line.get("no_auto_stations"):
+        for s in payload["stations"]:
+            nm = norm_name(s["name"])
+            if nm in seen_names:
                 continue
-            window = pts_all[lo:hi + 1]
-            idx = project_index(window, s["coord"], AUTO_STATION_TOL)
-            if idx is not None:
-                auto_added.append((s["name"], lo + idx, s["coord"]))
-                seen_names.add(nm)
-                break
+            for blk, lo, hi in block_ranges:
+                if blk["legacy"]:
+                    continue
+                window = pts_all[lo:hi + 1]
+                idx = project_index(window, s["coord"], AUTO_STATION_TOL)
+                if idx is not None:
+                    auto_added.append((s["name"], lo + idx, s["coord"]))
+                    seen_names.add(nm)
+                    break
     kept_auto = []
     must_coords = [c for _, c, _ in resolved]
     for name, gi, coord in auto_added:
@@ -604,6 +625,15 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
             if gap_km > AUTO_STATION_REUSE_KM:
                 # 同名异站，或本线只是与注册那条走廊平行（六摆渡）：
                 # 拽过去就是一个尖角，不补这个断点。
+                #
+                # 已知这条判据比的是"本线投影点 vs 别线投影点"，严格说该比
+                # 到站节点自己（六摆渡 处 沪宁城际 0.03km、京沪高铁 1.05km，
+                # 后者离站节点更远却被先注册的节点坐标吸走）。2026-09-26 实测：
+                # 直接改成"到站节点距离 + 共用 OSM 顶点"会让 1802→1844 区段，
+                # 并挪动 K1352(Δkm 3.94)、Z45(Δkm 3.08)、K146/K148（丢掉
+                # 吕河/早阳/安康东 断点）等 5 条已核对路径 —— 违反"查不到的
+                # 车次不许变"。所以这条只能随线逐条交换：某线转声明式站序
+                # （no_auto_stations）后本段整体不再执行，才轮到新判据上位。
                 print("    ! 跳过补站 %s：节点在本线投影外 %.2fkm"
                       % (node["id"], gap_km))
                 continue
@@ -728,6 +758,9 @@ def main(argv=None):
     parser.add_argument("--batches", default=",".join(BATCH_ORDER),
                         help="仅构建指定批次（逗号分隔，如 A,B）；legacy 恒定包含")
     parser.add_argument("--force-extract", action="store_true")
+    parser.add_argument("--out", default="",
+                        help="产物输出路径（默认 js/rail-route-data.js）。做 A/B 时指到 "
+                             "build-cache/ 下，不覆盖已提交产物。")
     args = parser.parse_args(argv)
     batches = [b.strip().upper() for b in args.batches.split(",") if b.strip()]
 
@@ -1021,7 +1054,9 @@ def main(argv=None):
         print("\n%d 条线路构建失败，未写出产物：%s"
               % (len(failures), ", ".join(f["id"] for f in failures)))
         sys.exit(1)
-    out_path = os.path.join(ROOT, "js", "rail-route-data.js")
+    out_path = args.out or os.path.join(ROOT, "js", "rail-route-data.js")
+    if not os.path.isabs(out_path):
+        out_path = os.path.join(ROOT, out_path)
     fd, tmp = tempfile.mkstemp(dir=os.path.dirname(out_path), suffix=".tmp")
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(js)
