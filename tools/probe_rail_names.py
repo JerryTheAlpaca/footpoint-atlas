@@ -44,6 +44,75 @@ def _dump_is_fresh(out_path, sha):
         return False
 
 
+def _atomic_write_json(out_path, payload):
+    outdir = os.path.dirname(os.path.abspath(out_path))
+    if not os.path.isdir(outdir):
+        os.makedirs(outdir)
+    fd, tmp = tempfile.mkstemp(dir=outdir, suffix=".tmp")
+    os.close(fd)
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False)
+    os.replace(tmp, out_path)
+
+
+def run_pts(plan_path, out_path, force):
+    """按"枢纽邻域框"收集命名 railway=rail way 的顶点，写 name→[[lon,lat],…]。
+
+    只收落在任一框内的顶点：长干线会被剪成所附近那一段，正好是求共用顶点
+    需要的东西。这份缓存**只给 tools/llt_junctions.py 用**，不进构建提取白名单
+    （所以不可能动到已验收的产物几何），扫一次能用很久，改探针框只要重扫一次
+    而不用重建产物。顶点精度与 build 的提取缓存一致（round 6），两边才能按
+    同一个坐标判"共用顶点"。
+    """
+    plan = json.load(open(plan_path, encoding="utf-8"))
+    plan = plan.get("boxes", plan)      # 允许直接给 {name: [bbox,…]}
+    boxes = [b for bs in plan.values() for b in bs]
+    sha = _pbf_sha256()
+    key = hashlib.sha1(
+        (sha + "|" + json.dumps(sorted(plan.items()), ensure_ascii=False,
+                                sort_keys=True)).encode("utf-8")).hexdigest()
+    if os.path.exists(out_path) and not force:
+        try:
+            if json.load(open(out_path, encoding="utf-8")).get("key") == key:
+                print("缓存命中，跳过扫描：%s" % out_path)
+                return
+        except Exception:
+            pass
+
+    import osmium
+
+    got = {}
+
+    class Handler(osmium.SimpleHandler):
+        def way(self, w):
+            tags = w.tags
+            if tags.get("railway") != "rail":
+                return
+            name = tags.get("name")
+            if not name:
+                return
+            kept = []
+            for nd in w.nodes:
+                lon, lat = nd.location.lon, nd.location.lat
+                for b in boxes:
+                    if b[0] <= lon <= b[2] and b[1] <= lat <= b[3]:
+                        kept.append([round(lon, 6), round(lat, 6)])
+                        break
+            if kept:
+                got.setdefault(name, []).extend(kept)
+
+    print("扫描 PBF（探针顶点：%d 个名字 / %d 个框）：%s"
+          % (len(plan), len(boxes), PBF_PATH))
+    Handler().apply_file(PBF_PATH, locations=True, idx="flex_mem")
+    _atomic_write_json(out_path, {
+        "provider": "OpenStreetMap (Geofabrik China)",
+        "attribution": "© OpenStreetMap contributors · ODbL",
+        "sha256": sha, "key": key, "plan": os.path.basename(plan_path),
+        "ways": {n: pts for n, pts in sorted(got.items())},
+    })
+    print("已写 %s：%d 个命名走廊的邻域顶点" % (out_path, len(got)))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--keywords", default="")
@@ -54,7 +123,15 @@ def main():
                         help="把全部命名 railway=rail 的 name→规模/外接框 与全部命名 "
                              "station|halt 节点写进该 JSON（按 PBF sha256 复用，不入库）")
     parser.add_argument("--force", action="store_true", help="忽略缓存重新扫描")
+    parser.add_argument("--pts-plan", default="",
+                        help="JSON {走廊名: [[lon1,lat1,lon2,lat2],…]}：只收这些"
+                             "枢纽邻域内的命名 way 顶点（线路所落位用）")
+    parser.add_argument("--pts-out", default="",
+                        help="顶点输出路径，形如 {name: [[lon,lat],…]}（不入库）")
     args = parser.parse_args()
+    if args.pts_plan and args.pts_out:
+        run_pts(args.pts_plan, args.pts_out, args.force)
+        return
     keywords = [k for k in args.keywords.split(",") if k]
     bbox = None
     if args.bbox:
@@ -134,14 +211,7 @@ def main():
                           for n in counter},
             "stations": stations,
         }
-        outdir = os.path.dirname(os.path.abspath(args.dump))
-        if not os.path.isdir(outdir):
-            os.makedirs(outdir)
-        fd, tmp = tempfile.mkstemp(dir=outdir, suffix=".tmp")
-        os.close(fd)
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False)
-        os.replace(tmp, args.dump)
+        _atomic_write_json(args.dump, payload)
         print("已写 %s：%d 个命名走廊、%d 个命名站（sha256 %s…）"
               % (args.dump, len(counter), len(stations), sha[:12]))
         return
