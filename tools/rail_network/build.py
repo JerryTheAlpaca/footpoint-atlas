@@ -1007,6 +1007,19 @@ def main(argv=None):
         entry.pop("_ways", None)
         final_segments.append(entry)
 
+    # lines[].stops 由**区段端点反推**，不再抄线路清单的声明站序：区段端点是
+    # OSM 几何自己算出来的（ODbL），而声明站序里有来自第三方库的有序站表。
+    # 前端只用它做并行走廊投票（stopsToLines），端点集合是同一份信息的自证版本。
+    stops_by_line = {}
+    for seg in final_segments:
+        for lid in seg["lineIds"]:
+            bucket = stops_by_line.setdefault(lid, [])
+            for nid in (seg["from"], seg["to"]):
+                if nid not in bucket:
+                    bucket.append(nid)
+    for summary in line_summaries:
+        summary["stops"] = stops_by_line.get(summary["id"], summary["stops"])
+
     validate(final_segments, registry)
 
     # ---- 节点输出：legacy 在前，其余按注册序 ----
