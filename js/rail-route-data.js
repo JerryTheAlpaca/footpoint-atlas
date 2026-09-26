@@ -1195,7 +1195,7 @@
    "name": "武九铁路（既有线）",
    "batch": "F",
    "from": "wu-chang",
-   "to": "lu-shan",
+   "to": "jiu-jiang-xi",
    "serviceDate": "1990-10-01",
    "trains": [
     "emu",
@@ -1208,10 +1208,11 @@
     "huang-shi",
     "yang-xin",
     "rui-chang",
-    "lu-shan"
+    "jiu-jiang-xi"
    ],
    "links": [
-    "jingguang-conventional"
+    "jingguang-conventional",
+    "jingjiu-conventional"
    ]
   },
   {
@@ -1440,6 +1441,17 @@
    "coord": [
     115.96096,
     30.0571
+   ]
+  },
+  {
+   "id": "jiu-jiang-xi",
+   "name": "九江西",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    115.89021,
+    29.64428
    ]
   },
   {
@@ -7413,17 +7425,6 @@
    "coord": [
     115.86038,
     28.74161
-   ]
-  },
-  {
-   "id": "jiu-jiang-xi",
-   "name": "九江西",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    115.89433,
-    29.63935
    ]
   },
   {
@@ -17696,8 +17697,8 @@
    "kind": "station",
    "source": "osm",
    "coord": [
-    115.83636,
-    29.63087
+    115.82727,
+    29.63028
    ]
   },
   {
@@ -17828,8 +17829,8 @@
    "kind": "station",
    "source": "osm",
    "coord": [
-    115.84425,
-    29.63109
+    115.8442,
+    29.63089
    ]
   },
   {
@@ -45645,10 +45646,10 @@
    ]
   },
   {
-   "id": "jiu-jiang-nan-jiu-jiang-xi",
+   "id": "jiu-jiang-nan-lu-shan",
    "name": "昌九城际铁路",
    "from": "jiu-jiang-nan",
-   "to": "jiu-jiang-xi",
+   "to": "lu-shan",
    "lineIds": [
     "changjiu-int"
    ],
@@ -45656,7 +45657,7 @@
     "emu"
    ],
    "serviceDate": "2010-09-20",
-   "estLengthKm": 8.94,
+   "estLengthKm": 14.35,
    "polyline": [
     [
      115.96693,
@@ -45667,52 +45668,28 @@
      29.67366
     ],
     [
-     115.93072,
-     29.67224
+     115.92919,
+     29.67194
     ],
     [
-     115.92206,
-     29.66918
+     115.92322,
+     29.66983
     ],
     [
-     115.91564,
-     29.66362
+     115.91764,
+     29.66576
     ],
     [
-     115.89433,
-     29.63935
-    ]
-   ]
-  },
-  {
-   "id": "jiu-jiang-xi-lu-shan",
-   "name": "昌九城际铁路",
-   "from": "jiu-jiang-xi",
-   "to": "lu-shan",
-   "lineIds": [
-    "changjiu-int"
-   ],
-   "trains": [
-    "emu"
-   ],
-   "serviceDate": "2010-09-20",
-   "estLengthKm": 5.41,
-   "polyline": [
-    [
-     115.89433,
-     29.63935
+     115.8965,
+     29.64151
     ],
     [
-     115.88373,
-     29.6307
+     115.88053,
+     29.62657
     ],
     [
-     115.87895,
-     29.62352
-    ],
-    [
-     115.87587,
-     29.60974
+     115.87624,
+     29.61217
     ],
     [
      115.87551,
@@ -91346,7 +91323,7 @@
     "conv"
    ],
    "serviceDate": "1990-10-01",
-   "estLengthKm": 22.37,
+   "estLengthKm": 21.49,
    "polyline": [
     [
      115.66689,
@@ -91385,8 +91362,8 @@
      29.62571
     ],
     [
-     115.72548,
-     29.62985
+     115.72735,
+     29.62992
     ],
     [
      115.74638,
@@ -91397,8 +91374,8 @@
      29.62657
     ],
     [
-     115.83636,
-     29.63087
+     115.82727,
+     29.63028
     ]
    ]
   },
@@ -91415,23 +91392,23 @@
     "conv"
    ],
    "serviceDate": "1990-10-01",
-   "estLengthKm": 0.76,
+   "estLengthKm": 1.64,
    "polyline": [
     [
-     115.83636,
-     29.63087
+     115.82727,
+     29.63028
     ],
     [
-     115.84425,
-     29.63109
+     115.8442,
+     29.63089
     ]
    ]
   },
   {
-   "id": "chai-sang-lu-shan",
+   "id": "chai-sang-jiu-jiang-xi",
    "name": "武九铁路（既有线）",
    "from": "chai-sang",
-   "to": "lu-shan",
+   "to": "jiu-jiang-xi",
    "lineIds": [
     "wujiu-conventional"
    ],
@@ -91440,39 +91417,35 @@
     "conv"
    ],
    "serviceDate": "1990-10-01",
-   "estLengthKm": 6.48,
+   "estLengthKm": 6.98,
    "polyline": [
     [
-     115.84425,
-     29.63109
+     115.8442,
+     29.63089
     ],
     [
-     115.85938,
-     29.62556
+     115.86635,
+     29.62164
     ],
     [
-     115.86776,
-     29.6246
+     115.87244,
+     29.61652
     ],
     [
-     115.87469,
-     29.62115
+     115.87494,
+     29.61919
     ],
     [
-     115.87664,
-     29.61597
+     115.87565,
+     29.63033
     ],
     [
-     115.87544,
-     29.60733
+     115.87756,
+     29.63469
     ],
     [
-     115.87705,
-     29.59431
-    ],
-    [
-     115.87551,
-     29.5962
+     115.89021,
+     29.64428
     ]
    ]
   },
@@ -99553,10 +99526,10 @@
    ]
   },
   {
-   "id": "jiu-jiang-lu-shan",
+   "id": "jiu-jiang-jiu-jiang-xi",
    "name": "京九铁路",
    "from": "jiu-jiang",
-   "to": "lu-shan",
+   "to": "jiu-jiang-xi",
    "lineIds": [
     "jingjiu-conventional"
    ],
@@ -99565,7 +99538,7 @@
     "conv"
    ],
    "serviceDate": "1996-09-01",
-   "estLengthKm": 20.67,
+   "estLengthKm": 15.64,
    "polyline": [
     [
      116.00174,
@@ -99596,8 +99569,37 @@
      29.66132
     ],
     [
-     115.87626,
-     29.63285
+     115.89021,
+     29.64428
+    ]
+   ]
+  },
+  {
+   "id": "jiu-jiang-xi-lu-shan",
+   "name": "京九铁路",
+   "from": "jiu-jiang-xi",
+   "to": "lu-shan",
+   "lineIds": [
+    "jingjiu-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "1996-09-01",
+   "estLengthKm": 5.95,
+   "polyline": [
+    [
+     115.89021,
+     29.64428
+    ],
+    [
+     115.87843,
+     29.6355
+    ],
+    [
+     115.87577,
+     29.63131
     ],
     [
      115.87467,
