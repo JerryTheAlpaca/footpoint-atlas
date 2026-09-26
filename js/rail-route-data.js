@@ -164,6 +164,7 @@
    ],
    "stops": [
     "guang-zhou-nan",
+    "nan-sha-bei",
     "qing-sheng",
     "hu-men",
     "guang-ming-cheng",
@@ -366,18 +367,36 @@
    ],
    "stops": [
     "xi-an-bei",
+    "xi-an-xi",
     "hu-yi",
+    "xin-chang-jie",
+    "fu-ping",
     "yang-xian-xi",
     "cheng-gu-bei",
+    "wang-jia-kan",
     "han-zhong",
+    "xin-ji",
     "ning-qiang-nan",
+    "chao-tian",
     "guang-yuan",
+    "sha-xi-ba",
     "jian-men-guan",
+    "qing-chuan",
     "jiang-you-bei",
+    "shuang-he-kou",
     "jiang-you",
+    "san-he-chang",
+    "qing-lian",
+    "mian-yang-bei",
     "mian-yang",
+    "zao-jiao-pu",
+    "luo-jiang-dong",
     "de-yang",
+    "jing-yang",
     "guang-han-bei",
+    "guang-han",
+    "qing-bai-jiang-dong",
+    "xin-dou-dong",
     "cheng-du-dong"
    ],
    "links": []
@@ -430,9 +449,13 @@
    ],
    "stops": [
     "an-qing",
+    "an-qing-bei",
+    "an-qing-xi",
     "qian-shan",
     "tai-hu-nan",
     "su-song-dong",
+    "huang-mei-dong",
+    "hh-junction",
     "huang-mei-nan",
     "lu-shan"
    ],
@@ -524,11 +547,16 @@
    ],
    "stops": [
     "hefei-south",
+    "zhu-xi",
+    "hefei-west",
+    "shu-shan-dong",
     "fei-xi",
     "shu-cheng-dong",
     "lu-jiang-xi",
     "tong-cheng-dong",
+    "tong-cheng-nan",
     "huai-ning",
+    "an-qing-bei",
     "an-qing"
    ],
    "links": [
@@ -793,7 +821,14 @@
    ],
    "stops": [
     "hankou",
+    "hou-hu",
+    "jin-yin-tan",
+    "pan-long-cheng",
     "tian-he-ji-chang",
+    "tian-he-jie",
+    "min-ji",
+    "mao-chen",
+    "huai-yin",
     "xiao-gan-dong"
    ],
    "links": []
@@ -837,15 +872,29 @@
    "stops": [
     "hankou",
     "xin-dun",
+    "xin-gou",
     "xia-xin-dian",
+    "ge-pu",
     "yun-meng",
     "an-lu",
+    "ping-lin",
+    "ma-ping",
     "sui-zhou",
+    "li-shan",
+    "tang-xian-zhen",
+    "sui-yang-dian",
+    "xing-long-ji",
     "zao-yang",
+    "ju-wan",
     "xiang-zhou",
+    "xd-keche-junction",
     "xiang-yang",
+    "xiang-yang-bei",
+    "ma-peng",
+    "chen-jia-hu",
     "lao-he-kou-dong",
     "lao-he-kou",
+    "hong-shan-ju",
     "dan-jiang"
    ],
    "links": []
@@ -882,6 +931,7 @@
    ],
    "stops": [
     "jian-qiao",
+    "gen-shan-men",
     "hang-zhou",
     "nan-xing-qiao",
     "qian-tang-jiang",
@@ -1006,7 +1056,7 @@
     "tai-shan",
     "yan-zhou",
     "xu-zhou",
-    "su-zhou-2",
+    "su-zhou-e117n34",
     "beng-bu",
     "chu-zhou-bei",
     "nan-jing",
@@ -1035,7 +1085,7 @@
     "heng-shui",
     "liao-cheng",
     "he-ze",
-    "fu-yang-2",
+    "fu-yang-e116n33",
     "huang-chuan",
     "ma-cheng",
     "jiu-jiang",
@@ -3612,6 +3662,17 @@
    ]
   },
   {
+   "id": "nan-sha-bei",
+   "name": "南沙北",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    113.48501,
+    22.8687
+   ]
+  },
+  {
    "id": "qing-sheng",
    "name": "庆盛",
    "aliases": [],
@@ -3675,17 +3736,6 @@
    "coord": [
     114.1663,
     22.3017
-   ]
-  },
-  {
-   "id": "nan-sha-bei",
-   "name": "南沙北",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    113.48501,
-    22.8687
    ]
   },
   {
@@ -6516,6 +6566,17 @@
    ]
   },
   {
+   "id": "xi-an-xi",
+   "name": "西安西",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    108.74688,
+    34.26749
+   ]
+  },
+  {
    "id": "hu-yi",
    "name": "鄠邑",
    "aliases": [],
@@ -6524,6 +6585,28 @@
    "coord": [
     108.67518,
     34.07599
+   ]
+  },
+  {
+   "id": "xin-chang-jie",
+   "name": "新场街",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    108.33801,
+    33.74599
+   ]
+  },
+  {
+   "id": "fu-ping",
+   "name": "佛坪",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    107.97627,
+    33.49945
    ]
   },
   {
@@ -6549,127 +6632,6 @@
    ]
   },
   {
-   "id": "han-zhong",
-   "name": "汉中",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    107.02313,
-    33.09255
-   ]
-  },
-  {
-   "id": "ning-qiang-nan",
-   "name": "宁强南",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    106.28218,
-    32.82196
-   ]
-  },
-  {
-   "id": "guang-yuan",
-   "name": "广元",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    105.82055,
-    32.45554
-   ]
-  },
-  {
-   "id": "jian-men-guan",
-   "name": "剑门关",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    105.48529,
-    32.28573
-   ]
-  },
-  {
-   "id": "jiang-you-bei",
-   "name": "江油北",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    105.07464,
-    31.98795
-   ]
-  },
-  {
-   "id": "jiang-you",
-   "name": "江油",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    104.76467,
-    31.77772
-   ]
-  },
-  {
-   "id": "mian-yang",
-   "name": "绵阳",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    104.71461,
-    31.4622
-   ]
-  },
-  {
-   "id": "de-yang",
-   "name": "德阳",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    104.38759,
-    31.17219
-   ]
-  },
-  {
-   "id": "guang-han-bei",
-   "name": "广汉北",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    104.27291,
-    31.01137
-   ]
-  },
-  {
-   "id": "sha-xi-ba",
-   "name": "沙溪坝",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    105.5048,
-    32.29324
-   ]
-  },
-  {
-   "id": "guang-han",
-   "name": "广汉",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    104.25827,
-    30.9862
-   ]
-  },
-  {
    "id": "wang-jia-kan",
    "name": "王家坎",
    "aliases": [],
@@ -6681,69 +6643,14 @@
    ]
   },
   {
-   "id": "xin-chang-jie",
-   "name": "新场街",
+   "id": "han-zhong",
+   "name": "汉中",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    108.33801,
-    33.74599
-   ]
-  },
-  {
-   "id": "luo-jiang-dong",
-   "name": "罗江东",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    104.52891,
-    31.30226
-   ]
-  },
-  {
-   "id": "xin-dou-dong",
-   "name": "新都东",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    104.19472,
-    30.80558
-   ]
-  },
-  {
-   "id": "xi-an-xi",
-   "name": "西安西",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    108.74688,
-    34.26749
-   ]
-  },
-  {
-   "id": "qing-chuan",
-   "name": "青川",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    105.32621,
-    32.18707
-   ]
-  },
-  {
-   "id": "chao-tian",
-   "name": "朝天",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    106.06718,
-    32.70557
+    107.02313,
+    33.09255
    ]
   },
   {
@@ -6758,25 +6665,80 @@
    ]
   },
   {
-   "id": "qing-lian",
-   "name": "青莲",
+   "id": "ning-qiang-nan",
+   "name": "宁强南",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    104.69948,
-    31.67501
+    106.28218,
+    32.82196
    ]
   },
   {
-   "id": "jing-yang",
-   "name": "旌阳",
+   "id": "chao-tian",
+   "name": "朝天",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    104.33978,
-    31.09644
+    106.06718,
+    32.70557
+   ]
+  },
+  {
+   "id": "guang-yuan",
+   "name": "广元",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    105.82055,
+    32.45554
+   ]
+  },
+  {
+   "id": "sha-xi-ba",
+   "name": "沙溪坝",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    105.5048,
+    32.29324
+   ]
+  },
+  {
+   "id": "jian-men-guan",
+   "name": "剑门关",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    105.48529,
+    32.28573
+   ]
+  },
+  {
+   "id": "qing-chuan",
+   "name": "青川",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    105.33197,
+    32.18841
+   ]
+  },
+  {
+   "id": "jiang-you-bei",
+   "name": "江油北",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    105.07464,
+    31.98795
    ]
   },
   {
@@ -6791,14 +6753,14 @@
    ]
   },
   {
-   "id": "mian-yang-bei",
-   "name": "绵阳北",
+   "id": "jiang-you",
+   "name": "江油",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    104.71657,
-    31.55947
+    104.76467,
+    31.77772
    ]
   },
   {
@@ -6813,25 +6775,36 @@
    ]
   },
   {
-   "id": "qing-bai-jiang-dong",
-   "name": "青白江东",
+   "id": "qing-lian",
+   "name": "青莲",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    104.22444,
-    30.90109
+    104.69948,
+    31.67501
    ]
   },
   {
-   "id": "fu-ping",
-   "name": "佛坪",
+   "id": "mian-yang-bei",
+   "name": "绵阳北",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    107.97627,
-    33.49945
+    104.71657,
+    31.55947
+   ]
+  },
+  {
+   "id": "mian-yang",
+   "name": "绵阳",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    104.71461,
+    31.4622
    ]
   },
   {
@@ -6843,6 +6816,83 @@
    "coord": [
     104.65795,
     31.44032
+   ]
+  },
+  {
+   "id": "luo-jiang-dong",
+   "name": "罗江东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    104.52891,
+    31.30226
+   ]
+  },
+  {
+   "id": "de-yang",
+   "name": "德阳",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    104.38759,
+    31.17219
+   ]
+  },
+  {
+   "id": "jing-yang",
+   "name": "旌阳",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    104.33978,
+    31.09644
+   ]
+  },
+  {
+   "id": "guang-han-bei",
+   "name": "广汉北",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    104.27291,
+    31.01137
+   ]
+  },
+  {
+   "id": "guang-han",
+   "name": "广汉",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    104.25827,
+    30.9862
+   ]
+  },
+  {
+   "id": "qing-bai-jiang-dong",
+   "name": "青白江东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    104.22439,
+    30.9011
+   ]
+  },
+  {
+   "id": "xin-dou-dong",
+   "name": "新都东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    104.19472,
+    30.80558
    ]
   },
   {
@@ -7176,6 +7226,17 @@
    ]
   },
   {
+   "id": "zhu-xi",
+   "name": "竹溪",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    117.18339,
+    31.78859
+   ]
+  },
+  {
    "id": "fei-xi",
    "name": "肥西",
    "aliases": [],
@@ -7220,6 +7281,17 @@
    ]
   },
   {
+   "id": "tong-cheng-nan",
+   "name": "桐城南",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    116.95999,
+    30.88087
+   ]
+  },
+  {
    "id": "huai-ning",
    "name": "怀宁",
    "aliases": [],
@@ -7228,17 +7300,6 @@
    "coord": [
     116.84513,
     30.6713
-   ]
-  },
-  {
-   "id": "an-qing",
-   "name": "安庆",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    117.06023,
-    30.55207
    ]
   },
   {
@@ -7253,25 +7314,25 @@
    ]
   },
   {
-   "id": "tong-cheng-nan",
-   "name": "桐城南",
+   "id": "an-qing",
+   "name": "安庆",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    116.95999,
-    30.88087
+    117.06023,
+    30.55207
    ]
   },
   {
-   "id": "zhu-xi",
-   "name": "竹溪",
+   "id": "an-qing-xi",
+   "name": "安庆西",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    117.18037,
-    31.79058
+    116.86278,
+    30.67549
    ]
   },
   {
@@ -7308,6 +7369,17 @@
    ]
   },
   {
+   "id": "huang-mei-dong",
+   "name": "黄梅东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    115.96414,
+    30.05997
+   ]
+  },
+  {
    "id": "huang-mei-nan",
    "name": "黄梅南",
    "aliases": [],
@@ -7327,28 +7399,6 @@
    "coord": [
     115.87551,
     29.5962
-   ]
-  },
-  {
-   "id": "an-qing-xi",
-   "name": "安庆西",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    116.85422,
-    30.67347
-   ]
-  },
-  {
-   "id": "huang-mei-dong",
-   "name": "黄梅东",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    115.97196,
-    30.06677
    ]
   },
   {
@@ -7891,47 +7941,14 @@
    ]
   },
   {
-   "id": "tian-he-ji-chang",
-   "name": "天河机场",
+   "id": "hou-hu",
+   "name": "后湖",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    114.21296,
-    30.77465
-   ]
-  },
-  {
-   "id": "xiao-gan-dong",
-   "name": "孝感东",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    113.94272,
-    30.93279
-   ]
-  },
-  {
-   "id": "tian-he-jie",
-   "name": "天河街",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    114.20587,
-    30.82467
-   ]
-  },
-  {
-   "id": "huai-yin",
-   "name": "槐荫",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    113.96023,
-    30.89951
+    114.26786,
+    30.64077
    ]
   },
   {
@@ -7941,19 +7958,8 @@
    "kind": "station",
    "source": "osm",
    "coord": [
-    114.25999,
-    30.66073
-   ]
-  },
-  {
-   "id": "mao-chen",
-   "name": "毛陈",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    113.985,
-    30.8676
+    114.25966,
+    30.66115
    ]
   },
   {
@@ -7968,14 +7974,69 @@
    ]
   },
   {
-   "id": "hou-hu",
-   "name": "后湖",
+   "id": "tian-he-ji-chang",
+   "name": "天河机场",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    114.26909,
-    30.63863
+    114.21296,
+    30.77465
+   ]
+  },
+  {
+   "id": "tian-he-jie",
+   "name": "天河街",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    114.20587,
+    30.82467
+   ]
+  },
+  {
+   "id": "min-ji",
+   "name": "闵集",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    114.13616,
+    30.82591
+   ]
+  },
+  {
+   "id": "mao-chen",
+   "name": "毛陈",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    113.985,
+    30.8676
+   ]
+  },
+  {
+   "id": "huai-yin",
+   "name": "槐荫",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    113.96023,
+    30.89951
+   ]
+  },
+  {
+   "id": "xiao-gan-dong",
+   "name": "孝感东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    113.94272,
+    30.93279
    ]
   },
   {
@@ -8265,7 +8326,7 @@
    ]
   },
   {
-   "id": "an-jiang-2",
+   "id": "an-jiang-e119n32",
    "name": "安江",
    "aliases": [],
    "kind": "station",
@@ -8606,7 +8667,7 @@
    ]
   },
   {
-   "id": "su-zhou-2",
+   "id": "su-zhou-e117n34",
    "name": "宿州",
    "aliases": [],
    "kind": "station",
@@ -9277,7 +9338,7 @@
    ]
   },
   {
-   "id": "zhang-zhuang-2",
+   "id": "zhang-zhuang-e117n37",
    "name": "张庄",
    "aliases": [],
    "kind": "station",
@@ -9618,7 +9679,7 @@
    ]
   },
   {
-   "id": "ma-chang-2",
+   "id": "ma-chang-e117n39",
    "name": "马厂",
    "aliases": [],
    "kind": "station",
@@ -10718,7 +10779,7 @@
    ]
   },
   {
-   "id": "huang-gang-2",
+   "id": "huang-gang-e114n25",
    "name": "黄岗",
    "aliases": [],
    "kind": "station",
@@ -11818,7 +11879,7 @@
    ]
   },
   {
-   "id": "ping-nan-2",
+   "id": "ping-nan-e114n38",
    "name": "平南",
    "aliases": [],
    "kind": "station",
@@ -12445,7 +12506,7 @@
    ]
   },
   {
-   "id": "yao-cun-2",
+   "id": "yao-cun-e109n34",
    "name": "窑村",
    "aliases": [],
    "kind": "station",
@@ -14458,6 +14519,17 @@
    ]
   },
   {
+   "id": "xin-gou",
+   "name": "新沟",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    113.96818,
+    30.68538
+   ]
+  },
+  {
    "id": "xia-xin-dian",
    "name": "下辛店",
    "aliases": [],
@@ -14466,6 +14538,17 @@
    "coord": [
     113.8073,
     30.84332
+   ]
+  },
+  {
+   "id": "ge-pu",
+   "name": "隔蒲",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    113.72318,
+    30.95765
    ]
   },
   {
@@ -14491,157 +14574,14 @@
    ]
   },
   {
-   "id": "sui-zhou",
-   "name": "随州",
+   "id": "ping-lin",
+   "name": "平林",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    113.40962,
-    31.72539
-   ]
-  },
-  {
-   "id": "zao-yang",
-   "name": "枣阳",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    112.75462,
-    32.07182
-   ]
-  },
-  {
-   "id": "xiang-zhou",
-   "name": "襄州",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    112.21793,
-    32.09885
-   ]
-  },
-  {
-   "id": "xiang-yang",
-   "name": "襄阳",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    112.14955,
-    32.0578
-   ]
-  },
-  {
-   "id": "lao-he-kou-dong",
-   "name": "老河口东",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    111.73496,
-    32.22507
-   ]
-  },
-  {
-   "id": "lao-he-kou",
-   "name": "老河口",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    111.67637,
-    32.38843
-   ]
-  },
-  {
-   "id": "dan-jiang",
-   "name": "丹江",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    111.51334,
-    32.53574
-   ]
-  },
-  {
-   "id": "ju-wan",
-   "name": "琚湾",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    112.5098,
-    32.06363
-   ]
-  },
-  {
-   "id": "hong-shan-ju",
-   "name": "洪山咀",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    111.64751,
-    32.45566
-   ]
-  },
-  {
-   "id": "chen-jia-hu",
-   "name": "陈家湖",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    111.82727,
-    32.15265
-   ]
-  },
-  {
-   "id": "xin-gou",
-   "name": "新沟",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    113.9689,
-    30.68457
-   ]
-  },
-  {
-   "id": "ge-pu",
-   "name": "隔蒲",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    113.72282,
-    30.9556
-   ]
-  },
-  {
-   "id": "xiang-yang-bei",
-   "name": "襄阳北",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    112.15762,
-    32.12146
-   ]
-  },
-  {
-   "id": "ma-peng",
-   "name": "马棚",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    112.08754,
-    32.1313
+    113.6052,
+    31.4181
    ]
   },
   {
@@ -14651,19 +14591,19 @@
    "kind": "station",
    "source": "osm",
    "coord": [
-    113.55374,
-    31.58143
+    113.55196,
+    31.58686
    ]
   },
   {
-   "id": "ping-lin",
-   "name": "平林",
+   "id": "sui-zhou",
+   "name": "随州",
    "aliases": [],
    "kind": "station",
    "source": "osm",
    "coord": [
-    113.60305,
-    31.42065
+    113.40962,
+    31.72539
    ]
   },
   {
@@ -14706,8 +14646,129 @@
    "kind": "station",
    "source": "osm",
    "coord": [
-    112.86818,
-    32.04865
+    112.86838,
+    32.04854
+   ]
+  },
+  {
+   "id": "zao-yang",
+   "name": "枣阳",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    112.75462,
+    32.07182
+   ]
+  },
+  {
+   "id": "ju-wan",
+   "name": "琚湾",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    112.5098,
+    32.06363
+   ]
+  },
+  {
+   "id": "xiang-zhou",
+   "name": "襄州",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    112.21793,
+    32.09885
+   ]
+  },
+  {
+   "id": "xiang-yang",
+   "name": "襄阳",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    112.14955,
+    32.0578
+   ]
+  },
+  {
+   "id": "xiang-yang-bei",
+   "name": "襄阳北",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    112.15762,
+    32.12146
+   ]
+  },
+  {
+   "id": "ma-peng",
+   "name": "马棚",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    112.0874,
+    32.13135
+   ]
+  },
+  {
+   "id": "chen-jia-hu",
+   "name": "陈家湖",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    111.81785,
+    32.1563
+   ]
+  },
+  {
+   "id": "lao-he-kou-dong",
+   "name": "老河口东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    111.73496,
+    32.22507
+   ]
+  },
+  {
+   "id": "lao-he-kou",
+   "name": "老河口",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    111.67637,
+    32.38843
+   ]
+  },
+  {
+   "id": "hong-shan-ju",
+   "name": "洪山咀",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    111.64751,
+    32.45566
+   ]
+  },
+  {
+   "id": "dan-jiang",
+   "name": "丹江",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    111.51334,
+    32.53574
    ]
   },
   {
@@ -15019,7 +15080,7 @@
    ]
   },
   {
-   "id": "zao-yang-2",
+   "id": "zao-yang-e109n33",
    "name": "早阳",
    "aliases": [],
    "kind": "station",
@@ -15679,7 +15740,7 @@
    ]
   },
   {
-   "id": "xi-ping-2",
+   "id": "xi-ping-e111n33",
    "name": "西坪",
    "aliases": [],
    "kind": "station",
@@ -16592,7 +16653,7 @@
    ]
   },
   {
-   "id": "lu-shan-2",
+   "id": "lu-shan-e113n34",
    "name": "鲁山",
    "aliases": [],
    "kind": "station",
@@ -16680,7 +16741,7 @@
    ]
   },
   {
-   "id": "zhi-cheng-2",
+   "id": "zhi-cheng-e113n35",
    "name": "轵城",
    "aliases": [],
    "kind": "station",
@@ -17417,7 +17478,7 @@
    ]
   },
   {
-   "id": "zhi-jiang-2",
+   "id": "zhi-jiang-e112n30",
    "name": "枝江",
    "aliases": [],
    "kind": "station",
@@ -18693,6 +18754,17 @@
    ]
   },
   {
+   "id": "gen-shan-men",
+   "name": "艮山门",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    120.1795,
+    30.28448
+   ]
+  },
+  {
    "id": "hang-zhou",
    "name": "杭州",
    "aliases": [],
@@ -18734,17 +18806,6 @@
    "coord": [
     120.2514,
     30.17256
-   ]
-  },
-  {
-   "id": "gen-shan-men",
-   "name": "艮山门",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    120.1795,
-    30.28448
    ]
   },
   {
@@ -18792,7 +18853,7 @@
    ]
   },
   {
-   "id": "fu-yang-2",
+   "id": "fu-yang-e116n33",
    "name": "阜阳",
    "aliases": [],
    "kind": "station",
@@ -19397,7 +19458,7 @@
    ]
   },
   {
-   "id": "guan-chao-2",
+   "id": "guan-chao-e115n27",
    "name": "冠朝",
    "aliases": [],
    "kind": "station",
@@ -19826,7 +19887,7 @@
    ]
   },
   {
-   "id": "xian-tang-2",
+   "id": "xian-tang-e115n24",
    "name": "仙塘",
    "aliases": [],
    "kind": "station",
@@ -42195,7 +42256,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 23.54,
+   "estLengthKm": 23.53,
    "polyline": [
     [
      108.74688,
@@ -42343,7 +42404,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 43.59,
+   "estLengthKm": 43.83,
    "polyline": [
     [
      108.33801,
@@ -42387,7 +42448,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 52.18,
+   "estLengthKm": 52.17,
    "polyline": [
     [
      107.97627,
@@ -42747,7 +42808,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 35.58,
+   "estLengthKm": 36.0,
    "polyline": [
     [
      105.82055,
@@ -42843,7 +42904,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 18.61,
+   "estLengthKm": 19.23,
    "polyline": [
     [
      105.48529,
@@ -42860,6 +42921,10 @@
     [
      105.32621,
      32.18707
+    ],
+    [
+     105.33197,
+     32.18841
     ]
    ]
   },
@@ -42875,11 +42940,15 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 32.47,
+   "estLengthKm": 33.02,
    "polyline": [
     [
-     105.32621,
-     32.18707
+     105.33197,
+     32.18841
+    ],
+    [
+     105.32236,
+     32.18442
     ],
     [
      105.2749,
@@ -42987,7 +43056,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 5.39,
+   "estLengthKm": 5.91,
    "polyline": [
     [
      104.76467,
@@ -43015,7 +43084,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 8.08,
+   "estLengthKm": 10.16,
    "polyline": [
     [
      104.74281,
@@ -43275,7 +43344,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 9.69,
+   "estLengthKm": 10.51,
    "polyline": [
     [
      104.38759,
@@ -43367,7 +43436,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 10.05,
+   "estLengthKm": 10.42,
    "polyline": [
     [
      104.25827,
@@ -43382,8 +43451,8 @@
      30.91718
     ],
     [
-     104.22444,
-     30.90109
+     104.22439,
+     30.9011
     ]
    ]
   },
@@ -43399,11 +43468,11 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 11.11,
+   "estLengthKm": 11.12,
    "polyline": [
     [
-     104.22444,
-     30.90109
+     104.22439,
+     30.9011
     ],
     [
      104.21874,
@@ -43435,7 +43504,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 21.07,
+   "estLengthKm": 21.46,
    "polyline": [
     [
      104.19472,
@@ -44811,7 +44880,7 @@
     "emu"
    ],
    "serviceDate": "2020-12-22",
-   "estLengthKm": 9.99,
+   "estLengthKm": 9.76,
    "polyline": [
     [
      117.28487,
@@ -44826,15 +44895,79 @@
      31.79098
     ],
     [
-     117.18037,
-     31.79058
+     117.18876,
+     31.79084
+    ],
+    [
+     117.18339,
+     31.78859
     ]
    ]
   },
   {
-   "id": "zhu-xi-fei-xi",
+   "id": "zhu-xi-hefei-west",
    "name": "合安高速铁路",
    "from": "zhu-xi",
+   "to": "hefei-west",
+   "lineIds": [
+    "hean-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2020-12-22",
+   "estLengthKm": 10.95,
+   "polyline": [
+    [
+     117.18339,
+     31.78859
+    ],
+    [
+     117.20938,
+     31.82532
+    ],
+    [
+     117.21264,
+     31.85398
+    ],
+    [
+     117.22826,
+     31.87391
+    ]
+   ]
+  },
+  {
+   "id": "hefei-west-shu-shan-dong",
+   "name": "合安高速铁路",
+   "from": "hefei-west",
+   "to": "shu-shan-dong",
+   "lineIds": [
+    "hean-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2020-12-22",
+   "estLengthKm": 5.23,
+   "polyline": [
+    [
+     117.22826,
+     31.87391
+    ],
+    [
+     117.21321,
+     31.85329
+    ],
+    [
+     117.21015,
+     31.83083
+    ]
+   ]
+  },
+  {
+   "id": "shu-shan-dong-fei-xi",
+   "name": "合安高速铁路",
+   "from": "shu-shan-dong",
    "to": "fei-xi",
    "lineIds": [
     "hean-hsr"
@@ -44843,35 +44976,31 @@
     "emu"
    ],
    "serviceDate": "2020-12-22",
-   "estLengthKm": 10.09,
+   "estLengthKm": 13.9,
    "polyline": [
     [
-     117.18037,
-     31.79058
+     117.21015,
+     31.83083
     ],
     [
-     117.15782,
-     31.78815
+     117.20799,
+     31.82299
     ],
     [
-     117.15169,
-     31.78456
+     117.19116,
+     31.8012
     ],
     [
-     117.14946,
-     31.78165
+     117.17573,
+     31.77605
     ],
     [
-     117.14811,
-     31.77174
+     117.15327,
+     31.75175
     ],
     [
-     117.1504,
-     31.74463
-    ],
-    [
-     117.14713,
-     31.73402
+     117.14812,
+     31.73641
     ],
     [
      117.13936,
@@ -45268,7 +45397,7 @@
     "emu"
    ],
    "serviceDate": "2021-12-30",
-   "estLengthKm": 23.11,
+   "estLengthKm": 22.24,
    "polyline": [
     [
      117.0018,
@@ -45311,20 +45440,24 @@
      30.65354
     ],
     [
-     116.93489,
-     30.67325
+     116.93595,
+     30.67246
     ],
     [
-     116.916,
-     30.68361
+     116.91798,
+     30.68274
     ],
     [
-     116.90507,
-     30.68569
+     116.90727,
+     30.68564
     ],
     [
-     116.85422,
-     30.67347
+     116.89958,
+     30.685
+    ],
+    [
+     116.86278,
+     30.67549
     ]
    ]
   },
@@ -45340,19 +45473,19 @@
     "emu"
    ],
    "serviceDate": "2021-12-30",
-   "estLengthKm": 26.28,
+   "estLengthKm": 27.51,
    "polyline": [
     [
-     116.85422,
-     30.67347
+     116.86278,
+     30.67549
     ],
     [
      116.8203,
      30.66488
     ],
     [
-     116.72418,
-     30.63123
+     116.72594,
+     30.63193
     ],
     [
      116.7108,
@@ -45460,7 +45593,7 @@
     "emu"
    ],
    "serviceDate": "2021-12-30",
-   "estLengthKm": 22.98,
+   "estLengthKm": 24.44,
    "polyline": [
     [
      116.17083,
@@ -45507,8 +45640,8 @@
      30.09093
     ],
     [
-     115.97196,
-     30.06677
+     115.96414,
+     30.05997
     ]
    ]
   },
@@ -45524,11 +45657,11 @@
     "emu"
    ],
    "serviceDate": "2021-12-30",
-   "estLengthKm": 1.51,
+   "estLengthKm": 0.44,
    "polyline": [
     [
-     115.97196,
-     30.06677
+     115.96414,
+     30.05997
     ],
     [
      115.96096,
@@ -48415,7 +48548,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-01",
-   "estLengthKm": 3.26,
+   "estLengthKm": 3.53,
    "polyline": [
     [
      114.24941,
@@ -48430,8 +48563,8 @@
      30.63475
     ],
     [
-     114.26909,
-     30.63863
+     114.26786,
+     30.64077
     ]
    ]
   },
@@ -48447,15 +48580,15 @@
     "emu"
    ],
    "serviceDate": "2016-12-01",
-   "estLengthKm": 2.62,
+   "estLengthKm": 2.42,
    "polyline": [
     [
-     114.26909,
-     30.63863
+     114.26786,
+     30.64077
     ],
     [
-     114.25999,
-     30.66073
+     114.25966,
+     30.66115
     ]
    ]
   },
@@ -48471,11 +48604,11 @@
     "emu"
    ],
    "serviceDate": "2016-12-01",
-   "estLengthKm": 7.99,
+   "estLengthKm": 7.93,
    "polyline": [
     [
-     114.25999,
-     30.66073
+     114.25966,
+     30.66115
     ],
     [
      114.25006,
@@ -48572,9 +48705,33 @@
    ]
   },
   {
-   "id": "tian-he-jie-mao-chen",
+   "id": "tian-he-jie-min-ji",
    "name": "武孝城际铁路",
    "from": "tian-he-jie",
+   "to": "min-ji",
+   "lineIds": [
+    "wuxiao-int"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2016-12-01",
+   "estLengthKm": 6.66,
+   "polyline": [
+    [
+     114.20587,
+     30.82467
+    ],
+    [
+     114.13616,
+     30.82591
+    ]
+   ]
+  },
+  {
+   "id": "min-ji-mao-chen",
+   "name": "武孝城际铁路",
+   "from": "min-ji",
    "to": "mao-chen",
    "lineIds": [
     "wuxiao-int"
@@ -48583,31 +48740,31 @@
     "emu"
    ],
    "serviceDate": "2016-12-01",
-   "estLengthKm": 22.77,
+   "estLengthKm": 16.11,
    "polyline": [
     [
-     114.20587,
-     30.82467
+     114.13616,
+     30.82591
     ],
     [
      114.06158,
      30.82596
     ],
     [
-     114.04784,
-     30.82758
+     114.04569,
+     30.82812
     ],
     [
      114.032,
      30.83305
     ],
     [
-     114.00799,
-     30.84506
+     114.00439,
+     30.84737
     ],
     [
-     113.99613,
-     30.85408
+     113.99427,
+     30.85602
     ],
     [
      113.985,
@@ -49584,10 +49741,10 @@
    ]
   },
   {
-   "id": "tong-jing-an-jiang-2",
+   "id": "tong-jing-an-jiang-e119n32",
    "name": "宁安城际铁路",
    "from": "tong-jing",
-   "to": "an-jiang-2",
+   "to": "an-jiang-e119n32",
    "lineIds": [
     "ningan-int"
    ],
@@ -49612,9 +49769,9 @@
    ]
   },
   {
-   "id": "an-jiang-2-ma-an-shan-dong",
+   "id": "an-jiang-e119n32-ma-an-shan-dong",
    "name": "宁安城际铁路",
-   "from": "an-jiang-2",
+   "from": "an-jiang-e119n32",
    "to": "ma-an-shan-dong",
    "lineIds": [
     "ningan-int"
@@ -51886,10 +52043,10 @@
    ]
   },
   {
-   "id": "tang-guan-tun-ma-chang-2",
+   "id": "tang-guan-tun-ma-chang-e117n39",
    "name": "京沪铁路（既有线）",
    "from": "tang-guan-tun",
-   "to": "ma-chang-2",
+   "to": "ma-chang-e117n39",
    "lineIds": [
     "jinghu-conventional"
    ],
@@ -51915,9 +52072,9 @@
    ]
   },
   {
-   "id": "ma-chang-2-qing-xian",
+   "id": "ma-chang-e117n39-qing-xian",
    "name": "京沪铁路（既有线）",
-   "from": "ma-chang-2",
+   "from": "ma-chang-e117n39",
    "to": "qing-xian",
    "lineIds": [
     "jinghu-conventional"
@@ -52537,10 +52694,10 @@
    ]
   },
   {
-   "id": "ping-yuan-zhang-zhuang-2",
+   "id": "ping-yuan-zhang-zhuang-e117n37",
    "name": "京沪铁路（既有线）",
    "from": "ping-yuan",
-   "to": "zhang-zhuang-2",
+   "to": "zhang-zhuang-e117n37",
    "lineIds": [
     "jinghu-conventional"
    ],
@@ -52582,9 +52739,9 @@
    ]
   },
   {
-   "id": "zhang-zhuang-2-yu-cheng",
+   "id": "zhang-zhuang-e117n37-yu-cheng",
    "name": "京沪铁路（既有线）",
-   "from": "zhang-zhuang-2",
+   "from": "zhang-zhuang-e117n37",
    "to": "yu-cheng",
    "lineIds": [
     "jinghu-conventional"
@@ -54268,10 +54425,10 @@
    ]
   },
   {
-   "id": "fu-li-ji-su-zhou-2",
+   "id": "fu-li-ji-su-zhou-e117n34",
    "name": "京沪铁路（既有线）",
    "from": "fu-li-ji",
-   "to": "su-zhou-2",
+   "to": "su-zhou-e117n34",
    "lineIds": [
     "jinghu-conventional"
    ],
@@ -54301,9 +54458,9 @@
    ]
   },
   {
-   "id": "su-zhou-2-su-zhou-nan",
+   "id": "su-zhou-e117n34-su-zhou-nan",
    "name": "京沪铁路（既有线）",
-   "from": "su-zhou-2",
+   "from": "su-zhou-e117n34",
    "to": "su-zhou-nan",
    "lineIds": [
     "jinghu-conventional"
@@ -56641,10 +56798,10 @@
    ]
   },
   {
-   "id": "shi-jia-zhuang-ping-nan-2",
+   "id": "shi-jia-zhuang-ping-nan-e114n38",
    "name": "京广铁路（既有线）",
    "from": "shi-jia-zhuang",
-   "to": "ping-nan-2",
+   "to": "ping-nan-e114n38",
    "lineIds": [
     "jingguang-conventional"
    ],
@@ -56698,9 +56855,9 @@
    ]
   },
   {
-   "id": "ping-nan-2-dou-yu",
+   "id": "ping-nan-e114n38-dou-yu",
    "name": "京广铁路（既有线）",
-   "from": "ping-nan-2",
+   "from": "ping-nan-e114n38",
    "to": "dou-yu",
    "lineIds": [
     "jingguang-conventional"
@@ -63392,10 +63549,10 @@
    ]
   },
   {
-   "id": "mei-cun-huang-gang-2",
+   "id": "mei-cun-huang-gang-e114n25",
    "name": "京广铁路（既有线）",
    "from": "mei-cun",
-   "to": "huang-gang-2",
+   "to": "huang-gang-e114n25",
    "lineIds": [
     "jingguang-conventional"
    ],
@@ -63469,9 +63626,9 @@
    ]
   },
   {
-   "id": "huang-gang-2-shao-guan-dong",
+   "id": "huang-gang-e114n25-shao-guan-dong",
    "name": "京广铁路（既有线）",
-   "from": "huang-gang-2",
+   "from": "huang-gang-e114n25",
    "to": "shao-guan-dong",
    "lineIds": [
     "jingguang-conventional"
@@ -68133,10 +68290,10 @@
    ]
   },
   {
-   "id": "lin-tong-yao-cun-2",
+   "id": "lin-tong-yao-cun-e109n34",
    "name": "陇海铁路（既有线）",
    "from": "lin-tong",
-   "to": "yao-cun-2",
+   "to": "yao-cun-e109n34",
    "lineIds": [
     "longhai-conventional",
     "ningxi-conventional"
@@ -68167,9 +68324,9 @@
    ]
   },
   {
-   "id": "yao-cun-2-ba-qiao",
+   "id": "yao-cun-e109n34-ba-qiao",
    "name": "陇海铁路（既有线）",
-   "from": "yao-cun-2",
+   "from": "yao-cun-e109n34",
    "to": "ba-qiao",
    "lineIds": [
     "longhai-conventional",
@@ -74603,7 +74760,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 25.08,
+   "estLengthKm": 25.21,
    "polyline": [
     [
      114.19044,
@@ -74618,32 +74775,32 @@
      30.61097
     ],
     [
-     114.11188,
-     30.60387
+     114.11186,
+     30.60382
     ],
     [
-     114.1006,
-     30.60346
+     114.10061,
+     30.60342
     ],
     [
-     114.0896,
-     30.6054
+     114.08958,
+     30.60536
     ],
     [
-     114.02392,
-     30.62864
+     114.0239,
+     30.6286
     ],
     [
-     114.01213,
-     30.63451
+     114.01207,
+     30.63448
     ],
     [
-     114.00164,
-     30.64377
+     114.00159,
+     30.64375
     ],
     [
-     113.9689,
-     30.68457
+     113.96818,
+     30.68538
     ]
    ]
   },
@@ -74660,11 +74817,11 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 23.87,
+   "estLengthKm": 23.76,
    "polyline": [
     [
-     113.9689,
-     30.68457
+     113.96818,
+     30.68538
     ],
     [
      113.9337,
@@ -74709,7 +74866,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 16.14,
+   "estLengthKm": 16.38,
    "polyline": [
     [
      113.8073,
@@ -74740,8 +74897,8 @@
      30.94275
     ],
     [
-     113.72282,
-     30.9556
+     113.72318,
+     30.95765
     ]
    ]
   },
@@ -74758,11 +74915,11 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 7.75,
+   "estLengthKm": 7.51,
    "polyline": [
     [
-     113.72282,
-     30.9556
+     113.72318,
+     30.95765
     ],
     [
      113.72557,
@@ -74844,7 +75001,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 20.69,
+   "estLengthKm": 20.34,
    "polyline": [
     [
      113.69014,
@@ -74871,16 +75028,12 @@
      31.3597
     ],
     [
-     113.63558,
-     31.38097
+     113.63542,
+     31.38102
     ],
     [
-     113.62281,
-     31.39808
-    ],
-    [
-     113.60305,
-     31.42065
+     113.6052,
+     31.4181
     ]
    ]
   },
@@ -74897,22 +75050,22 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 18.89,
+   "estLengthKm": 20.96,
    "polyline": [
     [
-     113.60305,
-     31.42065
+     113.6052,
+     31.4181
     ],
     [
-     113.59317,
-     31.43294
+     113.59446,
+     31.43079
     ],
     [
-     113.58292,
+     113.58286,
      31.45212
     ],
     [
-     113.58064,
+     113.58058,
      31.47063
     ],
     [
@@ -74936,8 +75089,8 @@
      31.55843
     ],
     [
-     113.55374,
-     31.58143
+     113.55196,
+     31.58686
     ]
    ]
   },
@@ -74954,19 +75107,19 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 22.05,
+   "estLengthKm": 21.41,
    "polyline": [
     [
-     113.55374,
-     31.58143
+     113.55196,
+     31.58686
     ],
     [
-     113.54703,
-     31.60254
+     113.54646,
+     31.6036
     ],
     [
      113.54181,
-     31.61196
+     31.61169
     ],
     [
      113.5201,
@@ -75146,7 +75299,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 10.51,
+   "estLengthKm": 10.54,
    "polyline": [
     [
      112.97676,
@@ -75165,8 +75318,8 @@
      32.04057
     ],
     [
-     112.86818,
-     32.04865
+     112.86838,
+     32.04854
     ]
    ]
   },
@@ -75183,11 +75336,11 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 11.1,
+   "estLengthKm": 11.11,
    "polyline": [
     [
-     112.86818,
-     32.04865
+     112.86838,
+     32.04854
     ],
     [
      112.82172,
@@ -75220,7 +75373,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 24.77,
+   "estLengthKm": 24.1,
    "polyline": [
     [
      112.75462,
@@ -75425,7 +75578,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 8.89,
+   "estLengthKm": 8.9,
    "polyline": [
     [
      112.15762,
@@ -75452,8 +75605,8 @@
      32.1317
     ],
     [
-     112.08754,
-     32.1313
+     112.0874,
+     32.13135
     ]
    ]
   },
@@ -75470,11 +75623,11 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 25.19,
+   "estLengthKm": 26.15,
    "polyline": [
     [
-     112.08754,
-     32.1313
+     112.0874,
+     32.13135
     ],
     [
      111.96915,
@@ -75493,8 +75646,8 @@
      32.12987
     ],
     [
-     111.82727,
-     32.15265
+     111.81785,
+     32.1563
     ]
    ]
   },
@@ -75511,11 +75664,11 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 12.19,
+   "estLengthKm": 11.21,
    "polyline": [
     [
-     111.82727,
-     32.15265
+     111.81785,
+     32.1563
     ],
     [
      111.80239,
@@ -75526,12 +75679,12 @@
      32.18901
     ],
     [
-     111.75034,
-     32.20015
+     111.74859,
+     32.20156
     ],
     [
-     111.7421,
-     32.20935
+     111.74108,
+     32.21105
     ],
     [
      111.73496,
@@ -75593,7 +75746,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 8.93,
+   "estLengthKm": 9.26,
    "polyline": [
     [
      111.67637,
@@ -76558,10 +76711,10 @@
    ]
   },
   {
-   "id": "lv-he-zao-yang-2",
+   "id": "lv-he-zao-yang-e109n33",
    "name": "襄渝铁路",
    "from": "lv-he",
-   "to": "zao-yang-2",
+   "to": "zao-yang-e109n33",
    "lineIds": [
     "xiangyu-conventional",
     "xikang-conventional"
@@ -76600,9 +76753,9 @@
    ]
   },
   {
-   "id": "zao-yang-2-an-kang-dong",
+   "id": "zao-yang-e109n33-an-kang-dong",
    "name": "襄渝铁路",
-   "from": "zao-yang-2",
+   "from": "zao-yang-e109n33",
    "to": "an-kang-dong",
    "lineIds": [
     "xiangyu-conventional",
@@ -80573,10 +80726,10 @@
    ]
   },
   {
-   "id": "ding-he-xi-ping-2",
+   "id": "ding-he-xi-ping-e111n33",
    "name": "宁西铁路",
    "from": "ding-he",
-   "to": "xi-ping-2",
+   "to": "xi-ping-e111n33",
    "lineIds": [
     "ningxi-conventional"
    ],
@@ -80670,9 +80823,9 @@
    ]
   },
   {
-   "id": "xi-ping-2-shang-nan",
+   "id": "xi-ping-e111n33-shang-nan",
    "name": "宁西铁路",
-   "from": "xi-ping-2",
+   "from": "xi-ping-e111n33",
    "to": "shang-nan",
    "lineIds": [
     "ningxi-conventional"
@@ -85366,10 +85519,10 @@
    ]
   },
   {
-   "id": "ji-yuan-zhi-cheng-2",
+   "id": "ji-yuan-zhi-cheng-e113n35",
    "name": "焦柳铁路",
    "from": "ji-yuan",
-   "to": "zhi-cheng-2",
+   "to": "zhi-cheng-e113n35",
    "lineIds": [
     "jiaoliu-conventional"
    ],
@@ -85407,9 +85560,9 @@
    ]
   },
   {
-   "id": "zhi-cheng-2-liu-zhuang",
+   "id": "zhi-cheng-e113n35-liu-zhuang",
    "name": "焦柳铁路",
-   "from": "zhi-cheng-2",
+   "from": "zhi-cheng-e113n35",
    "to": "liu-zhuang",
    "lineIds": [
     "jiaoliu-conventional"
@@ -86192,10 +86345,10 @@
    ]
   },
   {
-   "id": "bao-feng-lu-shan-2",
+   "id": "bao-feng-lu-shan-e113n34",
    "name": "焦柳铁路",
    "from": "bao-feng",
-   "to": "lu-shan-2",
+   "to": "lu-shan-e113n34",
    "lineIds": [
     "jiaoliu-conventional"
    ],
@@ -86261,9 +86414,9 @@
    ]
   },
   {
-   "id": "lu-shan-2-rang-he",
+   "id": "lu-shan-e113n34-rang-he",
    "name": "焦柳铁路",
-   "from": "lu-shan-2",
+   "from": "lu-shan-e113n34",
    "to": "rang-he",
    "lineIds": [
     "jiaoliu-conventional"
@@ -87976,10 +88129,10 @@
    ]
   },
   {
-   "id": "an-fu-si-zhi-jiang-2",
+   "id": "an-fu-si-zhi-jiang-e112n30",
    "name": "焦柳铁路",
    "from": "an-fu-si",
-   "to": "zhi-jiang-2",
+   "to": "zhi-jiang-e112n30",
    "lineIds": [
     "jiaoliu-conventional"
    ],
@@ -88009,9 +88162,9 @@
    ]
   },
   {
-   "id": "zhi-jiang-2-zhi-cheng",
+   "id": "zhi-jiang-e112n30-zhi-cheng",
    "name": "焦柳铁路",
-   "from": "zhi-jiang-2",
+   "from": "zhi-jiang-e112n30",
    "to": "zhi-cheng",
    "lineIds": [
     "jiaoliu-conventional"
@@ -96162,7 +96315,7 @@
     "conv"
    ],
    "serviceDate": "1937-09-26",
-   "estLengthKm": 7.55,
+   "estLengthKm": 7.68,
    "polyline": [
     [
      120.20995,
@@ -96213,12 +96366,12 @@
      30.28448
     ],
     [
-     120.18382,
-     30.27771
+     120.18419,
+     30.27697
     ],
     [
-     120.18528,
-     30.27104
+     120.1852,
+     30.27005
     ],
     [
      120.18345,
@@ -98132,10 +98285,10 @@
    ]
   },
   {
-   "id": "fu-yang-bei-fu-yang-2",
+   "id": "fu-yang-bei-fu-yang-e116n33",
    "name": "京九铁路",
    "from": "fu-yang-bei",
-   "to": "fu-yang-2",
+   "to": "fu-yang-e116n33",
    "lineIds": [
     "jingjiu-conventional"
    ],
@@ -98165,9 +98318,9 @@
    ]
   },
   {
-   "id": "fu-yang-2-ying-nan",
+   "id": "fu-yang-e116n33-ying-nan",
    "name": "京九铁路",
-   "from": "fu-yang-2",
+   "from": "fu-yang-e116n33",
    "to": "ying-nan",
    "lineIds": [
     "jingjiu-conventional"
@@ -100639,10 +100792,10 @@
    ]
   },
   {
-   "id": "ji-an-nan-guan-chao-2",
+   "id": "ji-an-nan-guan-chao-e115n27",
    "name": "京九铁路",
    "from": "ji-an-nan",
-   "to": "guan-chao-2",
+   "to": "guan-chao-e115n27",
    "lineIds": [
     "jingjiu-conventional"
    ],
@@ -100748,9 +100901,9 @@
    ]
   },
   {
-   "id": "guan-chao-2-sha-cun",
+   "id": "guan-chao-e115n27-sha-cun",
    "name": "京九铁路",
-   "from": "guan-chao-2",
+   "from": "guan-chao-e115n27",
    "to": "sha-cun",
    "lineIds": [
     "jingjiu-conventional"
@@ -102375,10 +102528,10 @@
    ]
   },
   {
-   "id": "yi-he-xian-tang-2",
+   "id": "yi-he-xian-tang-e115n24",
    "name": "京九铁路",
    "from": "yi-he",
-   "to": "xian-tang-2",
+   "to": "xian-tang-e115n24",
    "lineIds": [
     "jingjiu-conventional"
    ],
@@ -102440,9 +102593,9 @@
    ]
   },
   {
-   "id": "xian-tang-2-he-yuan",
+   "id": "xian-tang-e115n24-he-yuan",
    "name": "京九铁路",
-   "from": "xian-tang-2",
+   "from": "xian-tang-e115n24",
    "to": "he-yuan",
    "lineIds": [
     "jingjiu-conventional"

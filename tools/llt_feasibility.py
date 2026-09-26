@@ -97,7 +97,10 @@ def map_llt_to_our(ours, llt_lines):
         scored = []
         for lid, mine in mine_norm.items():
             inter = len(plain & mine)
-            if inter >= 2 and inter / len(plain) >= 0.6:
+            # 双向覆盖都要够：只看"①层条目被我们的线覆盖"会让 武津线、下隔线
+            # 这类两站小条目顺带映射到 京沪线/汉丹线 这种大线上，真按它改站序
+            # 就把不相干的走廊插进骨架了。
+            if inter >= 2 and min(inter / len(plain), inter / len(mine)) >= 0.5:
                 scored.append((round(inter / len(plain), 3), inter, lid))
         scored.sort(reverse=True)
         if scored:
