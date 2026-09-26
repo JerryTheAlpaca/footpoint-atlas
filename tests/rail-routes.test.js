@@ -514,6 +514,37 @@ describe('pilot corridor counts', () => {
         official[stop] + 'km，差超 ' + slack.toFixed(1) + 'km');
     }
   });
+
+  it('brings the K146/K148 approach to 武昌 up at 汉西, not inside 汉口站', () => {
+    // 襄渝/汉丹 方向的客车在 新墩 就拐上 汉西联络线 南下，经 汉阳 上
+    // 长江大桥到 武昌，不进 汉口站 折头。网络里缺这条联络线（清单的
+    // hanxi-link）时，汉丹线 与 京广线 在 汉口枢纽 的唯一交点就是
+    // 汉口站，画出来是 新墩→汉口→汉西 一根戳进车站再拔出来的尖角，
+    // 安陆→武昌 也因此多算 7.8km。
+    const sandbox = loadRoutes();
+    loadScript(sandbox, 'train-stops.js');
+    const Routes = sandbox.TrainRoutes;
+    const hankou = [114.24941, 30.62165];
+    const cases = [
+      { from: '西安', to: '武昌', train: 'K148', date: '2026-05-03' },
+      { from: '武昌', to: '西安', train: 'K146', date: '2026-04-29' },
+    ];
+    for (const rec of cases) {
+      const route = Routes.resolveRecordRoute(rec);
+      assert.ok(route, rec.train + ' 不可达');
+      assert.ok(route.segIds.includes('xin-dun-han-xi'),
+        rec.train + ' 没走 新墩—汉西 联络线');
+      for (const intoStation of ['hankou-xin-dun-2', 'hankou-han-xi',
+        'dan-shui-chi-hankou', 'hengdian-east-hankou']) {
+        assert.ok(!route.segIds.includes(intoStation),
+          rec.train + ' 仍经 汉口站（' + intoStation + '）');
+      }
+      const near = route.points.filter(
+        (p) => Math.hypot(p[0] - hankou[0], p[1] - hankou[1]) < 0.02);
+      assert.equal(near.length, 0,
+        rec.train + ' 折线有 ' + near.length + ' 点贴到 汉口站 2km 内');
+    }
+  });
 });
 
 describe('display mode preference', () => {

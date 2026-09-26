@@ -850,6 +850,26 @@
    "links": []
   },
   {
+   "id": "hanxi-link",
+   "name": "汉丹汉西联络线",
+   "batch": "F",
+   "from": "xin-dun",
+   "to": "han-xi",
+   "serviceDate": "1966-01-01",
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "stops": [
+    "xin-dun",
+    "han-xi"
+   ],
+   "links": [
+    "handan-conventional",
+    "jingguang-conventional"
+   ]
+  },
+  {
    "id": "hukun-bypass-hangzhou",
    "name": "沪昆绕行线（钱塘江大桥）",
    "batch": "F",
@@ -75620,6 +75640,43 @@
     [
      111.51334,
      32.53574
+    ]
+   ]
+  },
+  {
+   "id": "xin-dun-han-xi",
+   "name": "汉丹汉西联络线",
+   "from": "xin-dun",
+   "to": "han-xi",
+   "lineIds": [
+    "hanxi-link"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "1966-01-01",
+   "estLengthKm": 4.84,
+   "polyline": [
+    [
+     114.19044,
+     30.62029
+    ],
+    [
+     114.20516,
+     30.61981
+    ],
+    [
+     114.2128,
+     30.61658
+    ],
+    [
+     114.21726,
+     30.61187
+    ],
+    [
+     114.22214,
+     30.59508
     ]
    ]
   },
