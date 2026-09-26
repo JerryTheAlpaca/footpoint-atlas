@@ -843,6 +843,7 @@
     "sui-zhou",
     "zao-yang",
     "xiang-zhou",
+    "xiang-yang",
     "lao-he-kou-dong",
     "lao-he-kou",
     "dan-jiang"
@@ -1452,6 +1453,17 @@
    "coord": [
     115.89021,
     29.64428
+   ]
+  },
+  {
+   "id": "xd-keche-junction",
+   "name": "汉丹客车联络线接轨点",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    112.18534,
+    32.09129
    ]
   },
   {
@@ -14512,6 +14524,17 @@
    ]
   },
   {
+   "id": "xiang-yang",
+   "name": "襄阳",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    112.14955,
+    32.0578
+   ]
+  },
+  {
    "id": "lao-he-kou-dong",
    "name": "老河口东",
    "aliases": [],
@@ -16456,17 +16479,6 @@
    "coord": [
     113.03871,
     33.85807
-   ]
-  },
-  {
-   "id": "xiang-yang",
-   "name": "襄阳",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    112.14955,
-    32.0578
    ]
   },
   {
@@ -75302,9 +75314,67 @@
    ]
   },
   {
-   "id": "xiang-zhou-xiang-yang-bei",
+   "id": "xiang-zhou-xd-keche-junction",
    "name": "汉丹铁路",
    "from": "xiang-zhou",
+   "to": "xd-keche-junction",
+   "lineIds": [
+    "handan-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "1966-01-01",
+   "estLengthKm": 3.21,
+   "polyline": [
+    [
+     112.21793,
+     32.09885
+    ],
+    [
+     112.18534,
+     32.09129
+    ]
+   ]
+  },
+  {
+   "id": "xd-keche-junction-xiang-yang",
+   "name": "汉丹铁路",
+   "from": "xd-keche-junction",
+   "to": "xiang-yang",
+   "lineIds": [
+    "handan-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "1966-01-01",
+   "estLengthKm": 5.33,
+   "polyline": [
+    [
+     112.18534,
+     32.09129
+    ],
+    [
+     112.17665,
+     32.08798
+    ],
+    [
+     112.16599,
+     32.08028
+    ],
+    [
+     112.14955,
+     32.0578
+    ]
+   ]
+  },
+  {
+   "id": "xiang-yang-xiang-yang-bei",
+   "name": "汉丹铁路",
+   "from": "xiang-yang",
    "to": "xiang-yang-bei",
    "lineIds": [
     "handan-conventional"
@@ -75314,27 +75384,23 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 8.25,
+   "estLengthKm": 8.59,
    "polyline": [
     [
-     112.21793,
-     32.09885
+     112.14955,
+     32.0578
     ],
     [
-     112.18578,
-     32.09107
+     112.16665,
+     32.08097
     ],
     [
-     112.17777,
-     32.09006
+     112.17665,
+     32.08798
     ],
     [
-     112.17197,
-     32.09106
-    ],
-    [
-     112.16629,
-     32.09699
+     112.1673,
+     32.09506
     ],
     [
      112.16528,
@@ -76451,7 +76517,8 @@
    "from": "xun-yang",
    "to": "lv-he",
    "lineIds": [
-    "xiangyu-conventional"
+    "xiangyu-conventional",
+    "xikang-conventional"
    ],
    "trains": [
     "emu",
@@ -76496,7 +76563,8 @@
    "from": "lv-he",
    "to": "zao-yang-2",
    "lineIds": [
-    "xiangyu-conventional"
+    "xiangyu-conventional",
+    "xikang-conventional"
    ],
    "trains": [
     "emu",
@@ -76537,7 +76605,8 @@
    "from": "zao-yang-2",
    "to": "an-kang-dong",
    "lineIds": [
-    "xiangyu-conventional"
+    "xiangyu-conventional",
+    "xikang-conventional"
    ],
    "trains": [
     "emu",
@@ -78609,10 +78678,10 @@
    ]
   },
   {
-   "id": "xun-yang-bei-an-kang-dong",
+   "id": "xun-yang-bei-xun-yang",
    "name": "西康铁路",
    "from": "xun-yang-bei",
-   "to": "an-kang-dong",
+   "to": "xun-yang",
    "lineIds": [
     "xikang-conventional"
    ],
@@ -78621,79 +78690,39 @@
     "conv"
    ],
    "serviceDate": "2001-10-01",
-   "estLengthKm": 33.82,
+   "estLengthKm": 6.08,
    "polyline": [
     [
      109.29021,
      32.84428
     ],
     [
-     109.2858,
-     32.84729
+     109.30309,
+     32.83598
     ],
     [
-     109.28129,
-     32.86009
+     109.3271,
+     32.83449
     ],
     [
-     109.27293,
-     32.86929
+     109.33127,
+     32.83262
     ],
     [
-     109.27446,
-     32.88143
+     109.33335,
+     32.82925
     ],
     [
-     109.25977,
-     32.89478
+     109.33526,
+     32.82863
     ],
     [
-     109.25515,
-     32.90277
+     109.33784,
+     32.8327
     ],
     [
-     109.25255,
-     32.90036
-    ],
-    [
-     109.24652,
-     32.88707
-    ],
-    [
-     109.24292,
-     32.88259
-    ],
-    [
-     109.23102,
-     32.8752
-    ],
-    [
-     109.21467,
-     32.86807
-    ],
-    [
-     109.19808,
-     32.85634
-    ],
-    [
-     109.12025,
-     32.78649
-    ],
-    [
-     109.10466,
-     32.76692
-    ],
-    [
-     109.08926,
-     32.73471
-    ],
-    [
-     109.08684,
-     32.7319
-    ],
-    [
-     109.07873,
-     32.72807
+     109.34347,
+     32.83613
     ]
    ]
   },
