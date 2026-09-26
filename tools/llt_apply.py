@@ -173,24 +173,33 @@ def merge_stations(ours, theirs, pool):
         if ib < ia:
             conflicts.append("%s→%s：路路通这个顺序与我们的站序相反" % (ta, tb))
     pending = []
+    seen_anchor = 0
     for t in theirs:
         nt = norm_name(t)
         if nt in pos_of:
+            seen_anchor += 1
             at = index_in(merged, t)
-            for p in pending:
-                if index_in(merged, p) >= 0:
-                    continue
-                if norm_name(p) not in pool:
-                    dropped.append("%s(无落位来源)" % p)
-                    continue
-                merged.insert(at, p)
-                inserted.append(p)
-                at += 1
+            if seen_anchor == 1:
+                # 第一个锚点之前的点在本线范围之外：宁西线 的 蜀山东 就是这样
+                # 被插到 长安集 前面，构建时报"蜀山东→长安集 寻径失败"，
+                # 而这条线是 optional，整条线会被静默丢掉。范围外一律不插。
+                for p in pending:
+                    dropped.append("%s(超出本线端点)" % p)
+            else:
+                for p in pending:
+                    if index_in(merged, p) >= 0:
+                        continue
+                    if norm_name(p) not in pool:
+                        dropped.append("%s(无落位来源)" % p)
+                        continue
+                    merged.insert(at, p)
+                    inserted.append(p)
+                    at += 1
             pending = []
         else:
             pending.append(t)
     for p in pending:
-        dropped.append("%s(末锚点之后)" % p)
+        dropped.append("%s(超出本线端点)" % p)
     return merged, inserted, conflicts, dropped
 
 
