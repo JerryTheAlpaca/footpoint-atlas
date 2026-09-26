@@ -80,6 +80,16 @@ out.push('=== 缺线清单（站序里有、网络里没有的站）===');
 out.push(missingList.length
   ? missingList.map(([s, n]) => `${s}×${n}`).join('  ')
   : '无');
+
+// 缺断点清单：站序里的点网络认得出、但解出的路径没有在该点断开的情况，
+// 由 resolveVia 的 unasserted 直接给出（重构后它=该补线路所/接轨点断点）。
+const unasserted = {};
+diag.forEach(d => (d.unasserted || []).forEach(s => { unasserted[s] = (unasserted[s] || 0) + 1; }));
+out.push('');
+out.push('=== 未收录点（缺断点或缺线路，来自 resolveVia.unasserted）===');
+out.push(Object.keys(unasserted).length
+  ? Object.entries(unasserted).sort((a, b) => b[1] - a[1]).map(([s, n]) => `${s}×${n}`).join('  ')
+  : '无');
 fs.writeFileSync(path.join(__dirname, '..', 'build-cache', '_diag_via.txt'),
   out.join('\n'), 'utf8');
 console.log(out.join('\n'));

@@ -549,8 +549,8 @@
     return out;
   }
 
-  // 经由判定。成功返回 { segIds, km, by, officialKm, confidence, note }；
-  // 判不出返回 { reason, unknown }——reason 同时就是缺线报告，指出网络里
+  // 经由判定。成功返回 { segIds, km, by, officialKm, confidence, unasserted, note }；
+  // 判不出返回 { reason, unasserted }——reason 同时就是缺线报告，指出网络里
   // 少了哪一段，是后续补线路清单的输入。
   // by 取值：stops 由中间停靠站判定 / mileage 由里程在多走廊中判定 /
   // unique 网络里只有一条走廊 / shortest 多走廊但无里程，退回最短。
@@ -585,6 +585,7 @@
       if (chained.gap) {
         return {
           reason: '缺线：' + chained.gap[0] + '→' + chained.gap[1] + ' 之间无通路',
+          unasserted: unknown,
           unknown: unknown,
         };
       }
@@ -593,7 +594,9 @@
     } else {
       var candidates = corridorCandidates(fromNode.id, toNode.id, maps,
         record.date, kind, prefer);
-      if (!candidates.length) return { reason: '两站之间无通路', unknown: unknown };
+      if (!candidates.length) {
+        return { reason: '两站之间无通路', unasserted: unknown, unknown: unknown };
+      }
       var pick = candidates[0];
       if (candidates.length === 1) {
         by = 'unique';
@@ -623,13 +626,16 @@
         notes.push('里程与官方差 ' + Math.round(dev * 100) + '%');
       }
     }
-    if (unknown.length) notes.push('站序中未收录：' + unknown.join('/'));
+    if (unknown.length) notes.push('未收录（缺断点或缺线路）：' + unknown.join('/'));
     return {
       segIds: segIds,
       km: km,
       by: by,
       officialKm: officialKm,
       confidence: confidence,
+      // 站序里网络认不出的点：重构之后它们意味着"这条走廊在这里该断而没断"
+      // （缺线路所/接轨点断点），是可直接动手补的线索，不能只留在文字里。
+      unasserted: unknown,
       note: notes.length ? notes.join('；') : null,
     };
   }
@@ -650,8 +656,14 @@
       }
       var judged = resolveVia(record, maps, kind);
       out.push(judged.segIds
-        ? { record: record, by: judged.by, confidence: judged.confidence, note: judged.note }
-        : { record: record, by: 'shortest', confidence: 'low', note: judged.reason });
+        ? {
+          record: record, by: judged.by, confidence: judged.confidence,
+          note: judged.note, unasserted: judged.unasserted || [],
+        }
+        : {
+          record: record, by: 'shortest', confidence: 'low',
+          note: judged.reason, unasserted: judged.unasserted || [],
+        });
     }
     return out;
   }
@@ -667,18 +679,20 @@
     var toNode = nodeByName(toName);
 
     var segIds = matchOverride(record, (routeData() || {}).overrides, maps, kind);
-    var via = segIds ? { by: 'override', confidence: 'high', note: null } : null;
+    var via = segIds ? { by: 'override', confidence: 'high', note: null, unasserted: [] } : null;
     if (!segIds) {
       var judged = resolveVia(record, maps, kind);
       if (judged.segIds) {
         segIds = judged.segIds;
-        via = { by: judged.by, confidence: judged.confidence, note: judged.note };
+        via = { by: judged.by, confidence: judged.confidence, note: judged.note,
+                unasserted: judged.unasserted || [] };
       } else {
         if (!fromNode || !toNode) return null;
         var path = shortestPath(fromNode.id, toNode.id, maps, record.date, kind);
         if (!path) return null;
         segIds = path.segIds;
-        via = { by: 'shortest', confidence: 'low', note: judged.reason };
+        via = { by: 'shortest', confidence: 'low', note: judged.reason,
+                unasserted: judged.unasserted || [] };
       }
     }
     // 首段按行进起点定向：自动寻径与人工覆盖都可能以反方向存储，

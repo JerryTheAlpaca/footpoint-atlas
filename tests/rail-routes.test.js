@@ -793,6 +793,9 @@ describe('train via resolution', () => {
     assert.deepEqual(route.segIds, ['ab', 'bd']);
     assert.equal(route.via.by, 'stops');
     assert.match(route.via.note, /未知站/);
+    // 重构之后"认不出来的点"意味着网络在该处缺断点（缺线路所/接轨点），
+    // 是可直接动手补的线索，所以必须是结构化字段，不能只剩一行文字。
+    assert.deepEqual(route.via.unasserted, ['未知站']);
   });
 
   it('slices the record segment out of the whole-train stop list', () => {
