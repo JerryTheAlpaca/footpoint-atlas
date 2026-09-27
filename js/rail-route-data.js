@@ -215,6 +215,7 @@
     "chang-xing",
     "hong-qiao-zhen",
     "hu-zhou",
+    "miao-xi",
     "miaoxizhen-suo",
     "de-qing",
     "hang-zhou-bei",
@@ -4293,6 +4294,17 @@
    "coord": [
     120.01779,
     30.86508
+   ]
+  },
+  {
+   "id": "miao-xi",
+   "name": "妙西",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    120.01573,
+    30.79167
    ]
   },
   {
@@ -27027,9 +27039,37 @@
    ]
   },
   {
-   "id": "hu-zhou-miaoxizhen-suo",
+   "id": "hu-zhou-miao-xi",
    "name": "宁杭高速铁路",
    "from": "hu-zhou",
+   "to": "miao-xi",
+   "lineIds": [
+    "ninghang-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-07-01",
+   "estLengthKm": 8.17,
+   "polyline": [
+    [
+     120.01779,
+     30.86508
+    ],
+    [
+     120.01721,
+     30.80633
+    ],
+    [
+     120.01573,
+     30.79167
+    ]
+   ]
+  },
+  {
+   "id": "miao-xi-miaoxizhen-suo",
+   "name": "宁杭高速铁路",
+   "from": "miao-xi",
    "to": "miaoxizhen-suo",
    "lineIds": [
     "ninghang-hsr"
@@ -27038,11 +27078,11 @@
     "emu"
    ],
    "serviceDate": "2013-07-01",
-   "estLengthKm": 7.6,
+   "estLengthKm": 0.59,
    "polyline": [
     [
-     120.01779,
-     30.86508
+     120.01573,
+     30.79167
     ],
     [
      120.01713,
@@ -49075,7 +49115,7 @@
    ]
   },
   {
-   "id": "hu-zhou-miaoxizhen-suo-2",
+   "id": "hu-zhou-miaoxizhen-suo",
    "name": "湖杭高速铁路",
    "from": "hu-zhou",
    "to": "miaoxizhen-suo",
