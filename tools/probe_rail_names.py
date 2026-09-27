@@ -74,16 +74,20 @@ def run_pts(plan_path, out_path, force):
     boxes = [b for bs in plan.values() for b in bs]
     MAX_WAY_PTS = 3000
     sha = _pbf_sha256()
-    key = hashlib.sha1(
-        (sha + "|" + json.dumps(sorted(plan.items()), ensure_ascii=False,
-                                sort_keys=True)).encode("utf-8")).hexdigest()
-    if os.path.exists(out_path) and not force:
+    prev = {}
+    if os.path.exists(out_path):
         try:
-            if json.load(open(out_path, encoding="utf-8")).get("key") == key:
-                print("缓存命中，跳过扫描：%s" % out_path)
-                return
+            prev = json.load(open(out_path, encoding="utf-8"))
         except Exception:
-            pass
+            prev = {}
+    same_pbf = prev.get("sha256") == sha
+    # 缓存是累加的：探针清单会一轮比一轮短（几何到手就不清单），要是每次
+    # 都整份重写，收敛到第 N 轮时前 N-1 轮采到的几何就全没了。
+    done = set(prev.get("plan_names", [])) if same_pbf else set()
+    if set(plan) <= done and not force:
+        print("缓存命中（%s 已含 %d 个走廊名的邻域顶点），跳过扫描"
+              % (out_path, len(done)))
+        return
 
     import osmium
 
@@ -112,14 +116,27 @@ def run_pts(plan_path, out_path, force):
     print("扫描 PBF（探针顶点：%d 个名字 / %d 个框）：%s"
           % (len(plan), len(boxes), PBF_PATH))
     Handler().apply_file(PBF_PATH, locations=True, idx="flex_mem")
+    merged = {}
+    for src in (prev.get("ways", {}) if same_pbf else {}, got):
+        for nm, ws in src.items():
+            bucket = merged.setdefault(nm, [])
+            seen = {(tuple(w["pts"][0]), tuple(w["pts"][-1]), len(w["pts"]))
+                    for w in bucket}
+            for w in ws:
+                k = (tuple(w["pts"][0]), tuple(w["pts"][-1]), len(w["pts"]))
+                if k not in seen:
+                    seen.add(k)
+                    bucket.append(w)
     _atomic_write_json(out_path, {
         "provider": "OpenStreetMap (Geofabrik China)",
         "attribution": "© OpenStreetMap contributors · ODbL",
-        "sha256": sha, "key": key, "plan": os.path.basename(plan_path),
-        "ways": {n: ws for n, ws in sorted(got.items())},
+        "sha256": sha, "plan_names": sorted(done | set(plan)),
+        "plan": os.path.basename(plan_path),
+        "ways": {n: ws for n, ws in sorted(merged.items())},
     })
-    print("已写 %s：%d 个命名走廊、%d 条 way 邻域顶点"
-          % (out_path, len(got), sum(len(v) for v in got.values())))
+    print("已写 %s：%d 个命名走廊、%d 条 way 邻域顶点（其中本轮新采 %d 个名字）"
+          % (out_path, len(merged), sum(len(v) for v in merged.values()),
+             len(set(plan) - done)))
 
 
 def main():
