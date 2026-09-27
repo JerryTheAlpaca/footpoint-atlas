@@ -56,17 +56,23 @@ def _atomic_write_json(out_path, payload):
 
 
 def run_pts(plan_path, out_path, force):
-    """按"枢纽邻域框"收集命名 railway=rail way 的顶点，写 name→[[lon,lat],…]。
+    """按"枢纽邻域框"收集命名 railway=rail way 的顶点，写 name→[{pts,whole}]。
 
-    只收落在任一框内的顶点：长干线会被剪成所附近那一段，正好是求共用顶点
-    需要的东西。这份缓存**只给 tools/llt_junctions.py 用**，不进构建提取白名单
+    只收顶点落进任一框的那些 way，但**存整条 way**（不是框内那一段）：
+    线路所就是走廊端点相接的地方，把 way 剪断就把"道岔尖"这个判据剪掉了。
+    超过 MAX_WAY_PTS 的超长 way 只存框内段并标 whole=false，落位工具就不拿它的
+    端点当线索。这份缓存**只给 tools/llt_junctions.py 用**，不进构建提取白名单
     （所以不可能动到已验收的产物几何），扫一次能用很久，改探针框只要重扫一次
     而不用重建产物。顶点精度与 build 的提取缓存一致（round 6），两边才能按
     同一个坐标判"共用顶点"。
     """
     plan = json.load(open(plan_path, encoding="utf-8"))
     plan = plan.get("boxes", plan)      # 允许直接给 {name: [bbox,…]}
+    if not plan:
+        raise SystemExit("探针计划是空的：%s —— 先跑 tools/llt_junctions.py "
+                         "--emit-probe，别拿空计划覆盖已有的顶点缓存" % plan_path)
     boxes = [b for bs in plan.values() for b in bs]
+    MAX_WAY_PTS = 3000
     sha = _pbf_sha256()
     key = hashlib.sha1(
         (sha + "|" + json.dumps(sorted(plan.items()), ensure_ascii=False,
@@ -83,6 +89,9 @@ def run_pts(plan_path, out_path, force):
 
     got = {}
 
+    def near(p):
+        return any(b[0] <= p[0] <= b[2] and b[1] <= p[1] <= b[3] for b in boxes)
+
     class Handler(osmium.SimpleHandler):
         def way(self, w):
             tags = w.tags
@@ -91,15 +100,14 @@ def run_pts(plan_path, out_path, force):
             name = tags.get("name")
             if not name:
                 return
-            kept = []
-            for nd in w.nodes:
-                lon, lat = nd.location.lon, nd.location.lat
-                for b in boxes:
-                    if b[0] <= lon <= b[2] and b[1] <= lat <= b[3]:
-                        kept.append([round(lon, 6), round(lat, 6)])
-                        break
-            if kept:
-                got.setdefault(name, []).extend(kept)
+            pts = [(round(n.location.lon, 6), round(n.location.lat, 6))
+                   for n in w.nodes]
+            if not any(near(p) for p in pts):
+                return
+            whole = len(pts) <= MAX_WAY_PTS
+            got.setdefault(name, []).append(
+                {"pts": pts if whole else [p for p in pts if near(p)],
+                 "whole": whole})
 
     print("扫描 PBF（探针顶点：%d 个名字 / %d 个框）：%s"
           % (len(plan), len(boxes), PBF_PATH))
@@ -108,9 +116,10 @@ def run_pts(plan_path, out_path, force):
         "provider": "OpenStreetMap (Geofabrik China)",
         "attribution": "© OpenStreetMap contributors · ODbL",
         "sha256": sha, "key": key, "plan": os.path.basename(plan_path),
-        "ways": {n: pts for n, pts in sorted(got.items())},
+        "ways": {n: ws for n, ws in sorted(got.items())},
     })
-    print("已写 %s：%d 个命名走廊的邻域顶点" % (out_path, len(got)))
+    print("已写 %s：%d 个命名走廊、%d 条 way 邻域顶点"
+          % (out_path, len(got), sum(len(v) for v in got.values())))
 
 
 def main():
