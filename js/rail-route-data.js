@@ -215,7 +215,7 @@
     "chang-xing",
     "hong-qiao-zhen",
     "hu-zhou",
-    "miao-xi",
+    "miaoxizhen-suo",
     "de-qing",
     "hang-zhou-bei",
     "hang-zhou-dong"
@@ -527,6 +527,7 @@
     "xin-dun",
     "duo-luo-kou",
     "wu-jia-shan",
+    "gaoqiao-suo",
     "han-chuan",
     "da-fu",
     "tian-men-nan",
@@ -1019,6 +1020,7 @@
    ],
    "stops": [
     "hu-zhou",
+    "miaoxizhen-suo",
     "hang-zhou-xi"
    ],
    "links": []
@@ -1246,6 +1248,7 @@
    "stops": [
     "hankou",
     "xin-dun",
+    "gaoqiao-suo",
     "xin-gou",
     "xia-xin-dian",
     "ge-pu",
@@ -2797,6 +2800,28 @@
    ]
   },
   {
+   "id": "gaoqiao-suo",
+   "name": "高桥所",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    114.04755,
+    30.62045
+   ]
+  },
+  {
+   "id": "miaoxizhen-suo",
+   "name": "妙西镇所",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    120.01713,
+    30.79683
+   ]
+  },
+  {
    "id": "bei-jing-nan",
    "name": "北京南",
    "aliases": [],
@@ -4301,17 +4326,6 @@
    "coord": [
     120.15943,
     30.3435
-   ]
-  },
-  {
-   "id": "miao-xi",
-   "name": "妙西",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    120.01553,
-    30.78926
    ]
   },
   {
@@ -27013,10 +27027,10 @@
    ]
   },
   {
-   "id": "hu-zhou-miao-xi",
+   "id": "hu-zhou-miaoxizhen-suo",
    "name": "宁杭高速铁路",
    "from": "hu-zhou",
-   "to": "miao-xi",
+   "to": "miaoxizhen-suo",
    "lineIds": [
     "ninghang-hsr"
    ],
@@ -27024,26 +27038,22 @@
     "emu"
    ],
    "serviceDate": "2013-07-01",
-   "estLengthKm": 8.45,
+   "estLengthKm": 7.6,
    "polyline": [
     [
      120.01779,
      30.86508
     ],
     [
-     120.01721,
-     30.80633
-    ],
-    [
-     120.01553,
-     30.78926
+     120.01713,
+     30.79683
     ]
    ]
   },
   {
-   "id": "miao-xi-de-qing",
+   "id": "miaoxizhen-suo-de-qing",
    "name": "宁杭高速铁路",
-   "from": "miao-xi",
+   "from": "miaoxizhen-suo",
    "to": "de-qing",
    "lineIds": [
     "ninghang-hsr"
@@ -27052,11 +27062,11 @@
     "emu"
    ],
    "serviceDate": "2013-07-01",
-   "estLengthKm": 28.27,
+   "estLengthKm": 29.13,
    "polyline": [
     [
-     120.01553,
-     30.78926
+     120.01713,
+     30.79683
     ],
     [
      120.01187,
@@ -31374,9 +31384,34 @@
    ]
   },
   {
-   "id": "wu-jia-shan-han-chuan",
+   "id": "wu-jia-shan-gaoqiao-suo",
    "name": "宁蓉铁路（沪汉蓉通道）",
    "from": "wu-jia-shan",
+   "to": "gaoqiao-suo",
+   "lineIds": [
+    "ningrong"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2009-04-01",
+   "estLengthKm": 2.15,
+   "polyline": [
+    [
+     114.06835,
+     30.61305
+    ],
+    [
+     114.04755,
+     30.62045
+    ]
+   ]
+  },
+  {
+   "id": "gaoqiao-suo-han-chuan",
+   "name": "宁蓉铁路（沪汉蓉通道）",
+   "from": "gaoqiao-suo",
    "to": "han-chuan",
    "lineIds": [
     "ningrong"
@@ -31386,11 +31421,11 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 28.12,
+   "estLengthKm": 25.96,
    "polyline": [
     [
-     114.06835,
-     30.61305
+     114.04755,
+     30.62045
     ],
     [
      114.02291,
@@ -49040,9 +49075,37 @@
    ]
   },
   {
-   "id": "hu-zhou-hang-zhou-xi",
+   "id": "hu-zhou-miaoxizhen-suo-2",
    "name": "湖杭高速铁路",
    "from": "hu-zhou",
+   "to": "miaoxizhen-suo",
+   "lineIds": [
+    "huzhou-hangzhou"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2022-09-22",
+   "estLengthKm": 7.6,
+   "polyline": [
+    [
+     120.01779,
+     30.86508
+    ],
+    [
+     120.0182,
+     30.8089
+    ],
+    [
+     120.01713,
+     30.79683
+    ]
+   ]
+  },
+  {
+   "id": "miaoxizhen-suo-hang-zhou-xi",
+   "name": "湖杭高速铁路",
+   "from": "miaoxizhen-suo",
    "to": "hang-zhou-xi",
    "lineIds": [
     "huzhou-hangzhou"
@@ -49051,23 +49114,19 @@
     "emu"
    ],
    "serviceDate": "2022-09-22",
-   "estLengthKm": 69.84,
+   "estLengthKm": 62.24,
    "polyline": [
     [
-     120.01779,
-     30.86508
-    ],
-    [
-     120.01818,
-     30.80775
+     120.01713,
+     30.79683
     ],
     [
      120.01275,
      30.75555
     ],
     [
-     120.01357,
-     30.73529
+     120.01318,
+     30.73802
     ],
     [
      120.03457,
@@ -49078,24 +49137,28 @@
      30.5981
     ],
     [
-     120.05196,
-     30.56643
+     120.05236,
+     30.5647
     ],
     [
-     120.0628,
-     30.52469
+     120.06448,
+     30.51943
     ],
     [
-     120.06752,
-     30.51261
+     120.07681,
+     30.49715
     ],
     [
-     120.09505,
-     30.46769
+     120.09132,
+     30.47539
     ],
     [
-     120.09938,
-     30.45095
+     120.09691,
+     30.46228
+    ],
+    [
+     120.09966,
+     30.4478
     ],
     [
      120.09959,
@@ -75970,10 +76033,10 @@
    ]
   },
   {
-   "id": "xin-dun-xin-gou",
+   "id": "xin-dun-gaoqiao-suo",
    "name": "汉丹铁路",
    "from": "xin-dun",
-   "to": "xin-gou",
+   "to": "gaoqiao-suo",
    "lineIds": [
     "handan-conventional"
    ],
@@ -75982,7 +76045,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 25.21,
+   "estLengthKm": 14.38,
    "polyline": [
     [
      114.19044,
@@ -75997,28 +76060,49 @@
      30.61097
     ],
     [
-     114.11186,
-     30.60382
+     114.10362,
+     30.60334
     ],
     [
-     114.10061,
-     30.60342
+     114.08796,
+     30.6059
     ],
     [
-     114.08958,
-     30.60536
+     114.04755,
+     30.62045
+    ]
+   ]
+  },
+  {
+   "id": "gaoqiao-suo-xin-gou",
+   "name": "汉丹铁路",
+   "from": "gaoqiao-suo",
+   "to": "xin-gou",
+   "lineIds": [
+    "handan-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "1966-01-01",
+   "estLengthKm": 10.81,
+   "polyline": [
+    [
+     114.04755,
+     30.62045
     ],
     [
-     114.0239,
-     30.6286
+     114.01994,
+     30.63024
     ],
     [
-     114.01207,
-     30.63448
+     114.00849,
+     30.63714
     ],
     [
-     114.00159,
-     30.64375
+     114.00164,
+     30.64377
     ],
     [
      113.96818,
