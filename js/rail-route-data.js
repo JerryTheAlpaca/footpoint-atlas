@@ -75,6 +75,24 @@
    "links": []
   },
   {
+   "id": "jihuo-link",
+   "name": "济沪联络线",
+   "batch": "A",
+   "from": "ji-nan",
+   "to": "cuimazhuang-suo",
+   "serviceDate": "2011-06-30",
+   "trains": [
+    "emu"
+   ],
+   "stops": [
+    "ji-nan",
+    "cuimazhuang-suo"
+   ],
+   "links": [
+    "jinghu-hsr"
+   ]
+  },
+  {
    "id": "jingha-hsr",
    "name": "京哈高速铁路",
    "batch": "A",
@@ -151,6 +169,7 @@
     "wan-zhuang",
     "lang-fang",
     "cao-zhuang",
+    "jinhu-suo",
     "tian-jin-nan",
     "cang-zhou-xi",
     "de-zhou-dong",
@@ -158,6 +177,7 @@
     "qi-he",
     "ji-nan-xi",
     "dang-jia-zhuang",
+    "cuimazhuang-suo",
     "zhang-xia",
     "qing-yang",
     "wan-de",
@@ -191,6 +211,37 @@
     "huang-du",
     "feng-bang",
     "shang-hai-hong-qiao"
+   ],
+   "links": []
+  },
+  {
+   "id": "jinqin-hsr",
+   "name": "津秦高速铁路",
+   "batch": "A",
+   "from": "jinhu-suo",
+   "to": "qin-huang-dao",
+   "serviceDate": "2013-12-01",
+   "trains": [
+    "emu"
+   ],
+   "stops": [
+    "jinhu-suo",
+    "tian-jin-xi",
+    "tian-jin",
+    "zhang-gui-zhuang",
+    "jun-liang-cheng-bei",
+    "jun-liang-cheng",
+    "bin-hai-xi",
+    "cha-dian",
+    "bin-hai-bei",
+    "han-gu",
+    "feng-nan-e118n40",
+    "tang-shan",
+    "cui-ma-zhuang",
+    "sha-he-yi-zhen",
+    "luan-he",
+    "bei-dai-he",
+    "qin-huang-dao"
    ],
    "links": []
   },
@@ -578,8 +629,10 @@
     "luo-qi",
     "fu-sheng",
     "shuang-xi",
+    "hudoubu-suo",
     "chong-qing-bei",
     "jing-kou",
+    "tongjiaoxi-suo",
     "san-xi-kou",
     "shi-zi-shan",
     "he-chuan",
@@ -2620,6 +2673,70 @@
     "longhai-conventional",
     "xiangyu-conventional"
    ]
+  },
+  {
+   "id": "xinghu-link",
+   "name": "兴胡线",
+   "batch": "F",
+   "from": "tang-jia-tuo",
+   "to": "hudoubu-suo",
+   "serviceDate": "2013-12-28",
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "stops": [
+    "tang-jia-tuo",
+    "hudoubu-suo"
+   ],
+   "links": []
+  },
+  {
+   "id": "yugui-conventional",
+   "name": "渝贵铁路",
+   "batch": "F",
+   "from": "tongjiaoxi-suo",
+   "to": "gui-yang-bei",
+   "serviceDate": "2018-01-25",
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "stops": [
+    "tongjiaoxi-suo",
+    "ge-le-shan",
+    "chong-qing-xi",
+    "zhong-liang-shan",
+    "xiao-nan-hai",
+    "luo-huang",
+    "luo-huang-nan",
+    "qi-jiang-dong",
+    "liang-he-kou",
+    "gan-shui-dong",
+    "tong-zi-bei",
+    "jiu-long-tang",
+    "da-he-ba",
+    "xin-chang",
+    "tong-zi-dong",
+    "hong-hua-yuan",
+    "hui-tang-he",
+    "lou-shan-guan-nan",
+    "gao-lu-zi",
+    "dong-gong-si",
+    "zun-yi",
+    "long-keng",
+    "wu-jiang-zhai",
+    "ge-lao-ba-nan",
+    "yang-long-si",
+    "xi-feng",
+    "yang-lang",
+    "xin-luo-cun",
+    "xiu-wen-xian",
+    "peng-lai-cun",
+    "dou-la-ying",
+    "gui-yang-bei"
+   ],
+   "links": []
   }
  ],
  "nodes": [
@@ -2863,6 +2980,50 @@
    "coord": [
     115.05613,
     30.5462
+   ]
+  },
+  {
+   "id": "jinhu-suo",
+   "name": "津沪所",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    117.05791,
+    39.10847
+   ]
+  },
+  {
+   "id": "cuimazhuang-suo",
+   "name": "崔马庄所",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    116.88604,
+    36.54758
+   ]
+  },
+  {
+   "id": "hudoubu-suo",
+   "name": "胡豆堡所",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    106.68679,
+    29.64428
+   ]
+  },
+  {
+   "id": "tongjiaoxi-suo",
+   "name": "童家溪所",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    106.43943,
+    29.70753
    ]
   },
   {
@@ -21421,6 +21582,512 @@
     115.58214,
     34.91989
    ]
+  },
+  {
+   "id": "tian-jin",
+   "name": "天津",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    117.2021,
+    39.13616
+   ]
+  },
+  {
+   "id": "jun-liang-cheng-bei",
+   "name": "军粮城北",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    117.42574,
+    39.06409
+   ]
+  },
+  {
+   "id": "bin-hai-xi",
+   "name": "滨海西",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    117.61114,
+    39.08499
+   ]
+  },
+  {
+   "id": "bin-hai-bei",
+   "name": "滨海北",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    117.75964,
+    39.23794
+   ]
+  },
+  {
+   "id": "tang-shan",
+   "name": "唐山",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    118.11184,
+    39.61888
+   ]
+  },
+  {
+   "id": "luan-he",
+   "name": "滦河",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    118.67148,
+    39.85266
+   ]
+  },
+  {
+   "id": "bei-dai-he",
+   "name": "北戴河",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    119.4102,
+    39.84908
+   ]
+  },
+  {
+   "id": "qin-huang-dao",
+   "name": "秦皇岛",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    119.58894,
+    39.9646
+   ]
+  },
+  {
+   "id": "cha-dian",
+   "name": "茶淀",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    117.73058,
+    39.21223
+   ]
+  },
+  {
+   "id": "han-gu",
+   "name": "汉沽",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    117.80152,
+    39.26833
+   ]
+  },
+  {
+   "id": "sha-he-yi-zhen",
+   "name": "沙河驿镇",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    118.55078,
+    39.85238
+   ]
+  },
+  {
+   "id": "cui-ma-zhuang",
+   "name": "崔马庄",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    118.16224,
+    39.75806
+   ]
+  },
+  {
+   "id": "feng-nan-e118n40",
+   "name": "丰南",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    118.09079,
+    39.572
+   ]
+  },
+  {
+   "id": "jun-liang-cheng",
+   "name": "军粮城",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    117.4483,
+    39.05758
+   ]
+  },
+  {
+   "id": "zhang-gui-zhuang",
+   "name": "张贵庄",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    117.32143,
+    39.0965
+   ]
+  },
+  {
+   "id": "tang-jia-tuo",
+   "name": "唐家沱",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.6381,
+    29.61516
+   ]
+  },
+  {
+   "id": "chong-qing-xi",
+   "name": "重庆西",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.43153,
+    29.50298
+   ]
+  },
+  {
+   "id": "luo-huang-nan",
+   "name": "珞璜南",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.43671,
+    29.30715
+   ]
+  },
+  {
+   "id": "qi-jiang-dong",
+   "name": "綦江东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.65835,
+    29.02856
+   ]
+  },
+  {
+   "id": "gan-shui-dong",
+   "name": "赶水东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.70302,
+    28.76217
+   ]
+  },
+  {
+   "id": "tong-zi-bei",
+   "name": "桐梓北",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.82609,
+    28.39063
+   ]
+  },
+  {
+   "id": "tong-zi-dong",
+   "name": "桐梓东",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.83301,
+    28.12033
+   ]
+  },
+  {
+   "id": "lou-shan-guan-nan",
+   "name": "娄山关南",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.92423,
+    27.94009
+   ]
+  },
+  {
+   "id": "zun-yi",
+   "name": "遵义",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.94664,
+    27.67089
+   ]
+  },
+  {
+   "id": "long-keng",
+   "name": "龙坑",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.88868,
+    27.57349
+   ]
+  },
+  {
+   "id": "wu-jiang-zhai",
+   "name": "乌江寨",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.83892,
+    27.45258
+   ]
+  },
+  {
+   "id": "xi-feng",
+   "name": "息烽",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.74507,
+    27.07831
+   ]
+  },
+  {
+   "id": "xiu-wen-xian",
+   "name": "修文县",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.74657,
+    26.8497
+   ]
+  },
+  {
+   "id": "xiao-nan-hai",
+   "name": "小南海",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.42502,
+    29.35974
+   ]
+  },
+  {
+   "id": "dou-la-ying",
+   "name": "都拉营",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.70621,
+    26.69602
+   ]
+  },
+  {
+   "id": "luo-huang",
+   "name": "珞璜",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.43205,
+    29.3331
+   ]
+  },
+  {
+   "id": "da-he-ba",
+   "name": "大河坝",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.83267,
+    28.32479
+   ]
+  },
+  {
+   "id": "zhong-liang-shan",
+   "name": "中梁山",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.42637,
+    29.45024
+   ]
+  },
+  {
+   "id": "gao-lu-zi",
+   "name": "高炉子",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.94081,
+    27.81528
+   ]
+  },
+  {
+   "id": "ge-le-shan",
+   "name": "歌乐山",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.43254,
+    29.62633
+   ]
+  },
+  {
+   "id": "liang-he-kou",
+   "name": "两河口",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.72607,
+    28.83114
+   ]
+  },
+  {
+   "id": "xin-chang",
+   "name": "新场",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.8371,
+    28.29398
+   ]
+  },
+  {
+   "id": "hong-hua-yuan",
+   "name": "红花园",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.84724,
+    28.07353
+   ]
+  },
+  {
+   "id": "hui-tang-he",
+   "name": "汇塘河",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.91495,
+    27.96929
+   ]
+  },
+  {
+   "id": "yang-long-si",
+   "name": "养龙司",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.79003,
+    27.23266
+   ]
+  },
+  {
+   "id": "yang-lang",
+   "name": "阳朗",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.74491,
+    27.04022
+   ]
+  },
+  {
+   "id": "xin-luo-cun",
+   "name": "新萝村",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.72437,
+    26.99951
+   ]
+  },
+  {
+   "id": "peng-lai-cun",
+   "name": "蓬莱村",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.7331,
+    26.75584
+   ]
+  },
+  {
+   "id": "jiu-long-tang",
+   "name": "九龙塘",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.8332,
+    28.3636
+   ]
+  },
+  {
+   "id": "dong-gong-si",
+   "name": "董公寺",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.95228,
+    27.74923
+   ]
+  },
+  {
+   "id": "ge-lao-ba-nan",
+   "name": "阁老坝南",
+   "aliases": [],
+   "kind": "station",
+   "source": "osm",
+   "coord": [
+    106.81395,
+    27.41531
+   ]
   }
  ],
  "segments": [
@@ -21755,9 +22422,37 @@
    ]
   },
   {
-   "id": "cao-zhuang-tian-jin-nan",
+   "id": "cao-zhuang-jinhu-suo",
    "name": "京沪高速铁路",
    "from": "cao-zhuang",
+   "to": "jinhu-suo",
+   "lineIds": [
+    "jinghu-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2011-06-30",
+   "estLengthKm": 4.75,
+   "polyline": [
+    [
+     117.05515,
+     39.15104
+    ],
+    [
+     117.05816,
+     39.13045
+    ],
+    [
+     117.05791,
+     39.10847
+    ]
+   ]
+  },
+  {
+   "id": "jinhu-suo-tian-jin-nan",
+   "name": "京沪高速铁路",
+   "from": "jinhu-suo",
    "to": "tian-jin-nan",
    "lineIds": [
     "jinghu-hsr"
@@ -21766,19 +22461,15 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 10.36,
+   "estLengthKm": 5.61,
    "polyline": [
     [
-     117.05515,
-     39.15104
+     117.05791,
+     39.10847
     ],
     [
-     117.05824,
-     39.12681
-    ],
-    [
-     117.05734,
-     39.07728
+     117.05727,
+     39.07603
     ],
     [
      117.05515,
@@ -22143,9 +22834,37 @@
    ]
   },
   {
-   "id": "dang-jia-zhuang-zhang-xia",
+   "id": "dang-jia-zhuang-cuimazhuang-suo",
    "name": "京沪高速铁路",
    "from": "dang-jia-zhuang",
+   "to": "cuimazhuang-suo",
+   "lineIds": [
+    "jinghu-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2011-06-30",
+   "estLengthKm": 3.4,
+   "polyline": [
+    [
+     116.88976,
+     36.57782
+    ],
+    [
+     116.88995,
+     36.56427
+    ],
+    [
+     116.88604,
+     36.54758
+    ]
+   ]
+  },
+  {
+   "id": "cuimazhuang-suo-zhang-xia",
+   "name": "京沪高速铁路",
+   "from": "cuimazhuang-suo",
    "to": "zhang-xia",
    "lineIds": [
     "jinghu-hsr"
@@ -22154,31 +22873,27 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 14.52,
+   "estLengthKm": 11.11,
    "polyline": [
     [
-     116.88976,
-     36.57782
-    ],
-    [
-     116.88978,
-     36.56292
+     116.88604,
+     36.54758
     ],
     [
      116.87807,
      36.51699
     ],
     [
-     116.87823,
-     36.50449
+     116.87748,
+     36.51172
     ],
     [
-     116.8811,
-     36.49288
+     116.87964,
+     36.49795
     ],
     [
-     116.88482,
-     36.48527
+     116.88631,
+     36.48276
     ],
     [
      116.90686,
@@ -33153,10 +33868,10 @@
    ]
   },
   {
-   "id": "shuang-xi-chong-qing-bei",
+   "id": "shuang-xi-hudoubu-suo",
    "name": "宁蓉铁路（沪汉蓉通道）",
    "from": "shuang-xi",
-   "to": "chong-qing-bei",
+   "to": "hudoubu-suo",
    "lineIds": [
     "ningrong"
    ],
@@ -33165,7 +33880,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 19.79,
+   "estLengthKm": 5.03,
    "polyline": [
     [
      106.73776,
@@ -33176,20 +33891,41 @@
      29.65131
     ],
     [
-     106.67494,
-     29.64231
+     106.68679,
+     29.64428
+    ]
+   ]
+  },
+  {
+   "id": "hudoubu-suo-chong-qing-bei",
+   "name": "宁蓉铁路（沪汉蓉通道）",
+   "from": "hudoubu-suo",
+   "to": "chong-qing-bei",
+   "lineIds": [
+    "ningrong"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2009-04-01",
+   "estLengthKm": 15.08,
+   "polyline": [
+    [
+     106.68679,
+     29.64428
     ],
     [
-     106.66549,
-     29.64235
+     106.67021,
+     29.64215
     ],
     [
      106.64245,
      29.64564
     ],
     [
-     106.62851,
-     29.64474
+     106.62706,
+     29.64443
     ],
     [
      106.60093,
@@ -33251,10 +33987,10 @@
    ]
   },
   {
-   "id": "jing-kou-san-xi-kou",
+   "id": "jing-kou-tongjiaoxi-suo",
    "name": "宁蓉铁路（沪汉蓉通道）",
    "from": "jing-kou",
-   "to": "san-xi-kou",
+   "to": "tongjiaoxi-suo",
    "lineIds": [
     "ningrong"
    ],
@@ -33263,7 +33999,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 9.95,
+   "estLengthKm": 6.91,
    "polyline": [
     [
      106.454,
@@ -33274,20 +34010,41 @@
      29.6664
     ],
     [
-     106.43359,
-     29.67097
-    ],
-    [
-     106.43056,
-     29.67971
+     106.43121,
+     29.67648
     ],
     [
      106.43113,
      29.68828
     ],
     [
-     106.44042,
-     29.71024
+     106.43943,
+     29.70753
+    ]
+   ]
+  },
+  {
+   "id": "tongjiaoxi-suo-san-xi-kou",
+   "name": "宁蓉铁路（沪汉蓉通道）",
+   "from": "tongjiaoxi-suo",
+   "to": "san-xi-kou",
+   "lineIds": [
+    "ningrong"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2009-04-01",
+   "estLengthKm": 3.57,
+   "polyline": [
+    [
+     106.43943,
+     29.70753
+    ],
+    [
+     106.44446,
+     29.72204
     ],
     [
      106.44683,
@@ -104810,6 +105567,1910 @@
     [
      114.0291,
      22.97119
+    ]
+   ]
+  },
+  {
+   "id": "jinhu-suo-tian-jin-xi",
+   "name": "津秦高速铁路",
+   "from": "jinhu-suo",
+   "to": "tian-jin-xi",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 11.92,
+   "polyline": [
+    [
+     117.05791,
+     39.10847
+    ],
+    [
+     117.05709,
+     39.12056
+    ],
+    [
+     117.05988,
+     39.12833
+    ],
+    [
+     117.06531,
+     39.13367
+    ],
+    [
+     117.08813,
+     39.14734
+    ],
+    [
+     117.10935,
+     39.15398
+    ],
+    [
+     117.15941,
+     39.1581
+    ]
+   ]
+  },
+  {
+   "id": "tian-jin-xi-tian-jin",
+   "name": "津秦高速铁路",
+   "from": "tian-jin-xi",
+   "to": "tian-jin",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 4.67,
+   "polyline": [
+    [
+     117.15941,
+     39.1581
+    ],
+    [
+     117.17873,
+     39.15484
+    ],
+    [
+     117.18982,
+     39.14441
+    ],
+    [
+     117.1945,
+     39.14258
+    ],
+    [
+     117.2021,
+     39.13616
+    ]
+   ]
+  },
+  {
+   "id": "tian-jin-zhang-gui-zhuang",
+   "name": "津秦高速铁路",
+   "from": "tian-jin",
+   "to": "zhang-gui-zhuang",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 11.42,
+   "polyline": [
+    [
+     117.2021,
+     39.13616
+    ],
+    [
+     117.21726,
+     39.13098
+    ],
+    [
+     117.26322,
+     39.10943
+    ],
+    [
+     117.32143,
+     39.0965
+    ]
+   ]
+  },
+  {
+   "id": "zhang-gui-zhuang-jun-liang-cheng-bei",
+   "name": "津秦高速铁路",
+   "from": "zhang-gui-zhuang",
+   "to": "jun-liang-cheng-bei",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 9.72,
+   "polyline": [
+    [
+     117.32143,
+     39.0965
+    ],
+    [
+     117.34223,
+     39.09171
+    ],
+    [
+     117.42574,
+     39.06409
+    ]
+   ]
+  },
+  {
+   "id": "jun-liang-cheng-bei-jun-liang-cheng",
+   "name": "津秦高速铁路",
+   "from": "jun-liang-cheng-bei",
+   "to": "jun-liang-cheng",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 2.08,
+   "polyline": [
+    [
+     117.42574,
+     39.06409
+    ],
+    [
+     117.4483,
+     39.05758
+    ]
+   ]
+  },
+  {
+   "id": "jun-liang-cheng-bin-hai-xi",
+   "name": "津秦高速铁路",
+   "from": "jun-liang-cheng",
+   "to": "bin-hai-xi",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 15.83,
+   "polyline": [
+    [
+     117.4483,
+     39.05758
+    ],
+    [
+     117.52617,
+     39.04545
+    ],
+    [
+     117.54823,
+     39.04617
+    ],
+    [
+     117.56163,
+     39.04975
+    ],
+    [
+     117.57399,
+     39.0557
+    ],
+    [
+     117.61114,
+     39.08499
+    ]
+   ]
+  },
+  {
+   "id": "bin-hai-xi-cha-dian",
+   "name": "津秦高速铁路",
+   "from": "bin-hai-xi",
+   "to": "cha-dian",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 17.7,
+   "polyline": [
+    [
+     117.61114,
+     39.08499
+    ],
+    [
+     117.62703,
+     39.09832
+    ],
+    [
+     117.63422,
+     39.10698
+    ],
+    [
+     117.64591,
+     39.13266
+    ],
+    [
+     117.65545,
+     39.1456
+    ],
+    [
+     117.73058,
+     39.21223
+    ]
+   ]
+  },
+  {
+   "id": "cha-dian-bin-hai-bei",
+   "name": "津秦高速铁路",
+   "from": "cha-dian",
+   "to": "bin-hai-bei",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 3.81,
+   "polyline": [
+    [
+     117.73058,
+     39.21223
+    ],
+    [
+     117.75964,
+     39.23794
+    ]
+   ]
+  },
+  {
+   "id": "bin-hai-bei-han-gu",
+   "name": "津秦高速铁路",
+   "from": "bin-hai-bei",
+   "to": "han-gu",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 4.96,
+   "polyline": [
+    [
+     117.75964,
+     39.23794
+    ],
+    [
+     117.77964,
+     39.25494
+    ],
+    [
+     117.80152,
+     39.26833
+    ]
+   ]
+  },
+  {
+   "id": "han-gu-feng-nan-e118n40",
+   "name": "津秦高速铁路",
+   "from": "han-gu",
+   "to": "feng-nan-e118n40",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 42.45,
+   "polyline": [
+    [
+     117.80152,
+     39.26833
+    ],
+    [
+     117.8156,
+     39.27964
+    ],
+    [
+     117.85398,
+     39.32339
+    ],
+    [
+     117.86048,
+     39.33518
+    ],
+    [
+     117.87107,
+     39.36787
+    ],
+    [
+     117.88422,
+     39.38739
+    ],
+    [
+     117.92248,
+     39.42272
+    ],
+    [
+     118.01891,
+     39.49937
+    ],
+    [
+     118.04175,
+     39.51952
+    ],
+    [
+     118.0634,
+     39.53949
+    ],
+    [
+     118.09079,
+     39.572
+    ]
+   ]
+  },
+  {
+   "id": "feng-nan-e118n40-tang-shan",
+   "name": "津秦高速铁路",
+   "from": "feng-nan-e118n40",
+   "to": "tang-shan",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 5.63,
+   "polyline": [
+    [
+     118.09079,
+     39.572
+    ],
+    [
+     118.10766,
+     39.59525
+    ],
+    [
+     118.11101,
+     39.60559
+    ],
+    [
+     118.11184,
+     39.61888
+    ]
+   ]
+  },
+  {
+   "id": "tang-shan-cui-ma-zhuang",
+   "name": "津秦高速铁路",
+   "from": "tang-shan",
+   "to": "cui-ma-zhuang",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 16.79,
+   "polyline": [
+    [
+     118.11184,
+     39.61888
+    ],
+    [
+     118.11242,
+     39.6452
+    ],
+    [
+     118.10856,
+     39.67096
+    ],
+    [
+     118.11197,
+     39.68952
+    ],
+    [
+     118.11943,
+     39.70965
+    ],
+    [
+     118.12546,
+     39.72049
+    ],
+    [
+     118.16224,
+     39.75806
+    ]
+   ]
+  },
+  {
+   "id": "cui-ma-zhuang-sha-he-yi-zhen",
+   "name": "津秦高速铁路",
+   "from": "cui-ma-zhuang",
+   "to": "sha-he-yi-zhen",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 35.53,
+   "polyline": [
+    [
+     118.16224,
+     39.75806
+    ],
+    [
+     118.17301,
+     39.76508
+    ],
+    [
+     118.18465,
+     39.77008
+    ],
+    [
+     118.21883,
+     39.78131
+    ],
+    [
+     118.25592,
+     39.78896
+    ],
+    [
+     118.31683,
+     39.8145
+    ],
+    [
+     118.40811,
+     39.84516
+    ],
+    [
+     118.42912,
+     39.84809
+    ],
+    [
+     118.55078,
+     39.85238
+    ]
+   ]
+  },
+  {
+   "id": "sha-he-yi-zhen-luan-he",
+   "name": "津秦高速铁路",
+   "from": "sha-he-yi-zhen",
+   "to": "luan-he",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 10.46,
+   "polyline": [
+    [
+     118.55078,
+     39.85238
+    ],
+    [
+     118.60098,
+     39.85592
+    ],
+    [
+     118.67148,
+     39.85266
+    ]
+   ]
+  },
+  {
+   "id": "luan-he-bei-dai-he",
+   "name": "津秦高速铁路",
+   "from": "luan-he",
+   "to": "bei-dai-he",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 64.31,
+   "polyline": [
+    [
+     118.67148,
+     39.85266
+    ],
+    [
+     118.75511,
+     39.84884
+    ],
+    [
+     118.81471,
+     39.85657
+    ],
+    [
+     118.97544,
+     39.85972
+    ],
+    [
+     119.06873,
+     39.85413
+    ],
+    [
+     119.21166,
+     39.83269
+    ],
+    [
+     119.33885,
+     39.82629
+    ],
+    [
+     119.35764,
+     39.82768
+    ],
+    [
+     119.37485,
+     39.83171
+    ],
+    [
+     119.38859,
+     39.83744
+    ],
+    [
+     119.4102,
+     39.84908
+    ]
+   ]
+  },
+  {
+   "id": "bei-dai-he-qin-huang-dao",
+   "name": "津秦高速铁路",
+   "from": "bei-dai-he",
+   "to": "qin-huang-dao",
+   "lineIds": [
+    "jinqin-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2013-12-01",
+   "estLengthKm": 21.23,
+   "polyline": [
+    [
+     119.4102,
+     39.84908
+    ],
+    [
+     119.4322,
+     39.86129
+    ],
+    [
+     119.44035,
+     39.86746
+    ],
+    [
+     119.44873,
+     39.87708
+    ],
+    [
+     119.46668,
+     39.9079
+    ],
+    [
+     119.5146,
+     39.94548
+    ],
+    [
+     119.52036,
+     39.94803
+    ],
+    [
+     119.53647,
+     39.9516
+    ],
+    [
+     119.56062,
+     39.9634
+    ],
+    [
+     119.58894,
+     39.9646
+    ]
+   ]
+  },
+  {
+   "id": "ji-nan-cuimazhuang-suo",
+   "name": "济沪联络线",
+   "from": "ji-nan",
+   "to": "cuimazhuang-suo",
+   "lineIds": [
+    "jihuo-link"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2011-06-30",
+   "estLengthKm": 17.47,
+   "polyline": [
+    [
+     116.98511,
+     36.67096
+    ],
+    [
+     116.961,
+     36.66412
+    ],
+    [
+     116.94421,
+     36.65303
+    ],
+    [
+     116.93479,
+     36.63733
+    ],
+    [
+     116.93273,
+     36.61773
+    ],
+    [
+     116.9305,
+     36.61189
+    ],
+    [
+     116.91796,
+     36.60182
+    ],
+    [
+     116.89264,
+     36.57195
+    ],
+    [
+     116.88604,
+     36.54758
+    ]
+   ]
+  },
+  {
+   "id": "tang-jia-tuo-hudoubu-suo",
+   "name": "兴胡线",
+   "from": "tang-jia-tuo",
+   "to": "hudoubu-suo",
+   "lineIds": [
+    "xinghu-link"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2013-12-28",
+   "estLengthKm": 7.13,
+   "polyline": [
+    [
+     106.6381,
+     29.61516
+    ],
+    [
+     106.64637,
+     29.6088
+    ],
+    [
+     106.6515,
+     29.60899
+    ],
+    [
+     106.65454,
+     29.61071
+    ],
+    [
+     106.66597,
+     29.62342
+    ],
+    [
+     106.66837,
+     29.63267
+    ],
+    [
+     106.67224,
+     29.63855
+    ],
+    [
+     106.67676,
+     29.64174
+    ],
+    [
+     106.68679,
+     29.64428
+    ]
+   ]
+  },
+  {
+   "id": "tongjiaoxi-suo-ge-le-shan",
+   "name": "渝贵铁路",
+   "from": "tongjiaoxi-suo",
+   "to": "ge-le-shan",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 9.21,
+   "polyline": [
+    [
+     106.43943,
+     29.70753
+    ],
+    [
+     106.43533,
+     29.68841
+    ],
+    [
+     106.42927,
+     29.67365
+    ],
+    [
+     106.42999,
+     29.6418
+    ],
+    [
+     106.43254,
+     29.62633
+    ]
+   ]
+  },
+  {
+   "id": "ge-le-shan-chong-qing-xi",
+   "name": "渝贵铁路",
+   "from": "ge-le-shan",
+   "to": "chong-qing-xi",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 13.75,
+   "polyline": [
+    [
+     106.43254,
+     29.62633
+    ],
+    [
+     106.43058,
+     29.60115
+    ],
+    [
+     106.42988,
+     29.52604
+    ],
+    [
+     106.43153,
+     29.50298
+    ]
+   ]
+  },
+  {
+   "id": "chong-qing-xi-zhong-liang-shan",
+   "name": "渝贵铁路",
+   "from": "chong-qing-xi",
+   "to": "zhong-liang-shan",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 5.9,
+   "polyline": [
+    [
+     106.43153,
+     29.50298
+    ],
+    [
+     106.4262,
+     29.46057
+    ],
+    [
+     106.42637,
+     29.45024
+    ]
+   ]
+  },
+  {
+   "id": "zhong-liang-shan-xiao-nan-hai",
+   "name": "渝贵铁路",
+   "from": "zhong-liang-shan",
+   "to": "xiao-nan-hai",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 10.16,
+   "polyline": [
+    [
+     106.42637,
+     29.45024
+    ],
+    [
+     106.42828,
+     29.43697
+    ],
+    [
+     106.42732,
+     29.41758
+    ],
+    [
+     106.4293,
+     29.39956
+    ],
+    [
+     106.42391,
+     29.36955
+    ],
+    [
+     106.42502,
+     29.35974
+    ]
+   ]
+  },
+  {
+   "id": "xiao-nan-hai-luo-huang",
+   "name": "渝贵铁路",
+   "from": "xiao-nan-hai",
+   "to": "luo-huang",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 3.04,
+   "polyline": [
+    [
+     106.42502,
+     29.35974
+    ],
+    [
+     106.43205,
+     29.3331
+    ]
+   ]
+  },
+  {
+   "id": "luo-huang-luo-huang-nan",
+   "name": "渝贵铁路",
+   "from": "luo-huang",
+   "to": "luo-huang-nan",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 2.93,
+   "polyline": [
+    [
+     106.43205,
+     29.3331
+    ],
+    [
+     106.43671,
+     29.30715
+    ]
+   ]
+  },
+  {
+   "id": "luo-huang-nan-qi-jiang-dong",
+   "name": "渝贵铁路",
+   "from": "luo-huang-nan",
+   "to": "qi-jiang-dong",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 39.59,
+   "polyline": [
+    [
+     106.43671,
+     29.30715
+    ],
+    [
+     106.44324,
+     29.27061
+    ],
+    [
+     106.44736,
+     29.25906
+    ],
+    [
+     106.49999,
+     29.18508
+    ],
+    [
+     106.51741,
+     29.16594
+    ],
+    [
+     106.5269,
+     29.15791
+    ],
+    [
+     106.54379,
+     29.14868
+    ],
+    [
+     106.58403,
+     29.13019
+    ],
+    [
+     106.6055,
+     29.11348
+    ],
+    [
+     106.61445,
+     29.10234
+    ],
+    [
+     106.62765,
+     29.07848
+    ],
+    [
+     106.64674,
+     29.05348
+    ],
+    [
+     106.65835,
+     29.02856
+    ]
+   ]
+  },
+  {
+   "id": "qi-jiang-dong-liang-he-kou",
+   "name": "渝贵铁路",
+   "from": "qi-jiang-dong",
+   "to": "liang-he-kou",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 23.49,
+   "polyline": [
+    [
+     106.65835,
+     29.02856
+    ],
+    [
+     106.67137,
+     28.99847
+    ],
+    [
+     106.67977,
+     28.95836
+    ],
+    [
+     106.68266,
+     28.95034
+    ],
+    [
+     106.68834,
+     28.94038
+    ],
+    [
+     106.71461,
+     28.90463
+    ],
+    [
+     106.72435,
+     28.88526
+    ],
+    [
+     106.7281,
+     28.87152
+    ],
+    [
+     106.72953,
+     28.85812
+    ],
+    [
+     106.72892,
+     28.84513
+    ],
+    [
+     106.72607,
+     28.83114
+    ]
+   ]
+  },
+  {
+   "id": "liang-he-kou-gan-shui-dong",
+   "name": "渝贵铁路",
+   "from": "liang-he-kou",
+   "to": "gan-shui-dong",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 8.08,
+   "polyline": [
+    [
+     106.72607,
+     28.83114
+    ],
+    [
+     106.72126,
+     28.81848
+    ],
+    [
+     106.70714,
+     28.79043
+    ],
+    [
+     106.70436,
+     28.77888
+    ],
+    [
+     106.70302,
+     28.76217
+    ]
+   ]
+  },
+  {
+   "id": "gan-shui-dong-tong-zi-bei",
+   "name": "渝贵铁路",
+   "from": "gan-shui-dong",
+   "to": "tong-zi-bei",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 44.96,
+   "polyline": [
+    [
+     106.70302,
+     28.76217
+    ],
+    [
+     106.70211,
+     28.74372
+    ],
+    [
+     106.70326,
+     28.73175
+    ],
+    [
+     106.70741,
+     28.71798
+    ],
+    [
+     106.71411,
+     28.7056
+    ],
+    [
+     106.72643,
+     28.69139
+    ],
+    [
+     106.78127,
+     28.64251
+    ],
+    [
+     106.79015,
+     28.63075
+    ],
+    [
+     106.79683,
+     28.6163
+    ],
+    [
+     106.7996,
+     28.6041
+    ],
+    [
+     106.80145,
+     28.58196
+    ],
+    [
+     106.80288,
+     28.46094
+    ],
+    [
+     106.80697,
+     28.44335
+    ],
+    [
+     106.82609,
+     28.39063
+    ]
+   ]
+  },
+  {
+   "id": "tong-zi-bei-jiu-long-tang",
+   "name": "渝贵铁路",
+   "from": "tong-zi-bei",
+   "to": "jiu-long-tang",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 3.11,
+   "polyline": [
+    [
+     106.82609,
+     28.39063
+    ],
+    [
+     106.83169,
+     28.37517
+    ],
+    [
+     106.8332,
+     28.3636
+    ]
+   ]
+  },
+  {
+   "id": "jiu-long-tang-da-he-ba",
+   "name": "渝贵铁路",
+   "from": "jiu-long-tang",
+   "to": "da-he-ba",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 4.41,
+   "polyline": [
+    [
+     106.8332,
+     28.3636
+    ],
+    [
+     106.82909,
+     28.34134
+    ],
+    [
+     106.83267,
+     28.32479
+    ]
+   ]
+  },
+  {
+   "id": "da-he-ba-xin-chang",
+   "name": "渝贵铁路",
+   "from": "da-he-ba",
+   "to": "xin-chang",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 3.48,
+   "polyline": [
+    [
+     106.83267,
+     28.32479
+    ],
+    [
+     106.83278,
+     28.31072
+    ],
+    [
+     106.8371,
+     28.29398
+    ]
+   ]
+  },
+  {
+   "id": "xin-chang-tong-zi-dong",
+   "name": "渝贵铁路",
+   "from": "xin-chang",
+   "to": "tong-zi-dong",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 19.67,
+   "polyline": [
+    [
+     106.8371,
+     28.29398
+    ],
+    [
+     106.84966,
+     28.2365
+    ],
+    [
+     106.85068,
+     28.22542
+    ],
+    [
+     106.84867,
+     28.21028
+    ],
+    [
+     106.83483,
+     28.16601
+    ],
+    [
+     106.83199,
+     28.14543
+    ],
+    [
+     106.83301,
+     28.12033
+    ]
+   ]
+  },
+  {
+   "id": "tong-zi-dong-hong-hua-yuan",
+   "name": "渝贵铁路",
+   "from": "tong-zi-dong",
+   "to": "hong-hua-yuan",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 5.47,
+   "polyline": [
+    [
+     106.83301,
+     28.12033
+    ],
+    [
+     106.83555,
+     28.09607
+    ],
+    [
+     106.84724,
+     28.07353
+    ]
+   ]
+  },
+  {
+   "id": "hong-hua-yuan-hui-tang-he",
+   "name": "渝贵铁路",
+   "from": "hong-hua-yuan",
+   "to": "hui-tang-he",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 13.71,
+   "polyline": [
+    [
+     106.84724,
+     28.07353
+    ],
+    [
+     106.8596,
+     28.05363
+    ],
+    [
+     106.88418,
+     28.03413
+    ],
+    [
+     106.89572,
+     28.02058
+    ],
+    [
+     106.90115,
+     28.00979
+    ],
+    [
+     106.90998,
+     27.98041
+    ],
+    [
+     106.91495,
+     27.96929
+    ]
+   ]
+  },
+  {
+   "id": "hui-tang-he-lou-shan-guan-nan",
+   "name": "渝贵铁路",
+   "from": "hui-tang-he",
+   "to": "lou-shan-guan-nan",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 3.38,
+   "polyline": [
+    [
+     106.91495,
+     27.96929
+    ],
+    [
+     106.92064,
+     27.95577
+    ],
+    [
+     106.92423,
+     27.94009
+    ]
+   ]
+  },
+  {
+   "id": "lou-shan-guan-nan-gao-lu-zi",
+   "name": "渝贵铁路",
+   "from": "lou-shan-guan-nan",
+   "to": "gao-lu-zi",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 14.02,
+   "polyline": [
+    [
+     106.92423,
+     27.94009
+    ],
+    [
+     106.93587,
+     27.87617
+    ],
+    [
+     106.94081,
+     27.81528
+    ]
+   ]
+  },
+  {
+   "id": "gao-lu-zi-dong-gong-si",
+   "name": "渝贵铁路",
+   "from": "gao-lu-zi",
+   "to": "dong-gong-si",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 7.45,
+   "polyline": [
+    [
+     106.94081,
+     27.81528
+    ],
+    [
+     106.94697,
+     27.76986
+    ],
+    [
+     106.95228,
+     27.74923
+    ]
+   ]
+  },
+  {
+   "id": "dong-gong-si-zun-yi",
+   "name": "渝贵铁路",
+   "from": "dong-gong-si",
+   "to": "zun-yi",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 8.92,
+   "polyline": [
+    [
+     106.95228,
+     27.74923
+    ],
+    [
+     106.95635,
+     27.73052
+    ],
+    [
+     106.9563,
+     27.69882
+    ],
+    [
+     106.95339,
+     27.68595
+    ],
+    [
+     106.94664,
+     27.67089
+    ]
+   ]
+  },
+  {
+   "id": "zun-yi-long-keng",
+   "name": "渝贵铁路",
+   "from": "zun-yi",
+   "to": "long-keng",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 12.3,
+   "polyline": [
+    [
+     106.94664,
+     27.67089
+    ],
+    [
+     106.93475,
+     27.64583
+    ],
+    [
+     106.9133,
+     27.61606
+    ],
+    [
+     106.90386,
+     27.59752
+    ],
+    [
+     106.88868,
+     27.57349
+    ]
+   ]
+  },
+  {
+   "id": "long-keng-wu-jiang-zhai",
+   "name": "渝贵铁路",
+   "from": "long-keng",
+   "to": "wu-jiang-zhai",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 14.71,
+   "polyline": [
+    [
+     106.88868,
+     27.57349
+    ],
+    [
+     106.86721,
+     27.52687
+    ],
+    [
+     106.86138,
+     27.49816
+    ],
+    [
+     106.85372,
+     27.4779
+    ],
+    [
+     106.84737,
+     27.46474
+    ],
+    [
+     106.83892,
+     27.45258
+    ]
+   ]
+  },
+  {
+   "id": "wu-jiang-zhai-ge-lao-ba-nan",
+   "name": "渝贵铁路",
+   "from": "wu-jiang-zhai",
+   "to": "ge-lao-ba-nan",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 4.84,
+   "polyline": [
+    [
+     106.83892,
+     27.45258
+    ],
+    [
+     106.81395,
+     27.41531
+    ]
+   ]
+  },
+  {
+   "id": "ge-lao-ba-nan-yang-long-si",
+   "name": "渝贵铁路",
+   "from": "ge-lao-ba-nan",
+   "to": "yang-long-si",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 20.65,
+   "polyline": [
+    [
+     106.81395,
+     27.41531
+    ],
+    [
+     106.81,
+     27.40394
+    ],
+    [
+     106.8071,
+     27.38099
+    ],
+    [
+     106.81037,
+     27.34615
+    ],
+    [
+     106.80256,
+     27.2817
+    ],
+    [
+     106.79003,
+     27.23266
+    ]
+   ]
+  },
+  {
+   "id": "yang-long-si-xi-feng",
+   "name": "渝贵铁路",
+   "from": "yang-long-si",
+   "to": "xi-feng",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 19.37,
+   "polyline": [
+    [
+     106.79003,
+     27.23266
+    ],
+    [
+     106.78492,
+     27.22017
+    ],
+    [
+     106.77874,
+     27.21032
+    ],
+    [
+     106.74065,
+     27.17034
+    ],
+    [
+     106.7346,
+     27.16132
+    ],
+    [
+     106.72969,
+     27.14951
+    ],
+    [
+     106.72743,
+     27.13594
+    ],
+    [
+     106.72853,
+     27.12225
+    ],
+    [
+     106.74507,
+     27.07831
+    ]
+   ]
+  },
+  {
+   "id": "xi-feng-yang-lang",
+   "name": "渝贵铁路",
+   "from": "xi-feng",
+   "to": "yang-lang",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 4.41,
+   "polyline": [
+    [
+     106.74507,
+     27.07831
+    ],
+    [
+     106.74985,
+     27.06315
+    ],
+    [
+     106.75045,
+     27.05703
+    ],
+    [
+     106.74876,
+     27.0478
+    ],
+    [
+     106.74491,
+     27.04022
+    ]
+   ]
+  },
+  {
+   "id": "yang-lang-xin-luo-cun",
+   "name": "渝贵铁路",
+   "from": "yang-lang",
+   "to": "xin-luo-cun",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 5.05,
+   "polyline": [
+    [
+     106.74491,
+     27.04022
+    ],
+    [
+     106.72808,
+     27.01557
+    ],
+    [
+     106.7252,
+     27.00718
+    ],
+    [
+     106.72437,
+     26.99951
+    ]
+   ]
+  },
+  {
+   "id": "xin-luo-cun-xiu-wen-xian",
+   "name": "渝贵铁路",
+   "from": "xin-luo-cun",
+   "to": "xiu-wen-xian",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 17.53,
+   "polyline": [
+    [
+     106.72437,
+     26.99951
+    ],
+    [
+     106.72676,
+     26.98389
+    ],
+    [
+     106.74224,
+     26.95084
+    ],
+    [
+     106.7604,
+     26.89922
+    ],
+    [
+     106.75922,
+     26.88544
+    ],
+    [
+     106.74657,
+     26.8497
+    ]
+   ]
+  },
+  {
+   "id": "xiu-wen-xian-peng-lai-cun",
+   "name": "渝贵铁路",
+   "from": "xiu-wen-xian",
+   "to": "peng-lai-cun",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 10.62,
+   "polyline": [
+    [
+     106.74657,
+     26.8497
+    ],
+    [
+     106.74104,
+     26.83018
+    ],
+    [
+     106.73885,
+     26.7725
+    ],
+    [
+     106.7331,
+     26.75584
+    ]
+   ]
+  },
+  {
+   "id": "peng-lai-cun-dou-la-ying",
+   "name": "渝贵铁路",
+   "from": "peng-lai-cun",
+   "to": "dou-la-ying",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 7.24,
+   "polyline": [
+    [
+     106.7331,
+     26.75584
+    ],
+    [
+     106.71666,
+     26.72834
+    ],
+    [
+     106.70992,
+     26.70417
+    ],
+    [
+     106.70621,
+     26.69602
+    ]
+   ]
+  },
+  {
+   "id": "dou-la-ying-gui-yang-bei",
+   "name": "渝贵铁路",
+   "from": "dou-la-ying",
+   "to": "gui-yang-bei",
+   "lineIds": [
+    "yugui-conventional"
+   ],
+   "trains": [
+    "emu",
+    "conv"
+   ],
+   "serviceDate": "2018-01-25",
+   "estLengthKm": 9.34,
+   "polyline": [
+    [
+     106.70621,
+     26.69602
+    ],
+    [
+     106.68242,
+     26.65028
+    ],
+    [
+     106.67278,
+     26.62626
+    ],
+    [
+     106.67158,
+     26.62
+    ],
+    [
+     106.67306,
+     26.62072
     ]
    ]
   }
