@@ -89,7 +89,11 @@ MANUAL_ROUTE_OVERRIDES = [
             "xin-dian-zuo-ling", "zuo-ling-ge-dian-nan",
             "ge-dian-nan-hua-rong", "hua-rong-hua-rong-dong",
             "hua-rong-dong-huang-gang-xi", "huang-gang-xi-huang-gang",
-            "huang-gang-huang-gang-dong", "huang-gang-dong-xi-shui-nan",
+            "huang-gang-huang-gang-dong",
+            # 黄冈东—浠水南 现在在 巴河所 断成两段：武冈城际 与 黄黄高铁
+            # 的换线点就是这个道岔尖（路路通 经由写成 武冈城际线—巴河所—
+            # 阜黄黄黄段），合在一起的那段区段两条线共骑。
+            "huang-gang-dong-bahe-suo", "bahe-suo-xi-shui-nan",
             "xi-shui-nan-qi-chun-nan", "qi-chun-nan-wu-xue-bei",
             "wu-xue-bei-zhuo-gang", "zhuo-gang-hh-junction",
             "huang-mei-dong-hh-junction", "su-song-dong-huang-mei-dong",

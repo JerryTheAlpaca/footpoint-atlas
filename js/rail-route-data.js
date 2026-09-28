@@ -258,7 +258,7 @@
    "stops": [
     "bei-jing-xi",
     "ya-men-kou-dong",
-    "zhang-xin-dian",
+    "dujiakan-suo",
     "zhuo-zhou-dong",
     "gao-bei-dian-dong",
     "xu-shui-dong",
@@ -315,6 +315,25 @@
     "guang-zhou-nan"
    ],
    "links": []
+  },
+  {
+   "id": "jingxi-link",
+   "name": "京西联络线",
+   "batch": "B",
+   "from": "bei-jing-xi",
+   "to": "dujiakan-suo",
+   "serviceDate": "2012-12-26",
+   "trains": [
+    "emu"
+   ],
+   "stops": [
+    "bei-jing-xi",
+    "ya-men-kou-dong",
+    "dujiakan-suo"
+   ],
+   "links": [
+    "jingguang-hsr"
+   ]
   },
   {
    "id": "hukun-hsr",
@@ -994,6 +1013,7 @@
     "hh-junction",
     "huang-mei-nan",
     "huang-gang-dong",
+    "bahe-suo",
     "xi-shui-nan",
     "qi-chun-nan",
     "wu-xue-bei",
@@ -1115,7 +1135,7 @@
    "name": "武冈城际铁路",
    "batch": "E",
    "from": "wuhan",
-   "to": "huang-gang-dong",
+   "to": "bahe-suo",
    "serviceDate": "2014-06-18",
    "trains": [
     "emu"
@@ -1131,7 +1151,8 @@
     "hua-rong-dong",
     "huang-gang-xi",
     "huang-gang",
-    "huang-gang-dong"
+    "huang-gang-dong",
+    "bahe-suo"
    ],
    "links": []
   },
@@ -2820,6 +2841,28 @@
    "coord": [
     120.01713,
     30.79683
+   ]
+  },
+  {
+   "id": "dujiakan-suo",
+   "name": "杜家坎所",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    116.2077,
+    39.83399
+   ]
+  },
+  {
+   "id": "bahe-suo",
+   "name": "巴河所",
+   "aliases": [],
+   "kind": "junction",
+   "source": "osm",
+   "coord": [
+    115.05613,
+    30.5462
    ]
   },
   {
@@ -4825,17 +4868,6 @@
    ]
   },
   {
-   "id": "zhang-xin-dian",
-   "name": "长辛店",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    116.20851,
-    39.8278
-   ]
-  },
-  {
    "id": "jiang-gao-zhen",
    "name": "江高镇",
    "aliases": [],
@@ -4930,8 +4962,8 @@
    "kind": "station",
    "source": "osm",
    "coord": [
-    116.2146,
-    39.89417
+    116.21462,
+    39.89412
    ]
   },
   {
@@ -27236,7 +27268,8 @@
    "from": "bei-jing-xi",
    "to": "ya-men-kou-dong",
    "lineIds": [
-    "jingguang-hsr"
+    "jingguang-hsr",
+    "jingxi-link"
    ],
    "trains": [
     "emu"
@@ -27261,63 +27294,64 @@
      39.89472
     ],
     [
-     116.2146,
-     39.89417
+     116.21462,
+     39.89412
     ]
    ]
   },
   {
-   "id": "ya-men-kou-dong-zhang-xin-dian",
+   "id": "ya-men-kou-dong-dujiakan-suo",
    "name": "京广高速铁路",
    "from": "ya-men-kou-dong",
-   "to": "zhang-xin-dian",
+   "to": "dujiakan-suo",
    "lineIds": [
-    "jingguang-hsr"
+    "jingguang-hsr",
+    "jingxi-link"
    ],
    "trains": [
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 8.56,
+   "estLengthKm": 7.88,
    "polyline": [
     [
-     116.2146,
-     39.89417
+     116.21462,
+     39.89412
     ],
     [
-     116.20724,
-     39.89197
+     116.20704,
+     39.89182
     ],
     [
-     116.19883,
-     39.8867
+     116.19885,
+     39.88665
     ],
     [
-     116.19387,
-     39.88129
+     116.19392,
+     39.88126
     ],
     [
-     116.19193,
-     39.87635
+     116.19199,
+     39.87634
     ],
     [
-     116.19275,
-     39.86847
+     116.19281,
+     39.86849
     ],
     [
-     116.2062,
-     39.8427
+     116.20608,
+     39.84548
     ],
     [
-     116.20851,
-     39.8278
+     116.2077,
+     39.83399
     ]
    ]
   },
   {
-   "id": "zhang-xin-dian-zhuo-zhou-dong",
+   "id": "dujiakan-suo-zhuo-zhou-dong",
    "name": "京广高速铁路",
-   "from": "zhang-xin-dian",
+   "from": "dujiakan-suo",
    "to": "zhuo-zhou-dong",
    "lineIds": [
     "jingguang-hsr"
@@ -27326,23 +27360,23 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 44.78,
+   "estLengthKm": 45.48,
    "polyline": [
     [
-     116.20851,
-     39.8278
+     116.2077,
+     39.83399
     ],
     [
-     116.20759,
-     39.81893
+     116.20813,
+     39.82031
     ],
     [
-     116.20012,
-     39.80768
+     116.19935,
+     39.80615
     ],
     [
-     116.19775,
-     39.80138
+     116.19782,
+     39.80137
     ],
     [
      116.19704,
@@ -50491,9 +50525,54 @@
    ]
   },
   {
-   "id": "huang-gang-dong-xi-shui-nan",
-   "name": "黄黄高速铁路",
+   "id": "huang-gang-dong-bahe-suo",
+   "name": "武冈城际铁路",
    "from": "huang-gang-dong",
+   "to": "bahe-suo",
+   "lineIds": [
+    "wugang-int",
+    "huanghuang-hsr"
+   ],
+   "trains": [
+    "emu"
+   ],
+   "serviceDate": "2014-06-18",
+   "estLengthKm": 9.66,
+   "polyline": [
+    [
+     114.98181,
+     30.50915
+    ],
+    [
+     114.99988,
+     30.52454
+    ],
+    [
+     115.01842,
+     30.54715
+    ],
+    [
+     115.0253,
+     30.55254
+    ],
+    [
+     115.03225,
+     30.55454
+    ],
+    [
+     115.03994,
+     30.55421
+    ],
+    [
+     115.05613,
+     30.5462
+    ]
+   ]
+  },
+  {
+   "id": "bahe-suo-xi-shui-nan",
+   "name": "黄黄高速铁路",
+   "from": "bahe-suo",
    "to": "xi-shui-nan",
    "lineIds": [
     "huanghuang-hsr"
@@ -50502,27 +50581,11 @@
     "emu"
    ],
    "serviceDate": "2022-04-22",
-   "estLengthKm": 33.19,
+   "estLengthKm": 23.53,
    "polyline": [
     [
-     114.98181,
-     30.50915
-    ],
-    [
-     115.00187,
-     30.52656
-    ],
-    [
-     115.02072,
-     30.54948
-    ],
-    [
-     115.03048,
-     30.55428
-    ],
-    [
-     115.04233,
-     30.55361
+     115.05613,
+     30.5462
     ],
     [
      115.07488,
@@ -104767,7 +104830,8 @@
     "hua-rong-dong-huang-gang-xi",
     "huang-gang-xi-huang-gang",
     "huang-gang-huang-gang-dong",
-    "huang-gang-dong-xi-shui-nan",
+    "huang-gang-dong-bahe-suo",
+    "bahe-suo-xi-shui-nan",
     "xi-shui-nan-qi-chun-nan",
     "qi-chun-nan-wu-xue-bei",
     "wu-xue-bei-zhuo-gang",
