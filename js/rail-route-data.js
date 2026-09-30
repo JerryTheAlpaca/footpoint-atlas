@@ -267,7 +267,6 @@
     "hong-qiao-zhen",
     "hu-zhou",
     "miao-xi",
-    "miaoxizhen-suo",
     "de-qing",
     "hang-zhou-bei",
     "hang-zhou-dong"
@@ -27814,33 +27813,9 @@
    ]
   },
   {
-   "id": "miao-xi-miaoxizhen-suo",
+   "id": "miao-xi-de-qing",
    "name": "宁杭高速铁路",
    "from": "miao-xi",
-   "to": "miaoxizhen-suo",
-   "lineIds": [
-    "ninghang-hsr"
-   ],
-   "trains": [
-    "emu"
-   ],
-   "serviceDate": "2013-07-01",
-   "estLengthKm": 0.59,
-   "polyline": [
-    [
-     120.01573,
-     30.79167
-    ],
-    [
-     120.01713,
-     30.79683
-    ]
-   ]
-  },
-  {
-   "id": "miaoxizhen-suo-de-qing",
-   "name": "宁杭高速铁路",
-   "from": "miaoxizhen-suo",
    "to": "de-qing",
    "lineIds": [
     "ninghang-hsr"
@@ -27849,11 +27824,11 @@
     "emu"
    ],
    "serviceDate": "2013-07-01",
-   "estLengthKm": 29.13,
+   "estLengthKm": 28.54,
    "polyline": [
     [
-     120.01713,
-     30.79683
+     120.01573,
+     30.79167
     ],
     [
      120.01187,
