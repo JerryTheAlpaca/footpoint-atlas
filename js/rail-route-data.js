@@ -22170,8 +22170,8 @@
      39.86358
     ],
     [
-     116.36429,
-     39.85575
+     116.36389,
+     39.85562
     ],
     [
      116.34124,
@@ -22315,7 +22315,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 12.93,
+   "estLengthKm": 12.58,
    "polyline": [
     [
      116.58626,
@@ -22575,7 +22575,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 104.73,
+   "estLengthKm": 104.74,
    "polyline": [
     [
      116.76282,
@@ -22831,7 +22831,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 3.51,
+   "estLengthKm": 3.4,
    "polyline": [
     [
      116.88976,
@@ -23275,7 +23275,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 37.21,
+   "estLengthKm": 37.22,
    "polyline": [
     [
      117.25159,
@@ -23459,7 +23459,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 67.69,
+   "estLengthKm": 67.58,
    "polyline": [
     [
      117.29896,
@@ -23571,7 +23571,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 54.47,
+   "estLengthKm": 54.1,
    "polyline": [
     [
      117.43846,
@@ -23715,7 +23715,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 30.31,
+   "estLengthKm": 29.87,
    "polyline": [
     [
      118.53169,
@@ -23931,7 +23931,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 32.77,
+   "estLengthKm": 32.72,
    "polyline": [
     [
      119.66496,
@@ -24043,7 +24043,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 26.97,
+   "estLengthKm": 26.62,
    "polyline": [
     [
      120.45501,
@@ -24087,7 +24087,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 23.01,
+   "estLengthKm": 22.45,
    "polyline": [
     [
      120.63666,
@@ -24339,7 +24339,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 8.02,
+   "estLengthKm": 8.01,
    "polyline": [
     [
      121.28353,
@@ -24375,7 +24375,7 @@
     "emu"
    ],
    "serviceDate": "2021-01-22",
-   "estLengthKm": 26.87,
+   "estLengthKm": 26.68,
    "polyline": [
     [
      116.50282,
@@ -24627,7 +24627,7 @@
     "emu"
    ],
    "serviceDate": "2021-01-22",
-   "estLengthKm": 4.0,
+   "estLengthKm": 3.99,
    "polyline": [
     [
      117.47377,
@@ -24811,7 +24811,7 @@
     "emu"
    ],
    "serviceDate": "2021-01-22",
-   "estLengthKm": 37.61,
+   "estLengthKm": 37.6,
    "polyline": [
     [
      118.27658,
@@ -25543,7 +25543,7 @@
     "emu"
    ],
    "serviceDate": "2021-01-22",
-   "estLengthKm": 7.87,
+   "estLengthKm": 7.86,
    "polyline": [
     [
      123.34001,
@@ -25711,7 +25711,7 @@
     "emu"
    ],
    "serviceDate": "2021-01-22",
-   "estLengthKm": 27.14,
+   "estLengthKm": 27.13,
    "polyline": [
     [
      123.91885,
@@ -25783,7 +25783,7 @@
     "emu"
    ],
    "serviceDate": "2021-01-22",
-   "estLengthKm": 48.44,
+   "estLengthKm": 47.94,
    "polyline": [
     [
      124.43328,
@@ -25823,7 +25823,7 @@
     "emu"
    ],
    "serviceDate": "2021-01-22",
-   "estLengthKm": 56.54,
+   "estLengthKm": 56.09,
    "polyline": [
     [
      124.80521,
@@ -26263,7 +26263,7 @@
     "emu"
    ],
    "serviceDate": "2010-07-01",
-   "estLengthKm": 7.51,
+   "estLengthKm": 7.41,
    "polyline": [
     [
      121.30527,
@@ -26272,10 +26272,6 @@
     [
      121.24471,
      31.29571
-    ],
-    [
-     121.23655,
-     31.29783
     ],
     [
      121.2368,
@@ -26519,7 +26515,7 @@
     "emu"
    ],
    "serviceDate": "2010-07-01",
-   "estLengthKm": 10.07,
+   "estLengthKm": 9.79,
    "polyline": [
     [
      120.70898,
@@ -26875,7 +26871,7 @@
     "emu"
    ],
    "serviceDate": "2010-07-01",
-   "estLengthKm": 9.49,
+   "estLengthKm": 9.48,
    "polyline": [
     [
      119.96948,
@@ -27019,7 +27015,7 @@
     "emu"
    ],
    "serviceDate": "2010-07-01",
-   "estLengthKm": 15.75,
+   "estLengthKm": 15.58,
    "polyline": [
     [
      119.58843,
@@ -27303,7 +27299,7 @@
     "emu"
    ],
    "serviceDate": "2010-07-01",
-   "estLengthKm": 6.45,
+   "estLengthKm": 6.44,
    "polyline": [
     [
      118.8509,
@@ -27387,7 +27383,7 @@
     "emu"
    ],
    "serviceDate": "2013-07-01",
-   "estLengthKm": 14.93,
+   "estLengthKm": 14.35,
    "polyline": [
     [
      118.8909,
@@ -27563,7 +27559,7 @@
     "emu"
    ],
    "serviceDate": "2013-07-01",
-   "estLengthKm": 31.03,
+   "estLengthKm": 30.84,
    "polyline": [
     [
      119.49307,
@@ -27695,7 +27691,7 @@
     "emu"
    ],
    "serviceDate": "2013-07-01",
-   "estLengthKm": 8.51,
+   "estLengthKm": 7.93,
    "polyline": [
     [
      119.96962,
@@ -27883,7 +27879,7 @@
     "emu"
    ],
    "serviceDate": "2013-07-01",
-   "estLengthKm": 7.76,
+   "estLengthKm": 7.75,
    "polyline": [
     [
      120.15943,
@@ -28009,7 +28005,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 45.48,
+   "estLengthKm": 45.46,
    "polyline": [
     [
      116.2077,
@@ -28597,7 +28593,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 60.89,
+   "estLengthKm": 60.9,
    "polyline": [
     [
      114.55214,
@@ -28633,7 +28629,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 46.56,
+   "estLengthKm": 46.4,
    "polyline": [
     [
      114.44879,
@@ -28777,7 +28773,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 15.34,
+   "estLengthKm": 15.24,
    "polyline": [
     [
      114.05768,
@@ -29101,7 +29097,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 64.7,
+   "estLengthKm": 64.13,
    "polyline": [
     [
      113.95722,
@@ -29173,7 +29169,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 58.25,
+   "estLengthKm": 58.26,
    "polyline": [
     [
      113.97206,
@@ -29241,7 +29237,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 39.9,
+   "estLengthKm": 39.95,
    "polyline": [
     [
      114.05844,
@@ -29361,7 +29357,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 91.04,
+   "estLengthKm": 90.53,
    "polyline": [
     [
      114.21608,
@@ -29995,7 +29991,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 39.96,
+   "estLengthKm": 39.95,
    "polyline": [
     [
      113.05915,
@@ -30363,7 +30359,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 84.92,
+   "estLengthKm": 84.91,
    "polyline": [
     [
      112.96388,
@@ -30439,7 +30435,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 44.39,
+   "estLengthKm": 44.38,
    "polyline": [
     [
      113.3912,
@@ -30707,7 +30703,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 22.92,
+   "estLengthKm": 22.84,
    "polyline": [
     [
      113.13745,
@@ -30851,7 +30847,7 @@
     "emu"
    ],
    "serviceDate": "2012-12-26",
-   "estLengthKm": 34.76,
+   "estLengthKm": 34.75,
    "polyline": [
     [
      113.21613,
@@ -31092,7 +31088,7 @@
     "emu"
    ],
    "serviceDate": "2011-12-26",
-   "estLengthKm": 16.44,
+   "estLengthKm": 16.43,
    "polyline": [
     [
      113.94963,
@@ -31132,7 +31128,7 @@
     "emu"
    ],
    "serviceDate": "2011-12-26",
-   "estLengthKm": 9.29,
+   "estLengthKm": 9.19,
    "polyline": [
     [
      114.02395,
@@ -31160,7 +31156,7 @@
     "emu"
    ],
    "serviceDate": "2011-12-26",
-   "estLengthKm": 29.77,
+   "estLengthKm": 29.75,
    "polyline": [
     [
      114.05125,
@@ -32259,7 +32255,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 30.0,
+   "estLengthKm": 29.99,
    "polyline": [
     [
      113.44748,
@@ -32353,7 +32349,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 68.23,
+   "estLengthKm": 68.11,
    "polyline": [
     [
      112.93757,
@@ -32687,7 +32683,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 23.17,
+   "estLengthKm": 23.16,
    "polyline": [
     [
      111.01443,
@@ -32959,7 +32955,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 22.95,
+   "estLengthKm": 22.67,
    "polyline": [
     [
      109.94617,
@@ -33138,7 +33134,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 23.72,
+   "estLengthKm": 23.53,
    "polyline": [
     [
      109.48432,
@@ -33613,7 +33609,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 24.02,
+   "estLengthKm": 24.01,
    "polyline": [
     [
      107.27111,
@@ -33843,7 +33839,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 15.08,
+   "estLengthKm": 14.75,
    "polyline": [
     [
      106.68679,
@@ -33970,7 +33966,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 3.49,
+   "estLengthKm": 3.12,
    "polyline": [
     [
      106.43926,
@@ -34105,7 +34101,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 12.37,
+   "estLengthKm": 12.36,
    "polyline": [
     [
      106.27634,
@@ -34146,7 +34142,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 15.59,
+   "estLengthKm": 15.58,
    "polyline": [
     [
      106.17704,
@@ -34386,7 +34382,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 6.26,
+   "estLengthKm": 6.25,
    "polyline": [
     [
      105.5687,
@@ -34543,7 +34539,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 8.88,
+   "estLengthKm": 8.86,
    "polyline": [
     [
      105.25004,
@@ -34572,7 +34568,7 @@
     "conv"
    ],
    "serviceDate": "2009-04-01",
-   "estLengthKm": 5.83,
+   "estLengthKm": 5.82,
    "polyline": [
     [
      105.16155,
@@ -34917,7 +34913,7 @@
     "emu"
    ],
    "serviceDate": "2010-10-26",
-   "estLengthKm": 4.02,
+   "estLengthKm": 4.01,
    "polyline": [
     [
      121.31685,
@@ -35425,7 +35421,7 @@
     "emu"
    ],
    "serviceDate": "2010-10-26",
-   "estLengthKm": 5.71,
+   "estLengthKm": 5.61,
    "polyline": [
     [
      120.20995,
@@ -35444,8 +35440,8 @@
      30.3061
     ],
     [
-     120.20865,
-     30.29384
+     120.20584,
+     30.29708
     ],
     [
      120.20762,
@@ -35466,19 +35462,19 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 9.66,
+   "estLengthKm": 9.65,
    "polyline": [
     [
      120.20762,
      30.29318
     ],
     [
-     120.21013,
-     30.29214
+     120.21009,
+     30.29212
     ],
     [
-     120.21802,
-     30.28179
+     120.21905,
+     30.28104
     ],
     [
      120.24925,
@@ -35759,7 +35755,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 11.12,
+   "estLengthKm": 10.69,
    "polyline": [
     [
      120.04128,
@@ -35923,7 +35919,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 3.75,
+   "estLengthKm": 3.45,
    "polyline": [
     [
      119.66219,
@@ -36051,7 +36047,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 10.83,
+   "estLengthKm": 10.61,
    "polyline": [
     [
      118.96546,
@@ -36447,7 +36443,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 42.14,
+   "estLengthKm": 42.01,
    "polyline": [
     [
      117.02848,
@@ -36775,7 +36771,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 79.92,
+   "estLengthKm": 79.91,
    "polyline": [
     [
      115.37972,
@@ -36963,7 +36959,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 12.09,
+   "estLengthKm": 11.74,
    "polyline": [
     [
      114.54976,
@@ -37155,7 +37151,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 76.63,
+   "estLengthKm": 76.12,
    "polyline": [
     [
      113.56952,
@@ -37214,8 +37210,8 @@
      28.16452
     ],
     [
-     113.0607,
-     28.1478
+     113.06025,
+     28.15296
     ],
     [
      113.05915,
@@ -37599,7 +37595,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 61.19,
+   "estLengthKm": 61.15,
    "polyline": [
     [
      110.58843,
@@ -37731,7 +37727,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 53.75,
+   "estLengthKm": 53.74,
    "polyline": [
     [
      109.65193,
@@ -37915,7 +37911,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 93.6,
+   "estLengthKm": 93.59,
    "polyline": [
     [
      108.64649,
@@ -38083,7 +38079,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 6.47,
+   "estLengthKm": 6.46,
    "polyline": [
     [
      107.28954,
@@ -38443,7 +38439,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 4.36,
+   "estLengthKm": 4.35,
    "polyline": [
     [
      106.29594,
@@ -38687,7 +38683,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 73.73,
+   "estLengthKm": 73.72,
    "polyline": [
     [
      105.52318,
@@ -38787,7 +38783,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 32.05,
+   "estLengthKm": 31.86,
    "polyline": [
     [
      104.86746,
@@ -39035,7 +39031,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 20.52,
+   "estLengthKm": 20.06,
    "polyline": [
     [
      103.78221,
@@ -39099,7 +39095,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 43.37,
+   "estLengthKm": 43.36,
    "polyline": [
     [
      103.60356,
@@ -39187,7 +39183,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-28",
-   "estLengthKm": 52.6,
+   "estLengthKm": 52.35,
    "polyline": [
     [
      103.13799,
@@ -39247,19 +39243,19 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 13.35,
+   "estLengthKm": 12.94,
    "polyline": [
     [
      117.29896,
      34.2705
     ],
     [
-     117.30096,
-     34.26924
+     117.29858,
+     34.27577
     ],
     [
-     117.29285,
-     34.29205
+     117.29248,
+     34.2936
     ],
     [
      117.28844,
@@ -39439,7 +39435,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 27.72,
+   "estLengthKm": 27.64,
    "polyline": [
     [
      116.51801,
@@ -39475,7 +39471,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 56.14,
+   "estLengthKm": 56.13,
    "polyline": [
     [
      116.30055,
@@ -39599,7 +39595,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 34.62,
+   "estLengthKm": 34.44,
    "polyline": [
     [
      115.16776,
@@ -39731,7 +39727,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 52.37,
+   "estLengthKm": 52.23,
    "polyline": [
     [
      114.25647,
@@ -39778,8 +39774,8 @@
      34.80845
     ],
     [
-     113.77403,
-     34.76024
+     113.77365,
+     34.76475
     ],
     [
      113.77228,
@@ -39947,7 +39943,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 43.65,
+   "estLengthKm": 43.63,
    "polyline": [
     [
      112.91468,
@@ -40615,7 +40611,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 14.83,
+   "estLengthKm": 14.82,
    "polyline": [
     [
      109.09157,
@@ -40731,7 +40727,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 53.9,
+   "estLengthKm": 53.89,
    "polyline": [
     [
      108.60748,
@@ -40863,7 +40859,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 36.56,
+   "estLengthKm": 36.51,
    "polyline": [
     [
      107.61042,
@@ -41123,7 +41119,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 12.8,
+   "estLengthKm": 12.44,
    "polyline": [
     [
      105.85442,
@@ -41307,7 +41303,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 36.13,
+   "estLengthKm": 35.89,
    "polyline": [
     [
      105.26398,
@@ -41487,7 +41483,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 46.74,
+   "estLengthKm": 46.71,
    "polyline": [
     [
      104.16592,
@@ -42187,7 +42183,7 @@
     "emu"
    ],
    "serviceDate": "2014-12-26",
-   "estLengthKm": 18.89,
+   "estLengthKm": 18.88,
    "polyline": [
     [
      101.53012,
@@ -42455,7 +42451,7 @@
     "emu"
    ],
    "serviceDate": "2014-12-26",
-   "estLengthKm": 36.26,
+   "estLengthKm": 35.71,
    "polyline": [
     [
      100.43035,
@@ -43363,7 +43359,7 @@
     "emu"
    ],
    "serviceDate": "2014-12-26",
-   "estLengthKm": 48.63,
+   "estLengthKm": 48.39,
    "polyline": [
     [
      93.85031,
@@ -44199,7 +44195,7 @@
     "emu"
    ],
    "serviceDate": "2014-12-26",
-   "estLengthKm": 1.68,
+   "estLengthKm": 1.66,
    "polyline": [
     [
      87.54016,
@@ -44415,7 +44411,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 43.83,
+   "estLengthKm": 43.59,
    "polyline": [
     [
      108.33801,
@@ -44515,7 +44511,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 21.63,
+   "estLengthKm": 21.62,
    "polyline": [
     [
      107.52213,
@@ -44655,7 +44651,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 54.18,
+   "estLengthKm": 53.95,
    "polyline": [
     [
      106.80149,
@@ -44819,7 +44815,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 36.0,
+   "estLengthKm": 35.58,
    "polyline": [
     [
      105.82055,
@@ -45035,7 +45031,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 14.57,
+   "estLengthKm": 14.72,
    "polyline": [
     [
      104.8735,
@@ -45067,7 +45063,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 5.91,
+   "estLengthKm": 5.39,
    "polyline": [
     [
      104.76467,
@@ -45447,7 +45443,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 10.42,
+   "estLengthKm": 10.05,
    "polyline": [
     [
      104.25827,
@@ -45479,7 +45475,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 11.12,
+   "estLengthKm": 11.11,
    "polyline": [
     [
      104.22439,
@@ -45515,7 +45511,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 21.46,
+   "estLengthKm": 20.97,
    "polyline": [
     [
      104.19472,
@@ -45550,8 +45546,8 @@
      30.6517
     ],
     [
-     104.13948,
-     30.63107
+     104.14039,
+     30.63298
     ],
     [
      104.13811,
@@ -45751,7 +45747,7 @@
     "emu"
    ],
    "serviceDate": "2020-12-27",
-   "estLengthKm": 22.04,
+   "estLengthKm": 22.03,
    "polyline": [
     [
      116.39899,
@@ -45839,7 +45835,7 @@
     "emu"
    ],
    "serviceDate": "2019-12-01",
-   "estLengthKm": 7.39,
+   "estLengthKm": 7.31,
    "polyline": [
     [
      115.64791,
@@ -46071,7 +46067,7 @@
     "emu"
    ],
    "serviceDate": "2019-12-01",
-   "estLengthKm": 6.73,
+   "estLengthKm": 6.42,
    "polyline": [
     [
      115.79335,
@@ -46283,7 +46279,7 @@
     "emu"
    ],
    "serviceDate": "2019-12-01",
-   "estLengthKm": 58.46,
+   "estLengthKm": 58.04,
    "polyline": [
     [
      115.74747,
@@ -46483,7 +46479,7 @@
     "emu"
    ],
    "serviceDate": "2019-12-01",
-   "estLengthKm": 23.86,
+   "estLengthKm": 23.77,
    "polyline": [
     [
      116.79625,
@@ -46927,7 +46923,7 @@
     "emu"
    ],
    "serviceDate": "2020-12-22",
-   "estLengthKm": 8.6,
+   "estLengthKm": 8.53,
    "polyline": [
     [
      117.18339,
@@ -47027,7 +47023,7 @@
     "emu"
    ],
    "serviceDate": "2020-12-22",
-   "estLengthKm": 32.52,
+   "estLengthKm": 32.27,
    "polyline": [
     [
      117.04174,
@@ -47131,7 +47127,7 @@
     "emu"
    ],
    "serviceDate": "2020-12-22",
-   "estLengthKm": 18.37,
+   "estLengthKm": 18.36,
    "polyline": [
     [
      117.03511,
@@ -47416,7 +47412,7 @@
     "emu"
    ],
    "serviceDate": "2021-12-30",
-   "estLengthKm": 27.51,
+   "estLengthKm": 27.12,
    "polyline": [
     [
      116.86278,
@@ -47536,7 +47532,7 @@
     "emu"
    ],
    "serviceDate": "2021-12-30",
-   "estLengthKm": 24.44,
+   "estLengthKm": 24.31,
    "polyline": [
     [
      116.17083,
@@ -47661,7 +47657,7 @@
     "emu"
    ],
    "serviceDate": "2021-12-30",
-   "estLengthKm": 40.36,
+   "estLengthKm": 40.14,
    "polyline": [
     [
      115.89883,
@@ -48327,7 +48323,7 @@
     "emu"
    ],
    "serviceDate": "2019-12-26",
-   "estLengthKm": 31.22,
+   "estLengthKm": 31.21,
    "polyline": [
     [
      115.59699,
@@ -48619,7 +48615,7 @@
     "emu"
    ],
    "serviceDate": "2019-12-26",
-   "estLengthKm": 37.09,
+   "estLengthKm": 36.96,
    "polyline": [
     [
      114.94473,
@@ -48691,7 +48687,7 @@
     "emu"
    ],
    "serviceDate": "2019-12-26",
-   "estLengthKm": 52.38,
+   "estLengthKm": 52.21,
    "polyline": [
     [
      114.83718,
@@ -48867,7 +48863,7 @@
     "emu"
    ],
    "serviceDate": "2019-12-26",
-   "estLengthKm": 33.25,
+   "estLengthKm": 32.96,
    "polyline": [
     [
      115.08247,
@@ -49199,7 +49195,7 @@
     "emu"
    ],
    "serviceDate": "2021-12-10",
-   "estLengthKm": 4.66,
+   "estLengthKm": 4.34,
    "polyline": [
     [
      114.99814,
@@ -49503,7 +49499,7 @@
     "emu"
    ],
    "serviceDate": "2021-12-10",
-   "estLengthKm": 30.23,
+   "estLengthKm": 29.95,
    "polyline": [
     [
      114.73404,
@@ -49667,7 +49663,7 @@
     "emu"
    ],
    "serviceDate": "2021-12-10",
-   "estLengthKm": 29.94,
+   "estLengthKm": 29.71,
    "polyline": [
     [
      114.26026,
@@ -49899,7 +49895,7 @@
     "emu"
    ],
    "serviceDate": "2010-10-26",
-   "estLengthKm": 12.9,
+   "estLengthKm": 12.54,
    "polyline": [
     [
      121.31976,
@@ -49983,7 +49979,7 @@
     "emu"
    ],
    "serviceDate": "2018-12-25",
-   "estLengthKm": 44.98,
+   "estLengthKm": 44.89,
    "polyline": [
     [
      120.29108,
@@ -50291,7 +50287,7 @@
     "emu"
    ],
    "serviceDate": "2018-12-25",
-   "estLengthKm": 49.98,
+   "estLengthKm": 49.39,
    "polyline": [
     [
      119.18288,
@@ -50431,7 +50427,7 @@
     "emu"
    ],
    "serviceDate": "2018-12-25",
-   "estLengthKm": 24.81,
+   "estLengthKm": 24.31,
    "polyline": [
     [
      118.56966,
@@ -50755,7 +50751,7 @@
     "emu"
    ],
    "serviceDate": "2016-12-01",
-   "estLengthKm": 4.27,
+   "estLengthKm": 4.26,
    "polyline": [
     [
      113.985,
@@ -50807,31 +50803,35 @@
     "emu"
    ],
    "serviceDate": "2014-06-18",
-   "estLengthKm": 14.41,
+   "estLengthKm": 12.99,
    "polyline": [
     [
      114.41894,
      30.60985
     ],
     [
-     114.43764,
-     30.61118
+     114.42515,
+     30.59416
     ],
     [
-     114.44042,
-     30.60404
+     114.42769,
+     30.58332
     ],
     [
-     114.44559,
-     30.59776
+     114.43014,
+     30.58184
     ],
     [
-     114.44139,
-     30.57166
+     114.43274,
+     30.57733
     ],
     [
-     114.44627,
-     30.56143
+     114.43639,
+     30.56665
+    ],
+    [
+     114.43962,
+     30.56613
     ],
     [
      114.44619,
@@ -51380,7 +51380,7 @@
     "emu"
    ],
    "serviceDate": "2022-04-22",
-   "estLengthKm": 7.8,
+   "estLengthKm": 7.79,
    "polyline": [
     [
      115.89467,
@@ -52136,7 +52136,7 @@
     "emu"
    ],
    "serviceDate": "2015-12-06",
-   "estLengthKm": 32.63,
+   "estLengthKm": 32.22,
    "polyline": [
     [
      118.13628,
@@ -52508,7 +52508,7 @@
     "emu"
    ],
    "serviceDate": "2010-07-01",
-   "estLengthKm": 10.8,
+   "estLengthKm": 10.79,
    "polyline": [
     [
      118.8777,
@@ -52676,7 +52676,7 @@
     "emu"
    ],
    "serviceDate": "2020-06-28",
-   "estLengthKm": 22.37,
+   "estLengthKm": 22.36,
    "polyline": [
     [
      117.9232,
@@ -52996,7 +52996,7 @@
     "emu"
    ],
    "serviceDate": "2020-06-28",
-   "estLengthKm": 34.96,
+   "estLengthKm": 34.95,
    "polyline": [
     [
      118.77345,
@@ -53056,7 +53056,7 @@
     "emu"
    ],
    "serviceDate": "2020-06-28",
-   "estLengthKm": 2.43,
+   "estLengthKm": 2.42,
    "polyline": [
     [
      119.12665,
@@ -53080,7 +53080,7 @@
     "emu"
    ],
    "serviceDate": "2020-06-28",
-   "estLengthKm": 28.42,
+   "estLengthKm": 28.41,
    "polyline": [
     [
      119.15168,
@@ -53277,7 +53277,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 8.79,
+   "estLengthKm": 8.7,
    "polyline": [
     [
      116.42103,
@@ -53593,7 +53593,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 13.82,
+   "estLengthKm": 13.61,
    "polyline": [
     [
      116.70521,
@@ -54520,7 +54520,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 5.68,
+   "estLengthKm": 5.67,
    "polyline": [
     [
      116.33329,
@@ -54636,7 +54636,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 10.59,
+   "estLengthKm": 10.58,
    "polyline": [
     [
      116.32867,
@@ -55303,7 +55303,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 6.73,
+   "estLengthKm": 6.74,
    "polyline": [
     [
      117.04401,
@@ -56116,7 +56116,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 7.69,
+   "estLengthKm": 7.68,
    "polyline": [
     [
      117.37107,
@@ -57528,15 +57528,11 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 5.6,
+   "estLengthKm": 5.54,
    "polyline": [
     [
      118.8509,
      32.10474
-    ],
-    [
-     118.85156,
-     32.10618
     ],
     [
      118.86335,
@@ -57614,7 +57610,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 22.9,
+   "estLengthKm": 22.89,
    "polyline": [
     [
      119.04827,
@@ -57663,7 +57659,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 13.43,
+   "estLengthKm": 13.3,
    "polyline": [
     [
      119.28865,
@@ -57885,7 +57881,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 38.55,
+   "estLengthKm": 38.56,
    "polyline": [
     [
      119.96948,
@@ -57950,7 +57946,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 10.97,
+   "estLengthKm": 11.05,
    "polyline": [
     [
      120.30065,
@@ -58344,7 +58340,7 @@
     "conv"
    ],
    "serviceDate": "1968-09-30",
-   "estLengthKm": 5.34,
+   "estLengthKm": 5.33,
    "polyline": [
     [
      121.40075,
@@ -58773,7 +58769,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 10.71,
+   "estLengthKm": 10.38,
    "polyline": [
     [
      114.50426,
@@ -58786,10 +58782,6 @@
     [
      114.47692,
      38.00987
-    ],
-    [
-     114.4765,
-     38.008
     ],
     [
      114.478,
@@ -59765,7 +59757,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 11.31,
+   "estLengthKm": 11.3,
    "polyline": [
     [
      113.91098,
@@ -60140,7 +60132,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 4.45,
+   "estLengthKm": 4.46,
    "polyline": [
     [
      113.63196,
@@ -61015,7 +61007,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 7.15,
+   "estLengthKm": 7.07,
    "polyline": [
     [
      114.06553,
@@ -61573,7 +61565,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 24.46,
+   "estLengthKm": 23.99,
    "polyline": [
     [
      113.94189,
@@ -61612,12 +61604,8 @@
      30.97129
     ],
     [
-     113.9216,
-     30.96027
-    ],
-    [
-     113.92608,
-     30.95646
+     113.91874,
+     30.96516
     ],
     [
      113.92408,
@@ -61852,7 +61840,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 10.27,
+   "estLengthKm": 10.13,
    "polyline": [
     [
      114.34012,
@@ -61875,16 +61863,12 @@
      30.63645
     ],
     [
-     114.28237,
-     30.63014
+     114.27936,
+     30.62936
     ],
     [
-     114.25659,
-     30.62384
-    ],
-    [
-     114.24919,
-     30.62337
+     114.25185,
+     30.62344
     ],
     [
      114.24941,
@@ -61905,15 +61889,15 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 5.33,
+   "estLengthKm": 5.32,
    "polyline": [
     [
      114.24941,
      30.62165
     ],
     [
-     114.24835,
-     30.62342
+     114.24808,
+     30.62345
     ],
     [
      114.24053,
@@ -62117,7 +62101,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 6.67,
+   "estLengthKm": 6.66,
    "polyline": [
     [
      114.30125,
@@ -62526,7 +62510,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 10.39,
+   "estLengthKm": 10.38,
    "polyline": [
     [
      113.78933,
@@ -63008,7 +62992,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 13.43,
+   "estLengthKm": 13.42,
    "polyline": [
     [
      113.12416,
@@ -63196,7 +63180,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 12.13,
+   "estLengthKm": 12.12,
    "polyline": [
     [
      113.04326,
@@ -63793,7 +63777,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 7.28,
+   "estLengthKm": 7.03,
    "polyline": [
     [
      113.15135,
@@ -64420,7 +64404,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 12.81,
+   "estLengthKm": 12.8,
    "polyline": [
     [
      112.66654,
@@ -66277,7 +66261,7 @@
     "conv"
    ],
    "serviceDate": "1957-10-15",
-   "estLengthKm": 10.71,
+   "estLengthKm": 10.7,
    "polyline": [
     [
      113.22505,
@@ -67127,7 +67111,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 5.63,
+   "estLengthKm": 5.57,
    "polyline": [
     [
      117.23296,
@@ -67936,7 +67920,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 8.18,
+   "estLengthKm": 8.17,
    "polyline": [
     [
      113.79426,
@@ -67994,7 +67978,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 4.96,
+   "estLengthKm": 4.44,
    "polyline": [
     [
      113.65384,
@@ -68659,7 +68643,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 13.71,
+   "estLengthKm": 13.7,
    "polyline": [
     [
      112.2751,
@@ -70216,7 +70200,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 7.96,
+   "estLengthKm": 7.95,
    "polyline": [
     [
      109.43285,
@@ -70639,7 +70623,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 11.28,
+   "estLengthKm": 11.25,
    "polyline": [
     [
      108.60748,
@@ -70763,7 +70747,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 10.95,
+   "estLengthKm": 10.6,
    "polyline": [
     [
      108.07465,
@@ -71517,7 +71501,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 27.97,
+   "estLengthKm": 27.96,
    "polyline": [
     [
      106.17572,
@@ -71818,7 +71802,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 21.62,
+   "estLengthKm": 21.41,
    "polyline": [
     [
      105.52736,
@@ -75528,7 +75512,7 @@
     "conv"
    ],
    "serviceDate": "1962-12-09",
-   "estLengthKm": 22.48,
+   "estLengthKm": 22.26,
    "polyline": [
     [
      98.25494,
@@ -75832,7 +75816,7 @@
     "conv"
    ],
    "serviceDate": "1962-12-09",
-   "estLengthKm": 24.21,
+   "estLengthKm": 24.0,
    "polyline": [
     [
      97.04523,
@@ -76564,7 +76548,7 @@
     "conv"
    ],
    "serviceDate": "1960-02-01",
-   "estLengthKm": 19.9,
+   "estLengthKm": 19.89,
    "polyline": [
     [
      102.31814,
@@ -76599,8 +76583,8 @@
      36.49095
     ],
     [
-     102.11009,
-     36.50474
+     102.111,
+     36.50448
     ],
     [
      102.10796,
@@ -76621,15 +76605,15 @@
     "conv"
    ],
    "serviceDate": "1960-02-01",
-   "estLengthKm": 10.42,
+   "estLengthKm": 10.37,
    "polyline": [
     [
      102.10796,
      36.50723
     ],
     [
-     102.10616,
-     36.50589
+     102.10458,
+     36.50633
     ],
     [
      102.08427,
@@ -76662,7 +76646,7 @@
     "conv"
    ],
    "serviceDate": "1960-02-01",
-   "estLengthKm": 20.45,
+   "estLengthKm": 20.36,
    "polyline": [
     [
      101.99769,
@@ -76695,10 +76679,6 @@
     [
      101.84321,
      36.59018
-    ],
-    [
-     101.81056,
-     36.62231
     ],
     [
      101.81141,
@@ -77128,7 +77108,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 21.41,
+   "estLengthKm": 21.42,
    "polyline": [
     [
      113.55196,
@@ -77320,7 +77300,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 10.54,
+   "estLengthKm": 10.49,
    "polyline": [
     [
      112.97676,
@@ -77525,7 +77505,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 5.33,
+   "estLengthKm": 5.17,
    "polyline": [
     [
      112.18534,
@@ -77767,7 +77747,7 @@
     "conv"
    ],
    "serviceDate": "1966-01-01",
-   "estLengthKm": 9.26,
+   "estLengthKm": 8.93,
    "polyline": [
     [
      111.67637,
@@ -78403,7 +78383,7 @@
     "conv"
    ],
    "serviceDate": "1978-01-01",
-   "estLengthKm": 26.04,
+   "estLengthKm": 26.03,
    "polyline": [
     [
      110.42702,
@@ -79382,7 +79362,7 @@
     "conv"
    ],
    "serviceDate": "1978-01-01",
-   "estLengthKm": 26.15,
+   "estLengthKm": 26.14,
    "polyline": [
     [
      107.99913,
@@ -79839,7 +79819,7 @@
     "conv"
    ],
    "serviceDate": "1978-01-01",
-   "estLengthKm": 9.05,
+   "estLengthKm": 9.04,
    "polyline": [
     [
      107.35207,
@@ -80627,7 +80607,7 @@
     "conv"
    ],
    "serviceDate": "2001-10-01",
-   "estLengthKm": 7.92,
+   "estLengthKm": 7.72,
    "polyline": [
     [
      109.16478,
@@ -81291,7 +81271,7 @@
     "conv"
    ],
    "serviceDate": "2004-01-06",
-   "estLengthKm": 22.38,
+   "estLengthKm": 22.26,
    "polyline": [
     [
      115.66633,
@@ -81785,7 +81765,7 @@
     "conv"
    ],
    "serviceDate": "2004-01-06",
-   "estLengthKm": 11.96,
+   "estLengthKm": 11.95,
    "polyline": [
     [
      114.04625,
@@ -82131,7 +82111,7 @@
     "conv"
    ],
    "serviceDate": "2004-01-06",
-   "estLengthKm": 27.99,
+   "estLengthKm": 27.67,
    "polyline": [
     [
      113.10362,
@@ -85259,7 +85239,7 @@
     "conv"
    ],
    "serviceDate": "1958-01-01",
-   "estLengthKm": 6.74,
+   "estLengthKm": 6.61,
    "polyline": [
     [
      106.07857,
@@ -86040,7 +86020,7 @@
     "conv"
    ],
    "serviceDate": "1958-01-01",
-   "estLengthKm": 9.22,
+   "estLengthKm": 8.95,
    "polyline": [
     [
      105.83907,
@@ -86667,7 +86647,7 @@
     "conv"
    ],
    "serviceDate": "1958-01-01",
-   "estLengthKm": 8.98,
+   "estLengthKm": 8.79,
    "polyline": [
     [
      105.09715,
@@ -86692,14 +86672,6 @@
     [
      105.10275,
      32.0051
-    ],
-    [
-     105.08923,
-     31.99772
-    ],
-    [
-     105.07682,
-     31.98664
     ],
     [
      105.07464,
@@ -89399,7 +89371,7 @@
     "conv"
    ],
    "serviceDate": "1987-12-31",
-   "estLengthKm": 7.84,
+   "estLengthKm": 7.67,
    "polyline": [
     [
      112.15762,
@@ -89481,7 +89453,7 @@
     "conv"
    ],
    "serviceDate": "1987-12-31",
-   "estLengthKm": 8.57,
+   "estLengthKm": 8.55,
    "polyline": [
     [
      112.16264,
@@ -92210,7 +92182,7 @@
     "conv"
    ],
    "serviceDate": "1987-12-31",
-   "estLengthKm": 8.76,
+   "estLengthKm": 8.34,
    "polyline": [
     [
      109.7836,
@@ -93032,7 +93004,7 @@
     "conv"
    ],
    "serviceDate": "1990-10-01",
-   "estLengthKm": 8.07,
+   "estLengthKm": 7.75,
    "polyline": [
     [
      114.66527,
@@ -93043,8 +93015,8 @@
      30.53333
     ],
     [
-     114.74339,
-     30.51842
+     114.73262,
+     30.52182
     ],
     [
      114.74175,
@@ -93065,15 +93037,15 @@
     "conv"
    ],
    "serviceDate": "1990-10-01",
-   "estLengthKm": 8.35,
+   "estLengthKm": 8.39,
    "polyline": [
     [
      114.74175,
      30.51604
     ],
     [
-     114.74526,
-     30.51777
+     114.74423,
+     30.51809
     ],
     [
      114.75156,
@@ -93249,7 +93221,7 @@
     "conv"
    ],
    "serviceDate": "1990-10-01",
-   "estLengthKm": 8.29,
+   "estLengthKm": 7.72,
    "polyline": [
     [
      114.88352,
@@ -93504,7 +93476,7 @@
     "conv"
    ],
    "serviceDate": "1990-10-01",
-   "estLengthKm": 22.6,
+   "estLengthKm": 22.09,
    "polyline": [
     [
      115.17215,
@@ -93940,7 +93912,7 @@
     "conv"
    ],
    "serviceDate": "2017-12-28",
-   "estLengthKm": 10.27,
+   "estLengthKm": 9.82,
    "polyline": [
     [
      118.5565,
@@ -94059,7 +94031,7 @@
     "conv"
    ],
    "serviceDate": "2017-12-28",
-   "estLengthKm": 22.97,
+   "estLengthKm": 22.96,
    "polyline": [
     [
      118.17411,
@@ -94636,7 +94608,7 @@
     "conv"
    ],
    "serviceDate": "2017-12-28",
-   "estLengthKm": 6.71,
+   "estLengthKm": 6.65,
    "polyline": [
     [
      116.06209,
@@ -94669,7 +94641,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 6.79,
+   "estLengthKm": 6.76,
    "polyline": [
     [
      113.15135,
@@ -95281,7 +95253,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 6.65,
+   "estLengthKm": 6.61,
    "polyline": [
     [
      114.3174,
@@ -95665,7 +95637,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 13.98,
+   "estLengthKm": 13.97,
    "polyline": [
     [
      115.39032,
@@ -96256,7 +96228,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 11.15,
+   "estLengthKm": 11.14,
    "polyline": [
     [
      117.10995,
@@ -96909,7 +96881,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 12.38,
+   "estLengthKm": 12.3,
    "polyline": [
     [
      118.63626,
@@ -97220,7 +97192,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 7.45,
+   "estLengthKm": 7.42,
    "polyline": [
     [
      119.57565,
@@ -97261,19 +97233,11 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 8.28,
+   "estLengthKm": 8.13,
    "polyline": [
     [
      119.62721,
      29.11371
-    ],
-    [
-     119.62704,
-     29.11275
-    ],
-    [
-     119.63876,
-     29.11543
     ],
     [
      119.68816,
@@ -97339,7 +97303,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 36.24,
+   "estLengthKm": 36.16,
    "polyline": [
     [
      119.79886,
@@ -97408,7 +97372,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 26.56,
+   "estLengthKm": 26.51,
    "polyline": [
     [
      120.04128,
@@ -97485,7 +97449,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 15.13,
+   "estLengthKm": 15.03,
    "polyline": [
     [
      120.14053,
@@ -97673,7 +97637,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 10.48,
+   "estLengthKm": 10.42,
    "polyline": [
     [
      120.25707,
@@ -97702,10 +97666,6 @@
     [
      120.29149,
      30.16306
-    ],
-    [
-     120.29006,
-     30.173
     ],
     [
      120.29108,
@@ -98232,7 +98192,7 @@
     "conv"
    ],
    "serviceDate": "1972-10-01",
-   "estLengthKm": 14.24,
+   "estLengthKm": 14.23,
    "polyline": [
     [
      121.02517,
@@ -98542,7 +98502,7 @@
     "conv"
    ],
    "serviceDate": "1937-09-26",
-   "estLengthKm": 7.68,
+   "estLengthKm": 7.55,
    "polyline": [
     [
      120.20995,
@@ -98654,7 +98614,7 @@
     "conv"
    ],
    "serviceDate": "1937-09-26",
-   "estLengthKm": 8.13,
+   "estLengthKm": 7.95,
    "polyline": [
     [
      120.16684,
@@ -98702,7 +98662,7 @@
     "conv"
    ],
    "serviceDate": "1937-09-26",
-   "estLengthKm": 9.81,
+   "estLengthKm": 9.39,
    "polyline": [
     [
      120.15499,
@@ -99894,7 +99854,7 @@
     "conv"
    ],
    "serviceDate": "1996-09-01",
-   "estLengthKm": 27.04,
+   "estLengthKm": 27.03,
    "polyline": [
     [
      115.66062,
@@ -100557,15 +100517,15 @@
     "conv"
    ],
    "serviceDate": "1996-09-01",
-   "estLengthKm": 9.6,
+   "estLengthKm": 9.45,
    "polyline": [
     [
      115.86388,
      32.91901
     ],
     [
-     115.86583,
-     32.92097
+     115.86623,
+     32.91998
     ],
     [
      115.86915,
@@ -100822,7 +100782,7 @@
     "conv"
    ],
    "serviceDate": "1996-09-01",
-   "estLengthKm": 19.77,
+   "estLengthKm": 19.61,
    "polyline": [
     [
      115.21754,
@@ -102252,7 +102212,7 @@
     "conv"
    ],
    "serviceDate": "1996-09-01",
-   "estLengthKm": 8.74,
+   "estLengthKm": 8.7,
    "polyline": [
     [
      115.81119,
@@ -105060,7 +105020,7 @@
     "conv"
    ],
    "serviceDate": "1996-09-01",
-   "estLengthKm": 18.63,
+   "estLengthKm": 18.62,
    "polyline": [
     [
      114.46117,
@@ -105455,7 +105415,7 @@
     "emu"
    ],
    "serviceDate": "2013-12-01",
-   "estLengthKm": 11.92,
+   "estLengthKm": 11.84,
    "polyline": [
     [
      117.05791,
@@ -105535,7 +105495,7 @@
     "emu"
    ],
    "serviceDate": "2013-12-01",
-   "estLengthKm": 11.42,
+   "estLengthKm": 11.32,
    "polyline": [
     [
      117.2021,
@@ -105567,7 +105527,7 @@
     "emu"
    ],
    "serviceDate": "2013-12-01",
-   "estLengthKm": 9.72,
+   "estLengthKm": 9.71,
    "polyline": [
     [
      117.32143,
@@ -105939,7 +105899,7 @@
     "emu"
    ],
    "serviceDate": "2013-12-01",
-   "estLengthKm": 10.46,
+   "estLengthKm": 10.35,
    "polyline": [
     [
      118.55078,
@@ -106027,7 +105987,7 @@
     "emu"
    ],
    "serviceDate": "2013-12-01",
-   "estLengthKm": 21.23,
+   "estLengthKm": 21.09,
    "polyline": [
     [
      119.4102,
@@ -106083,7 +106043,7 @@
     "emu"
    ],
    "serviceDate": "2011-06-30",
-   "estLengthKm": 17.48,
+   "estLengthKm": 17.47,
    "polyline": [
     [
      116.98511,
@@ -106379,7 +106339,7 @@
     "conv"
    ],
    "serviceDate": "2018-01-25",
-   "estLengthKm": 39.59,
+   "estLengthKm": 39.16,
    "polyline": [
     [
      106.43671,
@@ -106706,7 +106666,7 @@
     "conv"
    ],
    "serviceDate": "2018-01-25",
-   "estLengthKm": 19.67,
+   "estLengthKm": 19.66,
    "polyline": [
     [
      106.8371,
@@ -106949,7 +106909,7 @@
     "conv"
    ],
    "serviceDate": "2018-01-25",
-   "estLengthKm": 12.3,
+   "estLengthKm": 12.29,
    "polyline": [
     [
      106.94664,
@@ -106986,7 +106946,7 @@
     "conv"
    ],
    "serviceDate": "2018-01-25",
-   "estLengthKm": 14.71,
+   "estLengthKm": 14.44,
    "polyline": [
     [
      106.88868,
@@ -107216,7 +107176,7 @@
     "conv"
    ],
    "serviceDate": "2018-01-25",
-   "estLengthKm": 17.53,
+   "estLengthKm": 17.81,
    "polyline": [
     [
      106.72437,
@@ -107290,7 +107250,7 @@
     "conv"
    ],
    "serviceDate": "2018-01-25",
-   "estLengthKm": 7.24,
+   "estLengthKm": 7.23,
    "polyline": [
     [
      106.7331,
@@ -107323,7 +107283,7 @@
     "conv"
    ],
    "serviceDate": "2018-01-25",
-   "estLengthKm": 9.34,
+   "estLengthKm": 9.19,
    "polyline": [
     [
      106.70621,
@@ -107338,8 +107298,8 @@
      26.62626
     ],
     [
-     106.67158,
-     26.62
+     106.67174,
+     26.62093
     ],
     [
      106.67306,
