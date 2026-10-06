@@ -938,15 +938,24 @@ def main(argv=None):
 
     validate(final_segments, registry)
 
-    # ---- 节点输出：legacy 在前，其余按注册序 ----
+    # ---- 节点输出：只出被区段用到的，legacy 在前，其余按注册序 ----
+    # 坐标清单是"全网节点"的账本，比实际能走到的站多：一条线改站序、或某个
+    # 补站候选当年被登记却没断成点，都会留下没人用的节点。照单全输出的话，
+    # 地图上是"有这座站"，网络里却走不进去（实测攒下 黄村/郭塘/南仓/新建河/
+    # 灵宝东/积金南/嘉善火车站 七个假站）。端点集合才是"这座站真的在网络上"。
+    used_ids = {nid for seg in final_segments for nid in (seg["from"], seg["to"])}
     # dict.fromkeys 去重：jg-junction 同时定义于 legacy 与 MANUAL_NODES，
     # 直接拼接会让同一节点在产物中出现两次。
     legacy_ids = list(dict.fromkeys(
         [n["id"] for n in legacy_nodes] + [n["id"] for n in MANUAL_NODES]))
-    nodes_out = [registry.by_id[i] for i in legacy_ids]
+    nodes_out = [registry.by_id[i] for i in legacy_ids if i in used_ids]
     for node in registry.by_id.values():
-        if node["id"] not in legacy_ids:
+        if node["id"] not in legacy_ids and node["id"] in used_ids:
             nodes_out.append(node)
+    unused = [n["name"] for n in registry.by_id.values() if n["id"] not in used_ids]
+    if unused:
+        print("清单里没被任何区段用到的节点（不写进产物）：%s"
+              % "、".join(sorted(unused)))
 
     lines_out = sorted(line_summaries,
                        key=lambda l: (BATCH_ORDER.index(l["batch"]), l["id"]))

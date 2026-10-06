@@ -89,7 +89,8 @@
     "cuimazhuang-suo"
    ],
    "links": [
-    "jinghu-hsr"
+    "jinghu-hsr",
+    "jinghu-conventional"
    ]
   },
   {
@@ -701,7 +702,9 @@
     "xin-dou-dong",
     "cheng-du-dong"
    ],
-   "links": []
+   "links": [
+    "xulan-hsr"
+   ]
   },
   {
    "id": "xulan-hsr",
@@ -1269,7 +1272,9 @@
     "chi-zhou",
     "an-qing"
    ],
-   "links": []
+   "links": [
+    "chihuang-hsr"
+   ]
   },
   {
    "id": "shanghai-hangzhou",
@@ -1333,7 +1338,11 @@
     "tong-lu-dong",
     "tong-lu"
    ],
-   "links": []
+   "links": [
+    "hanghuang-hsr",
+    "huzhou-hangzhou",
+    "shanghehang-south"
+   ]
   },
   {
    "id": "wugang-int",
@@ -1542,7 +1551,9 @@
     "xiao-shan-xi",
     "xiao-shan"
    ],
-   "links": []
+   "links": [
+    "hukun-conventional"
+   ]
   },
   {
    "id": "hukun-conventional",
@@ -3486,17 +3497,6 @@
    ]
   },
   {
-   "id": "huang-cun",
-   "name": "黄村",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    116.32342,
-    39.71925
-   ]
-  },
-  {
    "id": "feng-bang",
    "name": "封浜",
    "aliases": [],
@@ -5213,17 +5213,6 @@
    ]
   },
   {
-   "id": "guo-tang",
-   "name": "郭塘",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    113.20391,
-    23.33071
-   ]
-  },
-  {
    "id": "yin-zhan-ao",
    "name": "银盏坳",
    "aliases": [],
@@ -5914,17 +5903,6 @@
    "coord": [
     104.57606,
     30.73417
-   ]
-  },
-  {
-   "id": "ji-jin-nan",
-   "name": "积金南",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    104.86862,
-    30.68911
    ]
   },
   {
@@ -10416,17 +10394,6 @@
    ]
   },
   {
-   "id": "nan-cang",
-   "name": "南仓",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    117.17349,
-    39.20357
-   ]
-  },
-  {
    "id": "zhou-li-zhuang",
    "name": "周李庄",
    "aliases": [],
@@ -14662,17 +14629,6 @@
    ]
   },
   {
-   "id": "xin-jian-he",
-   "name": "新建河",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    106.34631,
-    34.52287
-   ]
-  },
-  {
    "id": "jian-he",
    "name": "建河",
    "aliases": [],
@@ -15066,17 +15022,6 @@
    "coord": [
     111.04643,
     34.66291
-   ]
-  },
-  {
-   "id": "ling-bao-dong",
-   "name": "灵宝东",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    110.98246,
-    34.57396
    ]
   },
   {
@@ -20423,17 +20368,6 @@
    "coord": [
     114.3174,
     27.78752
-   ]
-  },
-  {
-   "id": "jia-shan-huo-che",
-   "name": "嘉善火车站",
-   "aliases": [],
-   "kind": "station",
-   "source": "osm",
-   "coord": [
-    120.91683,
-    30.85325
    ]
   },
   {
@@ -44796,7 +44730,7 @@
     "emu"
    ],
    "serviceDate": "2017-12-06",
-   "estLengthKm": 22.15,
+   "estLengthKm": 22.18,
    "polyline": [
     [
      108.93415,
@@ -53045,7 +52979,7 @@
     "emu"
    ],
    "serviceDate": "2015-12-06",
-   "estLengthKm": 15.07,
+   "estLengthKm": 14.16,
    "polyline": [
     [
      117.65701,
@@ -53077,7 +53011,7 @@
     "emu"
    ],
    "serviceDate": "2015-12-06",
-   "estLengthKm": 45.44,
+   "estLengthKm": 47.36,
    "polyline": [
     [
      117.51549,
@@ -99439,7 +99373,7 @@
     "conv"
    ],
    "serviceDate": "1937-09-26",
-   "estLengthKm": 9.13,
+   "estLengthKm": 9.14,
    "polyline": [
     [
      120.2514,
@@ -99458,8 +99392,8 @@
      30.14119
     ],
     [
-     120.25815,
-     30.11059
+     120.25831,
+     30.11037
     ],
     [
      120.25707,
@@ -108060,7 +107994,7 @@
     "emu"
    ],
    "serviceDate": "2022-09-22",
-   "estLengthKm": 9.74,
+   "estLengthKm": 9.64,
    "polyline": [
     [
      119.75972,

@@ -1,23 +1,5 @@
 [
  {
-  "line": "xicheng-hsr",
-  "station": "西安北",
-  "km": 1.4007,
-  "why": "待查：坐标离本线走廊 1.40km（声明式改造首轮登记）"
- },
- {
-  "line": "hukun-bypass-hangzhou",
-  "station": "萧山",
-  "km": 1.0983,
-  "why": "待查：坐标离本线走廊 1.10km（声明式改造首轮登记）"
- },
- {
-  "line": "jihuo-link",
-  "station": "济南",
-  "km": 0.7843,
-  "why": "待查：坐标离本线走廊 0.78km（声明式改造首轮登记）"
- },
- {
   "line": "huning-jiang-hsr",
   "station": "南京南",
   "km": 0.7612,
@@ -54,12 +36,6 @@
   "why": "待查：坐标离本线走廊 0.51km（声明式改造首轮登记）"
  },
  {
-  "line": "tonglu-link",
-  "station": "桐庐",
-  "km": 0.5063,
-  "why": "待查：坐标离本线走廊 0.51km（声明式改造首轮登记）"
- },
- {
   "line": "ningrong",
   "station": "金寨",
   "km": 0.4675,
@@ -78,22 +54,10 @@
   "why": "待查：坐标离本线走廊 0.46km（声明式改造首轮登记）"
  },
  {
-  "line": "tonglu-link",
-  "station": "桐庐东",
-  "km": 0.4582,
-  "why": "待查：坐标离本线走廊 0.46km（声明式改造首轮登记）"
- },
- {
   "line": "jingxiong-int",
   "station": "北京大兴",
   "km": 0.4548,
   "why": "待查：坐标离本线走廊 0.45km（声明式改造首轮登记）"
- },
- {
-  "line": "ningan-int",
-  "station": "池州",
-  "km": 0.442,
-  "why": "待查：坐标离本线走廊 0.44km（声明式改造首轮登记）"
  },
  {
   "line": "husutong",
