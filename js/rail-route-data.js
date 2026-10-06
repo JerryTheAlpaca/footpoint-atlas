@@ -749,7 +749,6 @@
     "xing-zhe",
     "san-yi-cun",
     "xi-an-bei",
-    "xian-yang",
     "xian-yang-xi",
     "mao-ling",
     "yang-ling-nan",
@@ -7269,8 +7268,8 @@
    "kind": "station",
    "source": "osm",
    "coord": [
-    108.73051,
-    34.34725
+    108.72741,
+    34.34615
    ]
   },
   {
@@ -41144,10 +41143,10 @@
    ]
   },
   {
-   "id": "xi-an-bei-xian-yang",
+   "id": "xi-an-bei-xian-yang-xi",
    "name": "徐兰高速铁路",
    "from": "xi-an-bei",
-   "to": "xian-yang",
+   "to": "xian-yang-xi",
    "lineIds": [
     "xulan-hsr"
    ],
@@ -41155,7 +41154,7 @@
     "emu"
    ],
    "serviceDate": "2017-07-09",
-   "estLengthKm": 19.29,
+   "estLengthKm": 25.39,
    "polyline": [
     [
      108.93415,
@@ -41174,32 +41173,12 @@
      34.34287
     ],
     [
-     108.73051,
-     34.34725
-    ]
-   ]
-  },
-  {
-   "id": "xian-yang-xian-yang-xi",
-   "name": "徐兰高速铁路",
-   "from": "xian-yang",
-   "to": "xian-yang-xi",
-   "lineIds": [
-    "xulan-hsr"
-   ],
-   "trains": [
-    "emu"
-   ],
-   "serviceDate": "2017-07-09",
-   "estLengthKm": 6.1,
-   "polyline": [
-    [
-     108.73051,
-     34.34725
+     108.7293,
+     34.34745
     ],
     [
-     108.71271,
-     34.34686
+     108.7176,
+     34.34766
     ],
     [
      108.66694,
@@ -71200,7 +71179,7 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 4.37,
+   "estLengthKm": 4.6,
    "polyline": [
     [
      108.76598,
@@ -71215,13 +71194,13 @@
      34.34433
     ],
     [
-     108.73051,
-     34.34725
+     108.72741,
+     34.34615
     ]
    ]
   },
   {
-   "id": "xian-yang-xian-yang-xi-2",
+   "id": "xian-yang-xian-yang-xi",
    "name": "陇海铁路（既有线）",
    "from": "xian-yang",
    "to": "xian-yang-xi",
@@ -71233,15 +71212,11 @@
     "conv"
    ],
    "serviceDate": "1953-07-15",
-   "estLengthKm": 6.76,
+   "estLengthKm": 5.81,
    "polyline": [
     [
-     108.73051,
-     34.34725
-    ],
-    [
-     108.73367,
-     34.34527
+     108.72741,
+     34.34615
     ],
     [
      108.71439,

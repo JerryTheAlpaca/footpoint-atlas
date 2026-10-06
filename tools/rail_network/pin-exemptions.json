@@ -96,12 +96,6 @@
   "why": "待查：坐标离本线走廊 0.38km（声明式改造首轮登记）"
  },
  {
-  "line": "longhai-conventional",
-  "station": "咸阳",
-  "km": 0.3103,
-  "why": "待查：坐标离本线走廊 0.31km（声明式改造首轮登记）"
- },
- {
   "line": "baocheng-conventional",
   "station": "任家湾",
   "km": 0.2997,
