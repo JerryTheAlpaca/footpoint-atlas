@@ -47,6 +47,11 @@ AUTO_STATION_REUSE_KM = 0.3
 # OSM 站节点吸附到本线走廊顶点的最大距离（度，约 3.3km）。超过就照抄
 # 原坐标：顶点可能落在站场的另一端，挪过去更离谱。
 STATION_SNAP_MAX = 0.03
+# 站前"先拐过走廊顶点再折回节点"允许剪掉的长度（km）与折返角度阈值。
+# 阈值取 60° 而不是 90°：杭州东 那根尖角在原始链上实测 89.4°，卡在
+# 直角线下面，而它画出来是全场最难看的一根钩子。
+NODE_HOP_MAX_KM = 0.3
+FOLD_TURN_DEG = 60.0
 # 区段长度合理区间（km）。
 SEG_KM_MIN, SEG_KM_MAX = 0.3, 300.0
 # 相邻站里程与直线距离的最大比值（直线 >20km 才启用）。
@@ -531,6 +536,7 @@ def stitch_line(line, resolved, waygraph, legacy_pair_map, registry):
                 pts.insert(0, list(a_coord))
             if dist(pts[-1], b_coord) > 1e-9:
                 pts.append(list(b_coord))
+            clip_station_fold(pts)
         blocks.append({"a": a_name, "b": b_name, "pts": pts,
                        "legacy": legacy_id, "serviceDate": seg_date})
         if pts_all:
@@ -550,6 +556,41 @@ def project_index(pts, coord, max_d):
         if d <= max_d and (best_d is None or d < best_d):
             best_d, best_i = d, i
     return best_i
+
+
+def turn_deg(a, b, c):
+    """折线在 b 处的转角：0=直穿，90=直角拐弯，180=原路退回。"""
+    k = math.cos(math.radians(b[1]))
+    v1 = ((b[0] - a[0]) * k, b[1] - a[1])
+    v2 = ((c[0] - b[0]) * k, c[1] - b[1])
+    n1 = math.hypot(*v1)
+    n2 = math.hypot(*v2)
+    if not n1 or not n2:
+        return 0.0
+    cos = max(-1.0, min(1.0, (v1[0] * v2[0] + v1[1] * v2[1]) / (n1 * n2)))
+    return math.degrees(math.acos(cos))
+
+
+def clip_station_fold(pts):
+    """剪掉站前"先拐过走廊顶点再折回节点"的那一跳（首尾各一处）。
+
+    route() 把站挂到离它最近的走廊顶点上。正线从站旁经过时那个顶点在
+    行进方向的前方，接回节点就是一根折返回头——杭州东 是 沪昆高铁 与
+    宁杭高铁 两条平行走廊共用一个节点坐标（两走廊的 way 端点差 136m），
+    笕桥方向的折线因此先越过 沪昆 那个顶点再折回来，画出来 99°。顶点离
+    节点在 NODE_HOP_MAX_KM 内、转角又判为折返时直接丢掉它，让折线在站点
+    处收尾：宁可少几百米走廊，不把线画成尖角。
+    """
+    if len(pts) < 4:
+        return pts
+    i = len(pts) - 2
+    if (haversine_km(pts[i], pts[-1]) <= NODE_HOP_MAX_KM
+            and turn_deg(pts[i - 1], pts[i], pts[i + 1]) >= FOLD_TURN_DEG):
+        del pts[i]
+    if (len(pts) >= 4 and haversine_km(pts[1], pts[0]) <= NODE_HOP_MAX_KM
+            and turn_deg(pts[0], pts[1], pts[2]) >= FOLD_TURN_DEG):
+        del pts[1]
+    return pts
 
 
 def prune_excursions(pts, eps=2.5e-3, min_gap=3):
@@ -705,6 +746,9 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
             seg_pts[0] = list(node_a["coord"])
         if haversine_km(seg_pts[-1], node_b["coord"]) < 2.0:
             seg_pts[-1] = list(node_b["coord"])
+        # 补站断点也吃同一刀：块内切出来的区段，端点是补站投影点，
+        # 块级那道 clip 够不着（孝感/西宁/金华/贵阳北 都卡在这）。
+        clip_station_fold(seg_pts)
         full_km = polyline_km(seg_pts)
         if not (SEG_KM_MIN <= full_km <= SEG_KM_MAX):
             raise SystemExit("线路 %s：区段 %s-%s 里程 %.2fkm 超界"
