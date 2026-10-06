@@ -514,6 +514,13 @@ def stitch_line(line, resolved, waygraph, legacy_pair_map, registry):
         legacy_id = legacy_pair_map.get(pair_key(a_name, b_name))
         if legacy_id:
             pts = list(legacy_id["pts_for_line"])
+            # 试点折线按 legacy segments 里存的那个朝向给，而 pair_key 是不分
+            # 方向的。反着骑同一对站时必须掉头，否则整条线的断点索引全部错位：
+            # 商合杭南段 走 合肥南→肥东（试点存的是 肥东→合肥南），不掉头就会
+            # 让区段 肥东—柘皋 的折线端点落到 19.24km 外，撞上 validate 的
+            # "端点与折线断裂 >2km"。
+            if dist(pts[0], a_coord) > dist(pts[-1], a_coord):
+                pts.reverse()
             legacy_id = legacy_id["seg"]["id"]
         if pts is None:
             pts = waygraph.route(a_coord, b_coord)
