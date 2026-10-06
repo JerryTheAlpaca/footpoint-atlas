@@ -10,8 +10,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 
 from rail_network import extract as extract_mod
 from rail_network.build import (
-    UNNAMED_ZONES, build_station_index, load_data_station_coords,
-    resolve_line_stations, NodeRegistry, MANUAL_NODES, norm_name,
+    UNNAMED_ZONES, NodeRegistry, MANUAL_NODES, load_node_coords,
+    norm_name, resolve_line_stations,
 )
 from rail_network.geometry import WayGraph
 from rail_network.lines import LINES, BATCH_ORDER
@@ -19,8 +19,6 @@ from rail_network.lines import LINES, BATCH_ORDER
 CACHE = os.path.join(extract_mod.CACHE_DIR, "rail-extract-8d514a7230e3e939.json")
 payload = json.load(open(CACHE, encoding="utf-8"))
 ways_by_name = payload["ways"]
-station_index = build_station_index(payload["stations"])
-data_coords = load_data_station_coords()
 
 all_ways = []
 for nm, ws in ways_by_name.items():
@@ -43,6 +41,9 @@ FAIL = [
 ]
 
 registry = NodeRegistry()
+for row in load_node_coords():
+    registry.register(row["name"], row["coord"], kind=row["kind"],
+                      source=row["source"], fixed_id=row["id"])
 for n in MANUAL_NODES:
     registry.register(n["name"], n["coord"], kind=n["kind"],
                       source=n["source"], aliases=n.get("aliases"),
@@ -53,8 +54,7 @@ from collections import Counter
 for lid, a, b in FAIL:
     line = next(l for l in LINES if l["id"] == lid)
     try:
-        resolved = resolve_line_stations(line, station_index, waygraph,
-                                         data_coords, registry)
+        resolved = resolve_line_stations(line, registry)
     except SystemExit as exc:
         print("%s: 站解析失败 %s" % (lid, exc))
         continue

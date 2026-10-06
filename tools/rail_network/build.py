@@ -37,16 +37,20 @@ from rail_network.legacy_ningrong import LEGACY_DATA  # noqa: E402
 ROOT = extract_mod.ROOT
 ATTRIBUTION = "铁路几何 © OpenStreetMap contributors · ODbL"
 
-# 自动补站的最大走廊距离（度，约 1.1km）。
-AUTO_STATION_TOL = 0.01
-# 复用他线已注册同名节点的门槛（km）。尖角的来源在这里：两条平行走廊
-# （六摆渡 处 沪宁城际 与 京沪高铁 相距 1.05km）都来认领同一个站，节点
-# 只有一个坐标，后到的那条只能把折线端点拽到对方走廊上去。本线投影与
-# 已注册坐标对不上就说明这不是本线的站，不补这个断点。
-AUTO_STATION_REUSE_KM = 0.3
-# OSM 站节点吸附到本线走廊顶点的最大距离（度，约 3.3km）。超过就照抄
-# 原坐标：顶点可能落在站场的另一端，挪过去更离谱。
-STATION_SNAP_MAX = 0.03
+# 节点坐标清单：全网每个站/线路所的坐标都是清单里的声明值，构建器不再从
+# 几何里猜位置（猜＝自动补站，那套机制已随"每站必须指定坐标"删掉）。
+# 清单由 tools/declare_stations.py 从已核对的产物区段链生成，之后人工维护。
+NODE_COORDS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 "node-coords.json")
+# 声明坐标到"本线自己的走廊"的最大允许垂距（km）。清单坐标本来就是从本线
+# 走廊顶点取的，落不回走廊只有两种可能：OSM 把这条 way 改了，或本线其实
+# 骑的是平行走廊、这个点不该由本线当站。两种都得停下来人工判——照它建区段
+# 就是"先拐过去再折回来"的站前钩子，里程还会白算一倍。
+CORRIDOR_PIN_KM = 0.05
+# 已知"声明坐标落不回本线走廊"的点名豁免（line/station/km/why）。这一份就是
+# 缺料与平行走廊的待办清单：每条都得写清为什么落不回去，修好了要删掉整条。
+PIN_EXEMPTIONS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "pin-exemptions.json")
 # 站前"先拐过走廊顶点再折回节点"允许剪掉的长度（km）与折返角度阈值。
 # 阈值取 60° 而不是 90°：杭州东 那根尖角在原始链上实测 89.4°，卡在
 # 直角线下面，而它画出来是全场最难看的一根钩子。
@@ -376,123 +380,61 @@ class NodeRegistry:
         return self.by_name.get(norm_name(name))
 
 
-def match_osm_station(name, station_index, waygraph, ref_pt):
-    """按名匹配 OSM 客运站节点，坐标吸附到 waygraph 走廊的落点。
+def load_node_coords():
+    """读节点坐标清单（tools/declare_stations.py 生成，之后人工维护）。"""
+    if not os.path.exists(NODE_COORDS_PATH):
+        raise SystemExit("缺少节点坐标清单 %s，先跑 tools/declare_stations.py --write"
+                         % NODE_COORDS_PATH)
+    return json.load(open(NODE_COORDS_PATH, encoding="utf-8"))
 
-    多候选取距参考点最近且贴走廊者。吸附而不是照抄 OSM 节点：站节点
-    常偏离正线几百米（阳新 0.63km、遂宁 2.71km），照抄进折线就是一根
-    出站再原路回来的支刺，画出来是尖角。
+
+def load_pin_exemptions():
+    """点名豁免表 → {(线路 id, 站名): 理由}。"""
+    if not os.path.exists(PIN_EXEMPTIONS_PATH):
+        return {}
+    return {(r["line"], r["station"]): r.get("why", "")
+            for r in json.load(open(PIN_EXEMPTIONS_PATH, encoding="utf-8"))}
+
+
+def resolve_line_stations(line, registry):
+    """站序 → [(站名, 坐标, 来源)]，坐标一律取清单声明值。
+
+    坐标不再从几何里猜：自动补站删掉以后，站序里没写的点不会自己冒出来，
+    而清单里没有的名字就是这座站从没被核对过落位，两种都得停下来。
     """
-    cands = station_index.get(norm_name(name))
-    if not cands:
-        return None
-    ref = ref_pt if ref_pt is not None else cands[0]["coord"]
-    for s in sorted(cands, key=lambda s: dist(s["coord"], ref)):
-        d, p = waygraph.nearest_vertex(s["coord"], radius=SNAP_MAX)
-        if d is None:
-            continue
-        # 远到不像"站在线旁"就别硬挪：走廊顶点可能落在站场另一端。
-        return list(p) if d <= STATION_SNAP_MAX else s["coord"]
-    return None
-
-
-def resolve_line_stations(line, station_index, graphs, data_coords, registry):
-    """解析线路必须站坐标，返回 [(站名, coord, src)]。
-
-    优先级：全局注册表（legacy/先行线路已定位的枢纽站直接复用）
-    → OSM 站节点 → data.js 粗坐标吸附走廊 → 线路清单 hints 吸附走廊。
-    graphs 是按序尝试的 way 图：先本线走廊（吸附落点必须是这条线自己
-    的正线），本线找不到再退全局图。
-    """
-    hints = line.get("station_hints", {})
-    resolved = []
-    missing = []
+    out, missing = [], []
     for name in line["stations"]:
-        ref = resolved[-1][1] if resolved else None
         node = registry.get(name)
-        # 复用全局注册站前校验其坐标贴走廊，防止同名异站
-        # （如天津/浙江曹庄）把别线坐标错位注入本线。
-        if node is not None and any(
-                g.nearest_vertex(node["coord"], radius=SNAP_MAX)[0] is not None
-                for g in graphs):
-            resolved.append((name, node["coord"], node["source"]))
-            continue
-        coord = None
-        src = "osm"
-        for g in graphs:
-            coord = match_osm_station(name, station_index, g, ref)
-            if coord is not None:
-                break
-        if coord is None:
-            for raw, label in ((data_coords.get(name), "data-snap"),
-                               (hints.get(name), "hint-snap")):
-                if raw is None:
-                    continue
-                for g in graphs:
-                    coord = snap_rough(g, list(raw))
-                    if coord is not None:
-                        src = label
-                        break
-                if coord is not None:
-                    break
-        if coord is None:
-            missing.append((name, ref))
-            continue
-        resolved.append((name, coord, src))
-    if missing:
-        detail = []
-        for name, ref in missing:
-            near = ""
-            if ref is not None:
-                cands = sorted(
-                    ((dist(s["coord"], ref), s["name"], s["coord"])
-                     for ss in station_index.values() for s in ss),
-                    key=lambda x: x[0])[:4]
-                near = "；参考点附近站：" + "; ".join(
-                    "%s%s" % (c[1], c[2]) for c in cands)
-            detail.append("%s（上一站参考 %s）%s" % (name, ref, near))
-        raise SystemExit("线路 %s：%d 站无法定位\n  %s"
-                         % (line["id"], len(missing), "\n  ".join(detail)))
-    return resolved
-
-
-def snap_rough(waygraph, rough):
-    """把粗坐标吸附到 way 最近顶点（全顶点索引）；失败返回 None。"""
-    d, p = waygraph.nearest_vertex(rough, radius=SNAP_MAX)
-    if d is None:
-        return None
-    return list(p)
-
-
-def insert_via_stops(stops, via_specs, registry, line):
-    """把 via 线路所插到显式声明的相邻必须站对之间。
-
-    via_specs 每项为 {"id": 节点id, "between": [前站, 后站]}：
-    站序由业务声明确定，不再按"到前站+到后站空间距离"猜插入点——
-    距离启发式曾把雷麻店插到 合肥南 前面，生成 雷麻店→合肥南 这类
-    与真实站序相反的错误长段。
-    """
-    out = [list(s) for s in stops]
-    for spec in via_specs:
-        if not isinstance(spec, dict) or "id" not in spec or "between" not in spec:
-            raise SystemExit(
-                "线路 %s：via_nodes 项需为 {id, between:[前站,后站]}，收到 %r"
-                % (line["id"], spec))
-        vid = spec["id"]
-        node = registry.by_id.get(vid)
         if node is None:
-            raise SystemExit("线路 %s：via 节点 %s 未注册" % (line["id"], vid))
-        a_name, b_name = spec["between"]
-        ia = next((i for i, s in enumerate(out)
-                   if norm_name(s[0]) == norm_name(a_name)), None)
-        ib = next((i for i, s in enumerate(out)
-                   if norm_name(s[0]) == norm_name(b_name)), None)
-        if ia is None or ib is None or ib != ia + 1:
-            raise SystemExit(
-                "线路 %s：via %s 声明的站对 %s→%s 不是站序中的相邻必须站"
-                % (line["id"], vid, a_name, b_name))
-        out.insert(ib, [node["name"], node["coord"], "via"])
-    return [tuple(s) for s in out]
+            missing.append(name)
+            continue
+        out.append((name, node["coord"], node["source"]))
+    if missing:
+        raise SystemExit("线路 %s：%d 站没有指定坐标（清单里没有）：%s"
+                         % (line["id"], len(missing), "、".join(missing)))
+    return out
+
+
+def check_pinned_on_corridor(line, resolved, graph, exemptions):
+    """声明坐标必须落得回本线走廊，否则站点处就是一根折返回头。
+
+    豁免表按 (线, 站) 点名，每条都得写理由：那是"这条线在 OSM 里根本没接到
+    这座站"的已知缺料清单，不是让它长期装死的口子。
+    """
+    off = []
+    for name, coord, _src in resolved:
+        d, p = graph.nearest_vertex(coord, radius=SNAP_MAX)
+        km = None if p is None else haversine_km(coord, p)
+        if km is None or km > CORRIDOR_PIN_KM:
+            key = (line["id"], name)
+            if key in exemptions:
+                continue
+            off.append("%s（%s）离本线走廊 %s"
+                       % (name, line["name"],
+                          "找不到顶点" if km is None else "%.2fkm" % km))
+    if off:
+        raise SystemExit("线路 %s：%d 站的声明坐标不落本线走廊：%s"
+                         % (line["id"], len(off), "；".join(off)))
 
 
 def stitch_line(line, resolved, waygraph, legacy_pair_map, registry):
@@ -508,8 +450,6 @@ def stitch_line(line, resolved, waygraph, legacy_pair_map, registry):
                 for d in line.get("date_overrides", [])}
 
     stops = list(resolved)
-    if line.get("via_nodes"):
-        stops = insert_via_stops(stops, line["via_nodes"], registry, line)
 
     for i in range(len(stops) - 1):
         a_name, a_coord, _ = stops[i]
@@ -546,16 +486,6 @@ def stitch_line(line, resolved, waygraph, legacy_pair_map, registry):
         breaks.append((b_name, len(pts_all) - 1))
     breaks.insert(0, (stops[0][0], 0))
     return blocks, pts_all, breaks
-
-
-def project_index(pts, coord, max_d):
-    """coord 在折线 pts 上的最近顶点索引；超 max_d 返回 None。"""
-    best_d, best_i = None, None
-    for i, p in enumerate(pts):
-        d = dist(p, coord)
-        if d <= max_d and (best_d is None or d < best_d):
-            best_d, best_i = d, i
-    return best_i
 
 
 def turn_deg(a, b, c):
@@ -622,12 +552,11 @@ def prune_excursions(pts, eps=2.5e-3, min_gap=3):
 
 
 def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
-                      payload, legacy_nodes, out_segments, legacy_km_map=None,
-                      way_index=None):
-    """块区间 → 自动补站 → 切分区段 → 全局合并。
+                      out_segments, legacy_km_map=None, way_index=None):
+    """块区间 → 按声明站序切分区段 → 同走廊全局合并。
 
-    返回 (补站数, 新增区段数)；数据异常（must 站断点重叠/过近、
-    里程超界、绕行比异常）抛 SystemExit，由调用方按线路失败处理。
+    返回新增区段数；数据异常（断点重叠/过近、里程超界、绕行比异常）抛
+    SystemExit，由调用方按线路失败处理。
     """
     lid = line["id"]
     trains = line_trains(line)
@@ -640,94 +569,27 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
         block_ranges.append((blk, start, end))
         start = end
 
-    # 自动补站：走廊 1.1km 内、仅落在本线新提取（非 legacy）块上。
-    # 站序改成显式声明的线（no_auto_stations）连这一段都不走：断点只来自
-    # 声明站序 + via_nodes，补不出来的站由调用方在报告里列成待办，不再猜。
-    auto_added = []
-    seen_names = {norm_name(s[0]) for s in resolved}
-    seen_names.update(norm_name(n["name"]) for n in legacy_nodes)
-    seen_names.update(norm_name(n["name"]) for n in MANUAL_NODES)
-    if not line.get("no_auto_stations"):
-        for s in payload["stations"]:
-            nm = norm_name(s["name"])
-            if nm in seen_names:
-                continue
-            for blk, lo, hi in block_ranges:
-                if blk["legacy"]:
-                    continue
-                window = pts_all[lo:hi + 1]
-                idx = project_index(window, s["coord"], AUTO_STATION_TOL)
-                if idx is not None:
-                    auto_added.append((s["name"], lo + idx, s["coord"]))
-                    seen_names.add(nm)
-                    break
-    kept_auto = []
-    must_coords = [c for _, c, _ in resolved]
-    for name, gi, coord in auto_added:
-        if any(dist(coord, mc) < 0.015 for mc in must_coords):
-            # 与必须站同站场（更名站如上海松江/松江南），跳过避免
-            # 同位双节点产生零长度区段。
-            continue
-        # 新站以折线投影点注册：节点 coord 与区段折线端点保持一致
-        # （OSM 站点原始坐标可偏离轨道 ~1.1km，会导致端点脱钩）。
-        proj = [float(pts_all[gi][0]), float(pts_all[gi][1])]
-        node = registry.get(name)
-        if node is not None:
-            gap_km = haversine_km(node["coord"], proj)
-            if gap_km > AUTO_STATION_REUSE_KM:
-                # 同名异站，或本线只是与注册那条走廊平行（六摆渡）：
-                # 拽过去就是一个尖角，不补这个断点。
-                #
-                # 已知这条判据比的是"本线投影点 vs 别线投影点"，严格说该比
-                # 到站节点自己（六摆渡 处 沪宁城际 0.03km、京沪高铁 1.05km，
-                # 后者离站节点更远却被先注册的节点坐标吸走）。2026-09-26 实测：
-                # 直接改成"到站节点距离 + 共用 OSM 顶点"会让 1802→1844 区段，
-                # 并挪动 K1352(Δkm 3.94)、Z45(Δkm 3.08)、K146/K148（丢掉
-                # 吕河/早阳/安康东 断点）等 5 条已核对路径 —— 违反"查不到的
-                # 车次不许变"。所以这条只能随线逐条交换：某线转声明式站序
-                # （no_auto_stations）后本段整体不再执行，才轮到新判据上位。
-                print("    ! 跳过补站 %s：节点在本线投影外 %.2fkm"
-                      % (node["id"], gap_km))
-                continue
-        registry.register(name, proj, source="osm")
-        kept_auto.append((name, gi))
-
-    # 切分：must 站断点恒定；auto 断点与相邻断点投影重叠/过近时移除。
-    all_breaks = sorted(
-        [(gi, name, True) for name, gi in kept_auto] +
-        [(bi, bn, False) for bn, bi in breaks])
+    # 切分：断点全部来自声明站序（自动补站已删）。相邻断点投影重叠或过近
+    # 说明站序本身有问题，停下来人工判，不再靠删断点蒙过去。
+    all_breaks = sorted((bi, bn) for bn, bi in breaks)
 
     def _km(ia, ib):
         return polyline_km(pts_all[ia:ib + 1])
 
-    pruned = True
-    while pruned:
-        pruned = False
-        for i in range(len(all_breaks) - 1):
-            ia, na, auto_a = all_breaks[i]
-            ib, nb, auto_b = all_breaks[i + 1]
-            overlap = ib <= ia
-            too_close = (not overlap) and _km(ia, ib) < SEG_KM_MIN
-            if not (overlap or too_close):
-                continue
-            drop = i + 1 if auto_b else (i if auto_a else None)
-            if drop is None:
-                raise SystemExit("线路 %s：断点 %s/%s %s"
-                                 % (lid, na, nb,
-                                    "投影重叠" if overlap
-                                    else "间距 %.2fkm 过近" % _km(ia, ib)))
-            print("    ! 移除过近补站 %s（相邻区段 <%.2fkm）"
-                  % (all_breaks[drop][1], SEG_KM_MIN))
-            all_breaks.pop(drop)
-            pruned = True
-            break
+    for i in range(len(all_breaks) - 1):
+        ia, na = all_breaks[i]
+        ib, nb = all_breaks[i + 1]
+        gap = _km(ia, ib)
+        if ib <= ia:
+            raise SystemExit("线路 %s：断点 %s/%s 在折线上投影重叠" % (lid, na, nb))
+        if gap < SEG_KM_MIN:
+            raise SystemExit("线路 %s：相邻断点 %s/%s 间距 %.2fkm 过近（<%.2fkm）"
+                             % (lid, na, nb, gap, SEG_KM_MIN))
 
     n_new = 0
     for i in range(len(all_breaks) - 1):
-        ia, na, _ = all_breaks[i]
-        ib, nb, _ = all_breaks[i + 1]
-        if ib <= ia:
-            continue
+        ia, na = all_breaks[i]
+        ib, nb = all_breaks[i + 1]
         seg_pts = pts_all[ia:ib + 1]
         # way 归属在修剪/吸附/简化之前取：三者都会改写端点，改写后的
         # 坐标在 way 顶点索引里查不到。
@@ -746,8 +608,8 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
             seg_pts[0] = list(node_a["coord"])
         if haversine_km(seg_pts[-1], node_b["coord"]) < 2.0:
             seg_pts[-1] = list(node_b["coord"])
-        # 补站断点也吃同一刀：块内切出来的区段，端点是补站投影点，
-        # 块级那道 clip 够不着（孝感/西宁/金华/贵阳北 都卡在这）。
+        # 块级那道 clip 够不着区段级端点（孝感/西宁/金华/贵阳北 都卡在
+        # 这里）：端点吸附之后同一刀再剪一次。
         clip_station_fold(seg_pts)
         full_km = polyline_km(seg_pts)
         if not (SEG_KM_MIN <= full_km <= SEG_KM_MAX):
@@ -805,7 +667,7 @@ def cut_line_segments(line, resolved, blocks, pts_all, breaks, registry,
             "_pairKey": seg_key,
         }
         n_new += 1
-    return len(kept_auto), n_new
+    return n_new
 
 
 def main(argv=None):
@@ -841,7 +703,25 @@ def main(argv=None):
             legacy_pair_map.setdefault(pair_key(na, nb), entry)
     print("legacy 宁蓉：%d 节点 / %d 区段" % (len(legacy_nodes), len(legacy_segments)))
 
+    # 节点坐标全部来自清单：legacy 试点与 MANUAL_NODES 的坐标本来就在清单里
+    # （declare_stations.py 是从产物登记的），此处逐条比对，不一致就是有人改了
+    # 一处没改另一处——枢纽点被五六条线共用，一位小数的差别都是一根钩子。
     registry = NodeRegistry()
+    manual_by_id = {n["id"]: n for n in MANUAL_NODES}
+    manual_by_id.update({n["id"]: n for n in legacy_nodes})
+    drift = []
+    for row in load_node_coords():
+        fixed = manual_by_id.get(row["id"])
+        if fixed is not None:
+            gap = haversine_km(fixed["coord"], row["coord"])
+            if gap > 0.002:
+                drift.append("%s：清单 %s vs 手工 %s（%.1fm）"
+                             % (row["name"], row["coord"], fixed["coord"], gap * 1000))
+            continue
+        registry.register(row["name"], row["coord"], kind=row["kind"],
+                          source=row["source"], fixed_id=row["id"])
+    if drift:
+        raise SystemExit("坐标清单与手工节点打架：" + "；".join(drift))
     for n in legacy_nodes:
         registry.register(n["name"], n["coord"], kind=n["kind"],
                           source=n["source"], aliases=n.get("aliases"),
@@ -850,10 +730,11 @@ def main(argv=None):
         registry.register(n["name"], n["coord"], kind=n["kind"],
                           source=n["source"], aliases=n.get("aliases"),
                           fixed_id=n["id"])
-
-    data_coords = load_data_station_coords()
+    print("坐标清单：%d 节点（手工 %d）"
+          % (len(registry.by_id), len(manual_by_id)))
 
     active_lines = [ln for ln in LINES if ln["batch"] in batches]
+    pin_exempt = load_pin_exemptions()
     # 提取白名单：同名线路可能被不同线借用（"京九线"既被批次 D 的昌九
     # 城际/昌赣按 bbox 借作南昌枢纽接入段，又是批次 F 的全国普速干线）。
     # 提取按最宽请求执行（有一条线不限界就全量取），限界下沉到分线图
@@ -872,39 +753,22 @@ def main(argv=None):
         if silent:
             print("    ! %s 来源名无提取结果（检查拼写，或按 osm_bounds 借用）：%s"
                   % (line["id"], silent))
-    station_index = build_station_index(payload["stations"])
 
-    # legacy 试点节点存的是 data.js 里两位小数的粗坐标（南京南 实测偏
-    # 1.62km、汉口 偏 1.02km）。注册表在最开头就被 legacy 灌满，之后每条
-    # 线解析站名都先命中它，OSM 的精确站坐标再也没机会覆盖。枢纽站是
-    # 五六条线的汇聚点，锚点偏一公里，所有线到这儿都要拐一下。
-    # 只认"坐标正好是整两位小数"这个粗坐标指纹，避免误伤已吸附过的站。
-    def _is_rough(coord):
-        return abs(coord[0] * 100 - round(coord[0] * 100)) < 1e-9             and abs(coord[1] * 100 - round(coord[1] * 100)) < 1e-9
+    # legacy 试点的折线是照当年 data.js 的粗坐标冻结迁移的（南京南 实测偏
+    # 1.62km、汉口 偏 1.02km）。节点坐标已经按 OSM 站节点校正过，折线端点
+    # 必须跟着挪，否则 validate 报"端点与折线断裂"（合肥西 校正后断 2.32km）。
+    moved = 0
+    for seg in legacy_segments:
+        for end, nid in ((0, seg["from"]), (-1, seg["to"])):
+            node = registry.by_id.get(nid)
+            if node is None:
+                continue
+            if seg["polyline"][end] != node["coord"]:
+                seg["polyline"][end] = list(node["coord"])
+                moved += 1
+    if moved:
+        print("legacy 折线端点已对齐坐标清单：%d 处" % moved)
 
-    upgraded = 0
-    for node in registry.by_id.values():
-        if not _is_rough(node["coord"]):
-            continue
-        cands = station_index.get(norm_name(node["name"])) or []
-        if not cands:
-            continue
-        best = min(cands, key=lambda s: dist(s["coord"], node["coord"]))
-        # 3.3km 以上多半是同名异站，宁可不改。
-        if dist(best["coord"], node["coord"]) > 0.03:
-            continue
-        old_coord = list(node["coord"])
-        node["coord"] = [round(best["coord"][0], 5), round(best["coord"][1], 5)]
-        # legacy 试点的折线是照旧坐标冻结迁移的，节点挪了端点必须跟着挪，
-        # 否则 validate 会报"端点与折线断裂"（合肥西 校正后断 2.32km）。
-        for seg in legacy_segments:
-            if seg["from"] == node["id"] and dist(seg["polyline"][0], old_coord) < 1e-6:
-                seg["polyline"][0] = list(node["coord"])
-            if seg["to"] == node["id"] and dist(seg["polyline"][-1], old_coord) < 1e-6:
-                seg["polyline"][-1] = list(node["coord"])
-        upgraded += 1
-    if upgraded:
-        print("legacy 粗坐标已按 OSM 站节点校正：%d 个" % upgraded)
     meta = payload.get("meta", {})
 
     # 全网合并图：枢纽站本就是多线交汇，分线建图会在站场端点处断裂；
@@ -991,16 +855,13 @@ def main(argv=None):
             if graph is None:
                 graph = line_graph(line)
                 line_graphs[lid] = graph
-            resolved = resolve_line_stations(line, station_index,
-                                             (graph, waygraph),
-                                             data_coords, registry)
-            for name, coord, src in resolved:
-                registry.register(name, coord, source=src)
+            resolved = resolve_line_stations(line, registry)
+            check_pinned_on_corridor(line, resolved, graph, pin_exempt)
             blocks, pts_all, breaks = stitch_line(
                 line, resolved, graph, legacy_pair_map, registry)
-            n_auto, _n_new = cut_line_segments(
+            cut_line_segments(
                 line, resolved, blocks, pts_all, breaks, registry,
-                payload, legacy_nodes, out_segments,
+                out_segments,
                 legacy_km_map={s["id"]: s["estLengthKm"]
                                for s in legacy_segments},
                 way_index=way_index)
@@ -1026,8 +887,8 @@ def main(argv=None):
             failures.append({"id": lid, "reason": str(exc)})
             continue
 
-        print("  %-20s %2d 必须 %2d 块 %2d 补站  %s"
-              % (lid, len(resolved), len(blocks), n_auto, line["name"]))
+        print("  %-20s %2d 声明站 %2d 块  %s"
+              % (lid, len(resolved), len(blocks), line["name"]))
 
     # ---- legacy 附加区段（绕行线/京广接入段等，不在线路站序中） ----
     covered_legacy = {s.get("_legacySeg") for s in out_segments.values()}

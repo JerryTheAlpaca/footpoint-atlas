@@ -1,0 +1,764 @@
+[
+ {
+  "line": "xicheng-hsr",
+  "station": "西安北",
+  "km": 1.4007,
+  "why": "待查：坐标离本线走廊 1.40km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-bypass-hangzhou",
+  "station": "萧山",
+  "km": 1.0983,
+  "why": "待查：坐标离本线走廊 1.10km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jihuo-link",
+  "station": "济南",
+  "km": 0.7843,
+  "why": "待查：坐标离本线走廊 0.78km（声明式改造首轮登记）"
+ },
+ {
+  "line": "huning-jiang-hsr",
+  "station": "南京南",
+  "km": 0.7612,
+  "why": "待查：坐标离本线走廊 0.76km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-bypass-hangzhou",
+  "station": "笕桥",
+  "km": 0.6102,
+  "why": "待查：坐标离本线走廊 0.61km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingjiu-conventional",
+  "station": "九江",
+  "km": 0.5612,
+  "why": "待查：坐标离本线走廊 0.56km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningrong",
+  "station": "全椒",
+  "km": 0.5387,
+  "why": "待查：坐标离本线走廊 0.54km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningrong",
+  "station": "肥东",
+  "km": 0.5183,
+  "why": "待查：坐标离本线走廊 0.52km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningxi-conventional",
+  "station": "新丰镇",
+  "km": 0.5084,
+  "why": "待查：坐标离本线走廊 0.51km（声明式改造首轮登记）"
+ },
+ {
+  "line": "tonglu-link",
+  "station": "桐庐",
+  "km": 0.5063,
+  "why": "待查：坐标离本线走廊 0.51km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningrong",
+  "station": "金寨",
+  "km": 0.4675,
+  "why": "待查：坐标离本线走廊 0.47km（声明式改造首轮登记）"
+ },
+ {
+  "line": "wujiu-conventional",
+  "station": "九江西",
+  "km": 0.4626,
+  "why": "待查：坐标离本线走廊 0.46km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingjiu-conventional",
+  "station": "九江西",
+  "km": 0.4626,
+  "why": "待查：坐标离本线走廊 0.46km（声明式改造首轮登记）"
+ },
+ {
+  "line": "tonglu-link",
+  "station": "桐庐东",
+  "km": 0.4582,
+  "why": "待查：坐标离本线走廊 0.46km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingxiong-int",
+  "station": "北京大兴",
+  "km": 0.4548,
+  "why": "待查：坐标离本线走廊 0.45km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningan-int",
+  "station": "池州",
+  "km": 0.442,
+  "why": "待查：坐标离本线走廊 0.44km（声明式改造首轮登记）"
+ },
+ {
+  "line": "husutong",
+  "station": "黄渡",
+  "km": 0.434,
+  "why": "待查：坐标离本线走廊 0.43km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningrong",
+  "station": "麻城北",
+  "km": 0.4268,
+  "why": "待查：坐标离本线走廊 0.43km（声明式改造首轮登记）"
+ },
+ {
+  "line": "shanghehang-south",
+  "station": "肥东",
+  "km": 0.4232,
+  "why": "待查：坐标离本线走廊 0.42km（声明式改造首轮登记）"
+ },
+ {
+  "line": "huzhou-hangzhou",
+  "station": "德清",
+  "km": 0.4194,
+  "why": "待查：坐标离本线走廊 0.42km（声明式改造首轮登记）"
+ },
+ {
+  "line": "huning-int",
+  "station": "阳澄湖",
+  "km": 0.4181,
+  "why": "待查：坐标离本线走廊 0.42km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hefu-hsr",
+  "station": "上饶",
+  "km": 0.417,
+  "why": "待查：坐标离本线走廊 0.42km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingjiu-conventional",
+  "station": "庐山",
+  "km": 0.3786,
+  "why": "待查：坐标离本线走廊 0.38km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hefu-hsr",
+  "station": "婺源",
+  "km": 0.375,
+  "why": "待查：坐标离本线走廊 0.38km（声明式改造首轮登记）"
+ },
+ {
+  "line": "longhai-conventional",
+  "station": "咸阳",
+  "km": 0.3103,
+  "why": "待查：坐标离本线走廊 0.31km（声明式改造首轮登记）"
+ },
+ {
+  "line": "baocheng-conventional",
+  "station": "任家湾",
+  "km": 0.2997,
+  "why": "待查：坐标离本线走廊 0.30km（声明式改造首轮登记）"
+ },
+ {
+  "line": "wujiu-conventional",
+  "station": "华容",
+  "km": 0.2984,
+  "why": "待查：坐标离本线走廊 0.30km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "七宝",
+  "km": 0.293,
+  "why": "待查：坐标离本线走廊 0.29km（声明式改造首轮登记）"
+ },
+ {
+  "line": "changjiu-int",
+  "station": "庐山",
+  "km": 0.29,
+  "why": "待查：坐标离本线走廊 0.29km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "奔牛",
+  "km": 0.2886,
+  "why": "待查：坐标离本线走廊 0.29km（声明式改造首轮登记）"
+ },
+ {
+  "line": "baocheng-conventional",
+  "station": "江油北",
+  "km": 0.2583,
+  "why": "待查：坐标离本线走廊 0.26km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-hsr",
+  "station": "长沙南",
+  "km": 0.2577,
+  "why": "待查：坐标离本线走廊 0.26km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningrong",
+  "station": "红安西",
+  "km": 0.2438,
+  "why": "待查：坐标离本线走廊 0.24km（声明式改造首轮登记）"
+ },
+ {
+  "line": "baocheng-conventional",
+  "station": "绵阳",
+  "km": 0.241,
+  "why": "待查：坐标离本线走廊 0.24km（声明式改造首轮登记）"
+ },
+ {
+  "line": "longhai-conventional",
+  "station": "郑州",
+  "km": 0.2409,
+  "why": "待查：坐标离本线走廊 0.24km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningxi-conventional",
+  "station": "信阳北",
+  "km": 0.238,
+  "why": "待查：坐标离本线走廊 0.24km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "吕城",
+  "km": 0.2373,
+  "why": "待查：坐标离本线走廊 0.24km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-hsr",
+  "station": "南京南",
+  "km": 0.2339,
+  "why": "待查：坐标离本线走廊 0.23km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingjiu-conventional",
+  "station": "亳州南",
+  "km": 0.2259,
+  "why": "待查：坐标离本线走廊 0.23km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "浒墅关",
+  "km": 0.2188,
+  "why": "待查：坐标离本线走廊 0.22km（声明式改造首轮登记）"
+ },
+ {
+  "line": "baocheng-conventional",
+  "station": "宝鸡",
+  "km": 0.2184,
+  "why": "待查：坐标离本线走廊 0.22km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningrong",
+  "station": "横店东",
+  "km": 0.2174,
+  "why": "待查：坐标离本线走廊 0.22km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "阳澄湖",
+  "km": 0.2155,
+  "why": "待查：坐标离本线走廊 0.22km（声明式改造首轮登记）"
+ },
+ {
+  "line": "huning-int",
+  "station": "昆山南",
+  "km": 0.2129,
+  "why": "待查：坐标离本线走廊 0.21km（声明式改造首轮登记）"
+ },
+ {
+  "line": "huzhou-hangzhou",
+  "station": "湖州",
+  "km": 0.2115,
+  "why": "待查：坐标离本线走廊 0.21km（声明式改造首轮登记）"
+ },
+ {
+  "line": "shanghehang-south",
+  "station": "湖州",
+  "km": 0.2115,
+  "why": "待查：坐标离本线走廊 0.21km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "杭州东",
+  "km": 0.2115,
+  "why": "待查：坐标离本线走廊 0.21km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "塘雅",
+  "km": 0.2078,
+  "why": "待查：坐标离本线走廊 0.21km（声明式改造首轮登记）"
+ },
+ {
+  "line": "husutong",
+  "station": "常熟",
+  "km": 0.2044,
+  "why": "待查：坐标离本线走廊 0.20km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "苏州",
+  "km": 0.1993,
+  "why": "待查：坐标离本线走廊 0.20km（声明式改造首轮登记）"
+ },
+ {
+  "line": "lanqing-conventional",
+  "station": "平安驿",
+  "km": 0.1977,
+  "why": "待查：坐标离本线走廊 0.20km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingguang-conventional",
+  "station": "汉口",
+  "km": 0.1904,
+  "why": "待查：坐标离本线走廊 0.19km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "新桥",
+  "km": 0.1863,
+  "why": "待查：坐标离本线走廊 0.19km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "宜春",
+  "km": 0.1782,
+  "why": "待查：坐标离本线走廊 0.18km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "兴卫村",
+  "km": 0.1718,
+  "why": "待查：坐标离本线走廊 0.17km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "东孝",
+  "km": 0.1714,
+  "why": "待查：坐标离本线走廊 0.17km（声明式改造首轮登记）"
+ },
+ {
+  "line": "wugang-int",
+  "station": "武汉",
+  "km": 0.1682,
+  "why": "待查：坐标离本线走廊 0.17km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hefu-hsr",
+  "station": "合肥西",
+  "km": 0.1632,
+  "why": "待查：坐标离本线走廊 0.16km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "春申",
+  "km": 0.1572,
+  "why": "待查：坐标离本线走廊 0.16km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hefu-hsr",
+  "station": "巢湖东",
+  "km": 0.1564,
+  "why": "待查：坐标离本线走廊 0.16km（声明式改造首轮登记）"
+ },
+ {
+  "line": "xulan-hsr",
+  "station": "郑州东",
+  "km": 0.1528,
+  "why": "待查：坐标离本线走廊 0.15km（声明式改造首轮登记）"
+ },
+ {
+  "line": "xulan-hsr",
+  "station": "徐州东",
+  "km": 0.1518,
+  "why": "待查：坐标离本线走廊 0.15km（声明式改造首轮登记）"
+ },
+ {
+  "line": "handan-conventional",
+  "station": "新墩",
+  "km": 0.1425,
+  "why": "待查：坐标离本线走廊 0.14km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hanxi-link",
+  "station": "新墩",
+  "km": 0.1425,
+  "why": "待查：坐标离本线走廊 0.14km（声明式改造首轮登记）"
+ },
+ {
+  "line": "xicheng-hsr",
+  "station": "成都东",
+  "km": 0.1422,
+  "why": "待查：坐标离本线走廊 0.14km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningrong",
+  "station": "长安集",
+  "km": 0.14,
+  "why": "待查：坐标离本线走廊 0.14km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningxi-conventional",
+  "station": "长安集",
+  "km": 0.1389,
+  "why": "待查：坐标离本线走廊 0.14km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "诸暨东",
+  "km": 0.1379,
+  "why": "待查：坐标离本线走廊 0.14km（声明式改造首轮登记）"
+ },
+ {
+  "line": "yugui-conventional",
+  "station": "贵阳北",
+  "km": 0.133,
+  "why": "待查：坐标离本线走廊 0.13km（声明式改造首轮登记）"
+ },
+ {
+  "line": "huning-int",
+  "station": "安亭北",
+  "km": 0.1325,
+  "why": "待查：坐标离本线走廊 0.13km（声明式改造首轮登记）"
+ },
+ {
+  "line": "ningan-int",
+  "station": "南京南",
+  "km": 0.1299,
+  "why": "待查：坐标离本线走廊 0.13km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "北京大兴",
+  "km": 0.1274,
+  "why": "待查：坐标离本线走廊 0.13km（声明式改造首轮登记）"
+ },
+ {
+  "line": "huning-int",
+  "station": "黄渡",
+  "km": 0.1272,
+  "why": "待查：坐标离本线走廊 0.13km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingjiu-conventional",
+  "station": "伊尹",
+  "km": 0.1269,
+  "why": "待查：坐标离本线走廊 0.13km（声明式改造首轮登记）"
+ },
+ {
+  "line": "xiongshang-hsr",
+  "station": "雄安",
+  "km": 0.1242,
+  "why": "待查：坐标离本线走廊 0.12km（声明式改造首轮登记）"
+ },
+ {
+  "line": "lanxin-conventional",
+  "station": "屯升",
+  "km": 0.124,
+  "why": "待查：坐标离本线走廊 0.12km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-hsr",
+  "station": "杭州东",
+  "km": 0.1229,
+  "why": "待查：坐标离本线走廊 0.12km（声明式改造首轮登记）"
+ },
+ {
+  "line": "shanghai-hangzhou",
+  "station": "杭州东",
+  "km": 0.1229,
+  "why": "待查：坐标离本线走廊 0.12km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hanghuang-hsr",
+  "station": "杭州东",
+  "km": 0.1229,
+  "why": "待查：坐标离本线走廊 0.12km（声明式改造首轮登记）"
+ },
+ {
+  "line": "longhai-conventional",
+  "station": "商丘",
+  "km": 0.1221,
+  "why": "待查：坐标离本线走廊 0.12km（声明式改造首轮登记）"
+ },
+ {
+  "line": "lanxin-conventional",
+  "station": "玉门",
+  "km": 0.1113,
+  "why": "待查：坐标离本线走廊 0.11km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "丹阳",
+  "km": 0.1104,
+  "why": "待查：坐标离本线走廊 0.11km（声明式改造首轮登记）"
+ },
+ {
+  "line": "shanghehang-south",
+  "station": "芜湖",
+  "km": 0.1075,
+  "why": "待查：坐标离本线走廊 0.11km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "金华",
+  "km": 0.1023,
+  "why": "待查：坐标离本线走廊 0.10km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingguang-conventional",
+  "station": "石家庄",
+  "km": 0.1021,
+  "why": "待查：坐标离本线走廊 0.10km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "封浜",
+  "km": 0.0961,
+  "why": "待查：坐标离本线走廊 0.10km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingjiu-conventional",
+  "station": "亳州",
+  "km": 0.0946,
+  "why": "待查：坐标离本线走廊 0.09km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "龙游",
+  "km": 0.0934,
+  "why": "待查：坐标离本线走廊 0.09km（声明式改造首轮登记）"
+ },
+ {
+  "line": "lanqing-conventional",
+  "station": "西宁",
+  "km": 0.0913,
+  "why": "待查：坐标离本线走廊 0.09km（声明式改造首轮登记）"
+ },
+ {
+  "line": "husutong",
+  "station": "安亭西",
+  "km": 0.0909,
+  "why": "待查：坐标离本线走廊 0.09km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "上饶",
+  "km": 0.0906,
+  "why": "待查：坐标离本线走廊 0.09km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinqin-hsr",
+  "station": "天津西",
+  "km": 0.0873,
+  "why": "待查：坐标离本线走廊 0.09km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hefu-hsr",
+  "station": "黄山北",
+  "km": 0.0864,
+  "why": "待查：坐标离本线走廊 0.09km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "杭州南",
+  "km": 0.0844,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "衢州",
+  "km": 0.0814,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "北京南",
+  "km": 0.0808,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "wuxiao-int",
+  "station": "汉口",
+  "km": 0.0771,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "xiongshang-hsr",
+  "station": "商丘",
+  "km": 0.0769,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "shanghehang-north",
+  "station": "商丘",
+  "km": 0.0769,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingjiu-conventional",
+  "station": "木兰",
+  "km": 0.0769,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "硕放",
+  "km": 0.0767,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "longhai-conventional",
+  "station": "咸阳西",
+  "km": 0.0767,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "义乌",
+  "km": 0.0753,
+  "why": "待查：坐标离本线走廊 0.08km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "常州",
+  "km": 0.0749,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "南京",
+  "km": 0.0737,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "baocheng-conventional",
+  "station": "旌阳",
+  "km": 0.0728,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "xiongshang-hsr",
+  "station": "郓城",
+  "km": 0.0697,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "baocheng-conventional",
+  "station": "广汉北",
+  "km": 0.0695,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "丁桥油库卸油站",
+  "km": 0.0691,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "huning-int",
+  "station": "陆家浜",
+  "km": 0.0681,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "husutong",
+  "station": "张家港",
+  "km": 0.068,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "无锡",
+  "km": 0.0666,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hefu-hsr",
+  "station": "绩溪北",
+  "km": 0.0662,
+  "why": "待查：坐标离本线走廊 0.07km（声明式改造首轮登记）"
+ },
+ {
+  "line": "baocheng-conventional",
+  "station": "江油",
+  "km": 0.0636,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "魏善庄",
+  "km": 0.0624,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "丹阳东",
+  "km": 0.0619,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "baocheng-conventional",
+  "station": "广元",
+  "km": 0.0603,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "baocheng-conventional",
+  "station": "德阳",
+  "km": 0.0597,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "江山",
+  "km": 0.0592,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "huning-jiang-hsr",
+  "station": "江宁",
+  "km": 0.0566,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "廊坊",
+  "km": 0.0565,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jinghu-conventional",
+  "station": "万庄",
+  "km": 0.0556,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "qujiu-conventional",
+  "station": "九江",
+  "km": 0.0551,
+  "why": "待查：坐标离本线走廊 0.06km（声明式改造首轮登记）"
+ },
+ {
+  "line": "husutong",
+  "station": "太仓",
+  "km": 0.0524,
+  "why": "待查：坐标离本线走廊 0.05km（声明式改造首轮登记）"
+ },
+ {
+  "line": "hukun-conventional",
+  "station": "诸暨",
+  "km": 0.0522,
+  "why": "待查：坐标离本线走廊 0.05km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingguang-hsr",
+  "station": "武汉",
+  "km": 0.0518,
+  "why": "待查：坐标离本线走廊 0.05km（声明式改造首轮登记）"
+ },
+ {
+  "line": "jingguang-conventional",
+  "station": "柳辛庄",
+  "km": 0.0505,
+  "why": "待查：坐标离本线走廊 0.05km（声明式改造首轮登记）"
+ }
+]

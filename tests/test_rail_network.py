@@ -23,9 +23,10 @@ sys.path.insert(0, os.path.join(
 
 from rail_network.build import (  # noqa: E402
     corridor_way_ids,
+    check_pinned_on_corridor,
     cut_line_segments,
     extract_wanted,
-    insert_via_stops,
+    resolve_line_stations,
     line_allowed_names,
     line_trains,
     line_ways,
@@ -50,6 +51,57 @@ class Node:
         if src is not None:
             w["src"] = src
         return w
+
+
+class TestNoChordWhenOnCorridor(unittest.TestCase):
+    """站贴在走廊上时，不许用直线跳到远处图端点（那会把铁路画成斜线）。"""
+
+    def test_curved_way_wins_over_straight_chord(self):
+        # 一条 U 形 way（沿路 4km），加一个 2km 外的孤立 way 端点可直线跳接
+        curved = {"id": 1, "src": "测试线",
+                  "pts": [[110.00, 30.00], [110.00, 30.02], [110.01, 30.02],
+                          [110.01, 30.00]]}
+        isolated = {"id": 2, "src": "测试线",
+                    "pts": [[109.99, 30.01], [110.02, 30.01]]}
+        g = WayGraph([curved, isolated])
+        a, b = [110.00, 30.00], [110.01, 30.00]
+        pts = g.route(a, b)
+        self.assertGreater(len(pts), 2, "折线不该被压成两点直线")
+        self.assertGreater(polyline_km(pts), polyline_km([a, b]) * 1.2)
+
+
+class TestTrimRevisit(unittest.TestCase):
+    """站是长 way 的中部顶点时，寻径会把链路过站再折回来——两头空跑要剪掉。"""
+
+    A = [120.78113, 41.76537]
+    B = [121.28017, 41.96118]
+
+    def _chain(self):
+        # A → 向东一路到 B → 又向东跑到端点 C → 再折回 B
+        c = [list(self.A), [121.00, 41.90], list(self.B),
+             [121.330213, 41.972679], list(self.B)]
+        return c
+
+    def test_tail_excursion_is_cut(self):
+        g = WayGraph([])
+        out = g._trim_revisit(self._chain(), self.A, self.B)
+        self.assertEqual(out[-1], self.B)
+        self.assertLess(len(out), 5)
+        self.assertLess(polyline_km(out) + 1e-9, polyline_km(self._chain()))
+
+    def test_head_excursion_is_cut(self):
+        g = WayGraph([])
+        # 出发后先向西空跑一段又回到出发点
+        chain = [list(self.A), [120.70, 41.70], list(self.A), [121.0, 41.9], list(self.B)]
+        out = g._trim_revisit(chain, self.A, self.B)
+        self.assertEqual(out[0], self.A)
+        self.assertEqual(len(out), 3)
+
+    def test_pass_through_station_is_not_truncated(self):
+        """途经别的站不算回头：链里不该出现两次起点或两次终点。"""
+        g = WayGraph([])
+        chain = [list(self.A), [121.0, 41.9], self.B]
+        self.assertEqual(g._trim_revisit(chain, self.A, self.B), chain)
 
 
 class TestParallelEdges(unittest.TestCase):
@@ -112,51 +164,45 @@ class TestBridgeZone(unittest.TestCase):
         self.assertEqual(len(g.ways), 2)
 
 
-class TestInsertViaStops(unittest.TestCase):
+class TestDeclaredStationsNeedCoords(unittest.TestCase):
+    """坐标清单是唯一的站定位来源：漏一格就停下来，不再从几何里猜。"""
+
     def setUp(self):
         self.reg = NodeRegistry()
         self.reg.register("合肥南", [117.2, 31.78], fixed_id="hefei-south")
-        self.reg.register("六安", [116.5, 31.75], fixed_id="luan")
         self.reg.register("长安集", [117.1, 31.85], fixed_id="changanji")
         self.reg.register("雷麻店", [116.9, 31.8], fixed_id="leimadian")
-        self.stops = [
-            ("南京南", [118.7, 31.9], "osm"),
-            ("合肥南", [117.2, 31.78], "osm"),
-            ("六安", [116.5, 31.75], "osm"),
-        ]
-        self.line = {"id": "test"}
 
-    def test_via_inserted_between_declared_pair(self):
-        """线路所按显式站对声明插入：肥东→合肥南→长安集→雷麻店→六安。"""
-        out = insert_via_stops(
-            self.stops,
-            [{"id": "changanji", "between": ["合肥南", "六安"]},
-             {"id": "leimadian", "between": ["长安集", "六安"]}],
-            self.reg, self.line)
-        names = [s[0] for s in out]
-        self.assertEqual(names, ["南京南", "合肥南", "长安集", "雷麻店", "六安"])
+    def test_resolved_coords_come_from_the_registry(self):
+        line = {"id": "t", "stations": ["合肥南", "长安集", "雷麻店"]}
+        out = resolve_line_stations(line, self.reg)
+        self.assertEqual([c for _, c, _ in out],
+                         [[117.2, 31.78], [117.1, 31.85], [116.9, 31.8]])
 
-    def test_non_adjacent_pair_is_rejected(self):
-        """声明的站对不是相邻必须站时直接报错，不再按距离猜插入点。"""
-        with self.assertRaises(SystemExit):
-            insert_via_stops(
-                self.stops,
-                [{"id": "changanji", "between": ["南京南", "六安"]}],
-                self.reg, self.line)
+    def test_station_without_pinned_coord_fails_loud(self):
+        """站序里冒出清单没有的名字：报错点名，不许静默少一个断点。"""
+        line = {"id": "t", "stations": ["合肥南", "蜀山东"]}
+        with self.assertRaises(SystemExit) as ctx:
+            resolve_line_stations(line, self.reg)
+        self.assertIn("蜀山东", str(ctx.exception))
 
-    def test_legacy_distance_heuristic_would_misorder(self):
-        """回归锚：雷麻店到合肥南/六安的距离和更小（旧启发式会插错）。"""
-        node = self.reg.by_id["leimadian"]
-        dsum_via_leimadian_first = (
-            haversine_km(self.stops[1][1], node["coord"]) +
-            haversine_km(node["coord"], self.stops[2][1]))
-        changanji = self.reg.by_id["changanji"]["coord"]
-        dsum_via_changanji_first = (
-            haversine_km(self.stops[1][1], changanji) +
-            haversine_km(changanji, self.stops[2][1]))
-        # 旧算法把距离和最小的雷麻店排前面 → 合肥南→雷麻店→长安集，
-        # 与真实站序相反；显式声明是唯一可靠来源。
-        self.assertLess(dsum_via_leimadian_first, dsum_via_changanji_first)
+    def test_corridor_gate_rejects_off_corridor_coord(self):
+        """坐标离本线走廊超出容差＝站点处得拐出去再折回来，判失败。"""
+        g = WayGraph([{"id": 1, "pts": [[117.0, 31.80], [117.2, 31.78]],
+                       "ends": [(0, 0), (1, 1)], "src": "沪蓉线"}])
+        line = {"id": "t", "name": "测试线"}
+        resolved = [("合肥南", [117.6, 32.4], "osm")]
+        with self.assertRaises(SystemExit) as ctx:
+            check_pinned_on_corridor(line, resolved, g, {})
+        self.assertIn("合肥南", str(ctx.exception))
+
+    def test_corridor_gate_honours_named_exemption(self):
+        """豁免按 (线, 站) 点名，写清理由才放行。"""
+        g = WayGraph([{"id": 1, "pts": [[117.0, 31.80], [117.2, 31.78]],
+                       "ends": [(0, 0), (1, 1)], "src": "沪蓉线"}])
+        resolved = [("合肥南", [117.6, 32.4], "osm")]
+        check_pinned_on_corridor({"id": "t", "name": "测试线"}, resolved, g,
+                                 {("t", "合肥南"): "缺料：OSM 未画引入段"})
 
 
 def _registry_with(a_name, a_coord, b_name, b_coord):
@@ -176,7 +222,6 @@ class TestSamePairMultiCorridor(unittest.TestCase):
         self.line = {"id": "test-line", "name": "测试线",
                      "serviceDate": "2020-01-01"}
         self.resolved = [("甲站", self.A, "osm"), ("乙站", self.B, "osm")]
-        self.payload = {"stations": []}
 
     def _run(self, out_segments, pts, service_date="2020-01-01"):
         blocks = [{"a": "甲站", "b": "乙站", "pts": [list(p) for p in pts],
@@ -185,8 +230,7 @@ class TestSamePairMultiCorridor(unittest.TestCase):
         breaks = [("甲站", 0), ("乙站", len(pts_all) - 1)]
         return cut_line_segments(
             self.line, self.resolved, blocks, pts_all, breaks,
-            _registry_with("甲站", self.A, "乙站", self.B),
-            self.payload, [], out_segments)
+            _registry_with("甲站", self.A, "乙站", self.B), out_segments)
 
     def test_two_corridors_both_kept(self):
         """同站对南/北两条走廊都是独立物理区段，第二条不被丢弃。"""
@@ -278,7 +322,7 @@ class TestCorridorWayIdentity(unittest.TestCase):
                                 "legacy": None, "serviceDate": "2020-01-01"}],
                               pts, [("甲站", 0), ("乙站", len(pts) - 1)],
                               _registry_with("甲站", pts[0], "乙站", pts[-1]),
-                              {"stations": []}, [], out, way_index=idx)
+                              out, way_index=idx)
         self.assertEqual(len(out), 2)
         self.assertEqual({frozenset(s["lineIds"]) for s in out.values()},
                          {frozenset(["hsr"]), frozenset(["conv"])})
@@ -304,8 +348,7 @@ class TestSegmentTrains(unittest.TestCase):
         breaks = [("甲站", 0), ("乙站", len(self.CORRIDOR) - 1)]
         cut_line_segments(
             line, resolved, blocks, [list(p) for p in self.CORRIDOR], breaks,
-            _registry_with("甲站", self.A, "乙站", self.B),
-            {"stations": []}, [], out_segments)
+            _registry_with("甲站", self.A, "乙站", self.B), out_segments)
 
     def test_default_is_emu_only(self):
         """未声明 trains 的线路（既有高铁清单）不会被普速记录借用。"""
@@ -363,7 +406,7 @@ class TestEndpointSnapKm(unittest.TestCase):
         cut_line_segments(
             line, [(a_name, a_coord, "osm"), (b_name, b_coord, "osm")],
             blocks, [list(p) for p in pts], [(a_name, 0), (b_name, 2)],
-            reg, {"stations": []}, [], out_segments)
+            reg, out_segments)
         seg = next(iter(out_segments.values()))
         # 修复前 dist(...) < 2.0 的单位是度（~200km），两端都会被改写。
         self.assertEqual(seg["polyline"][0], [110.0, 30.0])

@@ -245,10 +245,10 @@ class WayGraph:
         第 4 项记录切入 way 与顶点，供两站吸附同一端点时同 way 直达切分。
         """
         cands = []
+        dv, pv, wis = self._nearest_vertex_ways(pt, radius=SNAP_MAX)
         for d, k in sorted((dist(p, pt), k) for k, p in self.node_pos.items()
                            if dist(p, pt) <= CAND_RADIUS):
             cands.append((d, k, [list(pt)], None))
-        dv, pv, wis = self._nearest_vertex_ways(pt, radius=SNAP_MAX)
         if dv is not None:
             for wi in wis:
                 w = self.ways[wi]
@@ -362,6 +362,31 @@ class WayGraph:
         return None
 
     def route(self, from_pt, to_pt):
+        """寻径 + 剪掉两头的"过站又折回"空跑。
+
+        站往往是某条长 way 的中部顶点，而切入候选只能沿 way 走到端点，于是
+        Dijkstra 可能把链路过站继续往前跑到端点、再折回本站：北票→乌兰木图
+        实测 57.93km，其中 9.9km 就是过站后向东跑到 way 端点再折回来的空跑
+        （整块 朝阳→阜新 的链在同样两点间只有 48.03km）。站序全部声明以后
+        每一对相邻站都要单独寻径，这个空跑在 228 个区段上凭空加了 215km。
+        """
+        chain = self._route_pair(from_pt, to_pt)
+        if not chain:
+            return chain
+        return self._trim_revisit(chain, from_pt, to_pt)
+
+    @staticmethod
+    def _trim_revisit(chain, from_pt, to_pt, eps_km=0.005):
+        """链里已经过过起点/终点，就从那一次算起，多余的头尾掐掉。"""
+        hits = [i for i, p in enumerate(chain) if haversine_km(p, from_pt) <= eps_km]
+        if len(hits) > 1:
+            chain = chain[hits[-1]:]
+        hits = [i for i, p in enumerate(chain) if haversine_km(p, to_pt) <= eps_km]
+        if len(hits) > 1:
+            chain = chain[:hits[0] + 1]
+        return chain
+
+    def _route_pair(self, from_pt, to_pt):
         """连通分量感知配对 + Dijkstra（支持 way 中部顶点切入）。
 
         拼接结果超过绕行比上限（直线 5 倍或 +20km）时视为假最短路，

@@ -15,8 +15,8 @@ LEGACY_DATA = (
    "kind": "station",
    "source": "data",
    "coord": [
-    118.81,
-    31.97
+    118.79305,
+    31.9708
    ]
   },
   {
@@ -48,8 +48,8 @@ LEGACY_DATA = (
    "kind": "station",
    "source": "data",
    "coord": [
-    117.29,
-    31.8
+    117.28487,
+    31.8003
    ]
   },
   {
@@ -59,8 +59,8 @@ LEGACY_DATA = (
    "kind": "station",
    "source": "data",
    "coord": [
-    117.21,
-    31.86
+    117.22826,
+    31.87391
    ]
   },
   {
@@ -147,8 +147,8 @@ LEGACY_DATA = (
    "kind": "station",
    "source": "data",
    "coord": [
-    114.26,
-    30.62
+    114.24941,
+    30.62165
    ]
   },
   {
@@ -169,8 +169,8 @@ LEGACY_DATA = (
    "kind": "station",
    "source": "data",
    "coord": [
-    114.42,
-    30.61
+    114.41894,
+    30.60985
    ]
   }
  ],
