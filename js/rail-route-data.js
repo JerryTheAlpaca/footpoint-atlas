@@ -1155,7 +1155,9 @@
     "yuedongcun-suo",
     "tai-cang"
    ],
-   "links": []
+   "links": [
+    "ninghang-hsr"
+   ]
   },
   {
    "id": "husutong",
@@ -2305,7 +2307,9 @@
     "zhang-mu-tou-dong",
     "dong-guan-dong"
    ],
-   "links": []
+   "links": [
+    "changjiu-int"
+   ]
   },
   {
    "id": "lanqing-conventional",
@@ -27839,7 +27843,8 @@
    "from": "nanjing-south",
    "to": "jiang-ning",
    "lineIds": [
-    "ninghang-hsr"
+    "ninghang-hsr",
+    "huning-jiang-hsr"
    ],
    "trains": [
     "emu"
@@ -102545,7 +102550,7 @@
     "conv"
    ],
    "serviceDate": "1996-09-01",
-   "estLengthKm": 13.44,
+   "estLengthKm": 14.56,
    "polyline": [
     [
      116.0038,
@@ -102586,7 +102591,7 @@
     "conv"
    ],
    "serviceDate": "1996-09-01",
-   "estLengthKm": 15.64,
+   "estLengthKm": 14.45,
    "polyline": [
     [
      116.00174,
@@ -108043,46 +108048,6 @@
     [
      118.91422,
      31.91755
-    ]
-   ]
-  },
-  {
-   "id": "nanjing-south-jiang-ning-2",
-   "name": "沪宁沿江高速铁路",
-   "from": "nanjing-south",
-   "to": "jiang-ning",
-   "lineIds": [
-    "huning-jiang-hsr"
-   ],
-   "trains": [
-    "emu"
-   ],
-   "serviceDate": "2023-09-28",
-   "estLengthKm": 11.9,
-   "polyline": [
-    [
-     118.79305,
-     31.9708
-    ],
-    [
-     118.8134,
-     31.9799
-    ],
-    [
-     118.8474,
-     31.98539
-    ],
-    [
-     118.85035,
-     31.98409
-    ],
-    [
-     118.86071,
-     31.97418
-    ],
-    [
-     118.8909,
-     31.94166
     ]
    ]
   },

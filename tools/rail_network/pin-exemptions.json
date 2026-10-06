@@ -1,21 +1,9 @@
 [
  {
-  "line": "huning-jiang-hsr",
-  "station": "南京南",
-  "km": 0.7612,
-  "why": "待查：坐标离本线走廊 0.76km（声明式改造首轮登记）"
- },
- {
   "line": "hukun-bypass-hangzhou",
   "station": "笕桥",
   "km": 0.6102,
   "why": "待查：坐标离本线走廊 0.61km（声明式改造首轮登记）"
- },
- {
-  "line": "jingjiu-conventional",
-  "station": "九江",
-  "km": 0.5612,
-  "why": "待查：坐标离本线走廊 0.56km（声明式改造首轮登记）"
  },
  {
   "line": "ningrong",
