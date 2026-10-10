@@ -289,6 +289,7 @@ def login_page(return_to: str = "/", error: str = "") -> bytes:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="图标.ico" sizes="any">
   <title>登录 · 我的火车足迹</title>
   <style>
     :root {{ color-scheme: dark; font-family: Inter, "Microsoft YaHei", system-ui, sans-serif; }}
