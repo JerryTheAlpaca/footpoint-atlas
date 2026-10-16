@@ -22,9 +22,10 @@
     return [from, to].sort((a, b) => a.localeCompare(b, 'zh-CN')).join('↔');
   }
 
+  // 同一个字母在 2026 年车次编排改革前后指两种车（改革后 T、K 为动车组），
+  // 判定按乘车日期走 TrainRoutes，与寻径用的类别保持一致。
   function trainTypeOf(record) {
-    var train = String((record && record.train) || '').trim();
-    return /^[GDC]/i.test(train) ? 'emu' : 'conv';
+    return root.TrainRoutes.trainKindOf(record && record.train, record && record.date);
   }
 
   function filterRecordsByType(records, type) {

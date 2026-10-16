@@ -12,7 +12,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = process.cwd();
-const TRAIN_RE = /\b([GDCZTKLYS]\d{1,4})\b/g;
+// 字头含 2026 年车次编排改革后的 X/N/V（普速改用 Z/N/V/Y，动车组增 X/T/K）。
+const TRAIN_RE = /\b([GDCZTKLYSXNV]\d{1,4})\b/g;
 
 function sliceObject(text, from) {
   // 从 from 起做括号配对（跳过字符串内的括号），取到对象本体；

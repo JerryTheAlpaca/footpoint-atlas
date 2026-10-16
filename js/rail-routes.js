@@ -8,7 +8,7 @@
   var MODE_CURVE = 'curve';
   var MODE_REAL = 'real';
   var VALID_MODES = [MODE_CURVE, MODE_REAL];
-  // 列车类别：与 TrainStats.trainTypeOf 同一判定（车次前缀 G/D/C 为动车组）。
+  // 列车类别：与 stats.js trainTypeOf 同一判定（本模块是实现，stats.js 转调）。
   var KIND_EMU = 'emu';
   var KIND_CONV = 'conv';
   // 未标注 trains 的区段视为仅动车组走行（既有高铁/城际产物即此语义）。
@@ -18,12 +18,30 @@
     return root.RAIL_ROUTE_DATA || null;
   }
 
+  // 车次首字母 → 类别。2026-10-16 国铁集团启动全国列车车次编排改革，同步实施
+  // 新版《列车车次编排规定》，分两批换号：
+  //   第一批（11 月下旬）改普速、旅游、货物车次——普速字头换成 Z/N/V/Y，
+  //     无字头普客并入 V；这些字母本来就归普速，无需在这里区分时段。
+  //   第二批（12 月下旬）改动车组车次——字头由 4 个（G/D/C/S）增至 7 个
+  //     （X/G/T/K/D/C/S），T、K 从此是动车组（300 与 200–250km/h）而非普速。
+  // 同一个字母在第二批前后指两种车，故按乘车日期选动车组字头表；
+  // 官方公布两批的精确日期后校准 EMU_HEADS_REVISED_FROM 即可。
+  var EMU_HEADS_REVISED_FROM = '2026-12-21';
+  var EMU_HEADS_LEGACY = 'GDCS';
+  var EMU_HEADS_REVISED = 'XGTKDCS';
+
+  function trainKindOf(train, date) {
+    var revised = date && String(date) >= EMU_HEADS_REVISED_FROM;
+    var heads = revised ? EMU_HEADS_REVISED : EMU_HEADS_LEGACY;
+    var head = /^[A-Za-z]/.exec(String(train == null ? '' : train).trim());
+    return head && heads.indexOf(head[0].toUpperCase()) >= 0 ? KIND_EMU : KIND_CONV;
+  }
+
   // —— 记录 / 区段的列车类别 ——
   // 普速不得借道只开动车组的高速正线，动车组也不得被新建的普速干线
   // 改道：两类记录各自在可运行的区段子图上寻径，既有径路因此稳定。
   function recordKind(record) {
-    var train = String((record && record.train) || '').trim();
-    return /^[GDC]/i.test(train) ? KIND_EMU : KIND_CONV;
+    return trainKindOf(record && record.train, record && record.date);
   }
 
   function trainsForSegment(seg, linesById) {
@@ -774,6 +792,8 @@
     MODE_REAL: MODE_REAL,
     KIND_EMU: KIND_EMU,
     KIND_CONV: KIND_CONV,
+    EMU_HEADS_REVISED_FROM: EMU_HEADS_REVISED_FROM,
+    trainKindOf: trainKindOf,
     readDisplayMode: readDisplayMode,
     writeDisplayMode: writeDisplayMode,
     recordKind: recordKind,

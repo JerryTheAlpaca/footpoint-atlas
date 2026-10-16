@@ -4,24 +4,45 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 function loadStats() {
-  const code = fs.readFileSync(path.join(__dirname, '..', 'js', 'stats.js'), 'utf8');
   const sandbox = {};
+  const code = ['js/rail-routes.js', 'js/stats.js']
+    .map((file) => fs.readFileSync(path.join(__dirname, '..', file), 'utf8'))
+    .join('\n');
   const fn = new Function('window', 'globalThis', code + '\nreturn window.TrainStats;');
   return fn(sandbox, sandbox);
 }
 
 describe('trainTypeOf', () => {
-  it('classifies G/D/C trains as emu', () => {
+  it('classifies G/D/C/S trains as emu', () => {
     const { trainTypeOf } = loadStats();
-    assert.equal(trainTypeOf({ train: 'G123' }), 'emu');
-    assert.equal(trainTypeOf({ train: 'D2256' }), 'emu');
-    assert.equal(trainTypeOf({ train: 'C1234' }), 'emu');
+    assert.equal(trainTypeOf({ train: 'G123', date: '2026-01-01' }), 'emu');
+    assert.equal(trainTypeOf({ train: 'D2256', date: '2026-01-01' }), 'emu');
+    assert.equal(trainTypeOf({ train: 'C1234', date: '2026-01-01' }), 'emu');
+    assert.equal(trainTypeOf({ train: 'S1', date: '2026-01-01' }), 'emu');
   });
 
-  it('classifies K/T/Z and numeric trains as conv', () => {
+  it('classifies K/T/Z and numeric trains as conv before the renumbering', () => {
     const { trainTypeOf } = loadStats();
-    assert.equal(trainTypeOf({ train: 'K1352' }), 'conv');
-    assert.equal(trainTypeOf({ train: 'Z45' }), 'conv');
+    assert.equal(trainTypeOf({ train: 'K1352', date: '2023-08-03' }), 'conv');
+    assert.equal(trainTypeOf({ train: 'Z45', date: '2023-08-03' }), 'conv');
+    assert.equal(trainTypeOf({ train: 'T123', date: '2023-08-03' }), 'conv');
+    assert.equal(trainTypeOf({ train: '1462', date: '2023-08-03' }), 'conv');
+  });
+
+  it('reads T/K as emu and N/V/Y as conv on trips after the renumbering', () => {
+    const { trainTypeOf } = loadStats();
+    const after = { date: '2027-01-05' };
+    assert.equal(trainTypeOf({ train: 'X1', ...after }), 'emu');
+    assert.equal(trainTypeOf({ train: 'T123', ...after }), 'emu');
+    assert.equal(trainTypeOf({ train: 'K1352', ...after }), 'emu');
+    assert.equal(trainTypeOf({ train: 'Z45', ...after }), 'conv');
+    assert.equal(trainTypeOf({ train: 'N71', ...after }), 'conv');
+    assert.equal(trainTypeOf({ train: 'V2001', ...after }), 'conv');
+    assert.equal(trainTypeOf({ train: 'Y518', ...after }), 'conv');
+  });
+
+  it('treats a record without a date as the old numbering', () => {
+    const { trainTypeOf } = loadStats();
     assert.equal(trainTypeOf({ train: 'T123' }), 'conv');
   });
 });

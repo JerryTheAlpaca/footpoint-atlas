@@ -351,14 +351,30 @@ describe('train-kind segment filtering', () => {
     return loadRoutes(kindNetwork(overrides)).TrainRoutes;
   }
 
-  it('classifies G/D/C as emu and K/T/Z/numeric as conv', () => {
+  it('classifies by train head, switching T/K to emu at the second batch', () => {
     const { TrainRoutes } = loadRoutes();
-    for (const train of ['G172', 'D2256', 'C1234']) {
-      assert.equal(TrainRoutes.recordKind({ train }), TrainRoutes.KIND_EMU, train);
+    for (const train of ['G172', 'D2256', 'C1234', 'S1']) {
+      assert.equal(TrainRoutes.recordKind({ train, date: '2026-01-01' }), TrainRoutes.KIND_EMU, train);
     }
     for (const train of ['K1352', 'Z45', 'T123', '1462']) {
-      assert.equal(TrainRoutes.recordKind({ train }), TrainRoutes.KIND_CONV, train);
+      assert.equal(TrainRoutes.recordKind({ train, date: '2026-01-01' }), TrainRoutes.KIND_CONV, train);
     }
+    // 第一批只改普速车次：这段过渡期里的 T、K 还是没轮到改号的普速车。
+    for (const train of ['T123', 'K1352']) {
+      assert.equal(TrainRoutes.recordKind({ train, date: '2026-12-05' }), TrainRoutes.KIND_CONV, train);
+    }
+    // 第二批起 T、K 是动车组，普速改用 Z/N/V/Y。
+    for (const train of ['X1', 'T123', 'K1352']) {
+      assert.equal(TrainRoutes.recordKind({ train, date: '2027-01-01' }), TrainRoutes.KIND_EMU, train);
+    }
+    for (const train of ['Z45', 'N71', 'V2001', 'Y518', '1462']) {
+      assert.equal(TrainRoutes.recordKind({ train, date: '2027-01-01' }), TrainRoutes.KIND_CONV, train);
+    }
+  });
+
+  it('routes a post-renumbering K train over the emu corridor it now runs on', () => {
+    const route = routes().resolveRecordRoute({ from: '甲', to: '丁', train: 'K172', date: '2027-01-01' });
+    assert.deepEqual(route.segIds, ['ab', 'bd']);
   });
 
   it('keeps emu trips off the shorter conv-only corridor', () => {
