@@ -58,12 +58,14 @@ TRAIN_RE = re.compile(r"^[GDC]\d{1,4}$")
 TRAIN_TOKEN_RE = re.compile(r"[GDC]?\d{1,4}")
 UNIT_SERIAL_RE = re.compile(r"^(?P<type>[A-Z][A-Z0-9]*)(?P<serial>\d{4})$")
 
-# 动车组型号族：先长后短匹配，剩下的字母当作 -A/-Z/-AS 这类子型号。
-# 上游存的号是去掉全部连字符的（CR400BFZ5267），这里还原成手写习惯的
-# "CR400BF-Z-5267"，好和已有记录、车型排行、车号重逢对得上。
+# 动车组型号族：同族的长名写在短名前面，先匹配到谁就按谁切；剩下的字母当作
+# -A/-Z/-AS 这类子型号。上游存的号是去掉全部连字符的（CR400BFZ5267），这里还原成
+# 手写习惯的 "CR400BF-Z-5267"，好和已有记录、车型排行、车号重逢对得上。
+# 清单里是特例（如 CR200JS 的 S 属于型号名本身）；没见过的 CR 按通例切在 F 或 J 后面。
+CR_FAMILY_RE = re.compile(r"^CR\d{3}[A-Z]?[FJ]")
 EMU_FAMILIES = (
     "CRH380AL", "CRH380BL", "CRH380AM", "CRH380A", "CRH380B", "CRH380C",
-    "CRH380D", "CRH380DA", "CRH1A", "CRH1B", "CRH1E", "CRH1G",
+    "CRH380D", "CRH1A", "CRH1B", "CRH1E", "CRH1G",
     "CRH2A", "CRH2B", "CRH2C", "CRH2D", "CRH2E", "CRH2G",
     "CRH3A", "CRH3C", "CRH3E", "CRH5A", "CRH5E", "CRH5G", "CRH5H",
     "CRH6A", "CRH6F", "CRH6G", "CR200JS", "CR200J", "CR300AF", "CR300BF",
@@ -128,7 +130,11 @@ def format_unit_no(raw: object) -> str:
     if not match:
         return str(raw or "").strip()
     model, serial = match.group("type"), match.group("serial")
+    # 清单先走（特例在内），没命中才按 CR 通例切在 F/J 后面
     family = next((name for name in EMU_FAMILIES if model.startswith(name)), "")
+    if not family:
+        cr_family = CR_FAMILY_RE.match(model)
+        family = cr_family.group() if cr_family else ""
     if not family:
         return "%s-%s" % (model, serial)
     sub = model[len(family):]

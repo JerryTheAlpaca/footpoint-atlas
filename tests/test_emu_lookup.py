@@ -51,6 +51,30 @@ class FormatUnitTest(unittest.TestCase):
         for raw, expected in cases.items():
             self.assertEqual(emu_lookup.format_unit_no(raw), expected, raw)
 
+    def test_cr_series_splits_after_f_or_j(self):
+        # 清单没收录的复兴号按通例切：横杠落在 F 或 J 后面
+        cases = {
+            "CR200JS4001": "CR200JS-4001",       # 特例：S 是型号名的一部分，清单说了算
+            "CR350BFZ1001": "CR350BF-Z-1001",    # 没见过的型号走规则
+            "CR400BFGH5001": "CR400BF-GH-5001",
+            "CR450AFZ0001": "CR450AF-Z-0001",
+            "CR400BFZ5267": "CR400BF-Z-5267",
+            "CR200JC5029": "CR200J-C-5029",
+        }
+        for raw, expected in cases.items():
+            self.assertEqual(emu_lookup.format_unit_no(raw), expected, raw)
+
+    def test_crh_series_still_uses_the_family_list(self):
+        # 和谐号不吃这条规则：CRH380BL 是一整个型号，不切成 CRH380B-L
+        cases = {
+            "CRH380BL3503": "CRH380BL-3503",
+            "CRH380B3633": "CRH380B-3633",
+            "CRH1AA1248": "CRH1A-A-1248",
+            "CRH2A2179": "CRH2A-2179",
+        }
+        for raw, expected in cases.items():
+            self.assertEqual(emu_lookup.format_unit_no(raw), expected, raw)
+
     def test_unrecognised_shape_is_kept_as_is(self):
         self.assertEqual(emu_lookup.format_unit_no("未知型号"), "未知型号")
         self.assertEqual(emu_lookup.format_unit_no(""), "")
