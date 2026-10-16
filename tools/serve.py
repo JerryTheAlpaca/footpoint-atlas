@@ -41,6 +41,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from excel_to_js import EXCEL_PATH, OUTPUT_PATH, write_data_js, write_records  # noqa: E402
+import emu_lookup  # noqa: E402
 
 RECORD_FIELDS = ("date", "from", "to", "train", "vehicle", "origin", "terminal", "bureau")
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -601,6 +602,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if not self.require_auth(path):
             return
+        if path == "/api/emu-unit":
+            self.handle_emu_unit()
+            return
         if path != "/api/train-data":
             if not self.static_path_allowed(path):
                 self.send_error(404)
@@ -619,6 +623,25 @@ class Handler(SimpleHTTPRequestHandler):
             200,
             {"ok": True, "version": version, "records": records, "stations": stations},
         )
+
+    def handle_emu_unit(self) -> None:
+        """车次 + 日期 → 实际担当的动车组车号。
+
+        api.rail.re 不发 CORS 头，浏览器只能走这里；查不到也回 200，
+        界面上退回手工填写，别让一个查询把表单卡死。
+        """
+        params = parse_qs(urlsplit(self.path).query)
+        try:
+            result = emu_lookup.lookup_vehicle(
+                (params.get("train") or [""])[0][:24],
+                (params.get("date") or [""])[0][:10],
+                (params.get("from") or [""])[0][:24],
+                (params.get("to") or [""])[0][:24],
+            )
+        except Exception as exc:
+            self.send_json(200, {"ok": False, "matched": False, "reason": "upstream", "error": str(exc)})
+            return
+        self.send_json(200, {"ok": True, **result})
 
     def do_POST(self) -> None:
         path = self.path.split("?", 1)[0]

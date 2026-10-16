@@ -202,6 +202,14 @@
     return toIsoDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
   }
 
+  function isEmuTrain(raw) {
+    // rail.re 只记动车组（G/D/C 开头），普速不发请求。
+    // 复车次写成"首段全号 + 斜杠 + 省略前缀的尾号"，这里整串一起放过，拆由服务端做。
+    var text = String(raw || '').trim().toUpperCase().replace(/次/g, '').replace(/\s+/g, '');
+    if (!text) return false;
+    return /^[GDC]\d{1,4}(\/[GDC]?\d{1,4}){0,3}$/.test(text);
+  }
+
   function normalizeDateInput(raw) {
     var s = String(raw || '').trim();
     if (!s) return '';
@@ -391,6 +399,7 @@
     STORAGE_KEY: STORAGE_KEY,
     DATA_API: '/api/train-data',
     SAVE_API: '/api/save-train-data',
+    EMU_API: '/api/emu-unit',
     emptyState: emptyState,
     normalizeRecord: normalizeRecord,
     validateRecord: validateRecord,
@@ -409,6 +418,7 @@
     parseIsoDate: parseIsoDate,
     shiftMonth: shiftMonth,
     normalizeDateInput: normalizeDateInput,
+    isEmuTrain: isEmuTrain,
     calendarCells: calendarCells,
     bindDatePicker: bindDatePicker,
   };

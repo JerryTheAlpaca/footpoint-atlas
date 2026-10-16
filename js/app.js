@@ -52,6 +52,9 @@
   var rangeEndPicker;
   var editingRecord = null;
   var recordMutating = false;
+  var emuLookupTimer = null;
+  var emuLookupToken = 0;
+  var emuLookupKey = '';
   var trainDataVersion = null;
   var hoverZrLine = null;
   var layoutRefreshRaf = null;
@@ -3001,11 +3004,88 @@
       .join('');
   }
 
+  function vehicleInput() {
+    return document.getElementById('trip-vehicle');
+  }
+
+  function clearVehicleLookup() {
+    var input = vehicleInput();
+    if (input) input.removeAttribute('data-emu-auto');
+    emuLookupToken += 1;
+    emuLookupKey = '';
+    if (emuLookupTimer) {
+      clearTimeout(emuLookupTimer);
+      emuLookupTimer = null;
+    }
+  }
+
+  // 手打过的车号不覆盖：只有空框、或上一次是这个功能自己填的，才写回。
+  function vehicleFillAllowed() {
+    var input = vehicleInput();
+    if (!input) return false;
+    var auto = input.getAttribute('data-emu-auto') || '';
+    return !input.value.trim() || auto === input.value;
+  }
+
+  function vehicleLookupKey() {
+    return [
+      document.getElementById('trip-date').value,
+      document.getElementById('trip-train').value,
+      document.getElementById('trip-from').value,
+      document.getElementById('trip-to').value,
+    ].join('|');
+  }
+
+  function applyVehicleLookup(result) {
+    var input = vehicleInput();
+    if (!result || !result.matched || !input || !vehicleFillAllowed()) return;
+    input.value = result.value;
+    input.setAttribute('data-emu-auto', result.value);
+  }
+
+  function requestVehicleLookup() {
+    var train = document.getElementById('trip-train').value.trim();
+    var dateValue = window.TrainSettings.normalizeDateInput(document.getElementById('trip-date').value);
+    if (!window.TrainSettings.isEmuTrain(train)) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue || '')) return;
+    if (!vehicleFillAllowed()) return;
+    var query = '?train=' + encodeURIComponent(train) +
+      '&date=' + encodeURIComponent(dateValue) +
+      '&from=' + encodeURIComponent(document.getElementById('trip-from').value.trim()) +
+      '&to=' + encodeURIComponent(document.getElementById('trip-to').value.trim());
+    emuLookupToken += 1;
+    var token = emuLookupToken;
+    fetch(window.TrainSettings.EMU_API + query, { cache: 'no-store' })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (result) {
+        if (token === emuLookupToken) applyVehicleLookup(result);
+      })
+      .catch(function () {
+        // 上游不通就不吭声，车号留着手工填
+      });
+  }
+
+  function scheduleVehicleLookup(force) {
+    if (emuLookupTimer) clearTimeout(emuLookupTimer);
+    emuLookupTimer = setTimeout(function () {
+      emuLookupTimer = null;
+      // 改老记录不自动动它的车号；把车号框清空是用户要重查的手势，那时才查
+      if (editingRecord && !force) return;
+      var key = vehicleLookupKey();
+      if (!force && key === emuLookupKey) return;
+      emuLookupKey = key;
+      requestVehicleLookup();
+    }, 400);
+  }
+
   function resetTripForm() {
     var form = document.getElementById('trip-form');
     if (form) form.reset();
     document.getElementById('trip-date').value = todayIso();
     if (tripDatePicker) tripDatePicker.close();
+    clearVehicleLookup();
     syncUnknownStationFields();
   }
 
@@ -3062,6 +3142,7 @@
     document.getElementById('trip-terminal').value = (record && record.terminal) || '';
     document.getElementById('trip-bureau').value = (record && record.bureau) || '';
     if (tripDatePicker) tripDatePicker.close();
+    clearVehicleLookup();
     syncUnknownStationFields();
   }
 
@@ -3409,6 +3490,23 @@
     });
     document.getElementById('trip-from').addEventListener('input', syncUnknownStationFields);
     document.getElementById('trip-to').addEventListener('input', syncUnknownStationFields);
+    ['trip-date', 'trip-train', 'trip-from', 'trip-to'].forEach(function (id) {
+      var field = document.getElementById(id);
+      if (!field) return;
+      field.addEventListener('input', function () {
+        scheduleVehicleLookup(false);
+      });
+      field.addEventListener('change', function () {
+        scheduleVehicleLookup(false);
+      });
+    });
+    document.getElementById('trip-vehicle').addEventListener('input', function () {
+      var input = this;
+      if (input.getAttribute('data-emu-auto') === input.value) return;
+      input.removeAttribute('data-emu-auto');
+      // 清空车号框＝"再查一次"；手打内容则从此不再被自动覆盖
+      if (!input.value.trim()) scheduleVehicleLookup(true);
+    });
     document.getElementById('trip-form').addEventListener('submit', submitTripForm);
     document.getElementById('trip-form').addEventListener('keydown', handleTripFormKeydown);
     var mapDisplayControls = document.getElementById('map-display-options');
