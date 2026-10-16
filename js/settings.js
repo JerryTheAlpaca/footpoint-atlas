@@ -202,12 +202,15 @@
     return toIsoDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
   }
 
-  function isEmuTrain(raw) {
-    // rail.re 只记动车组（G/D/C 开头），普速不发请求。
-    // 复车次写成"首段全号 + 斜杠 + 省略前缀的尾号"，这里整串一起放过，拆由服务端做。
+  var QUERYABLE_TRAIN_RE = /^[KTSZGDCLY]\d{1,4}(\/[KTSZGDCLY]?\d{1,4}){0,3}$/;
+
+  function isQueryableTrain(raw) {
+    // 发不发查询只看写法像不像车次：车号只给动车组（G/D/C，服务端判），普速也
+    // 能拿到始发/终到。复车次写成"首段全号 + 斜杠 + 省略前缀的尾号"，整串放过，
+    // 拆号由服务端做。
     var text = String(raw || '').trim().toUpperCase().replace(/次/g, '').replace(/\s+/g, '');
     if (!text) return false;
-    return /^[GDC]\d{1,4}(\/[GDC]?\d{1,4}){0,3}$/.test(text);
+    return QUERYABLE_TRAIN_RE.test(text);
   }
 
   function normalizeDateInput(raw) {
@@ -418,7 +421,7 @@
     parseIsoDate: parseIsoDate,
     shiftMonth: shiftMonth,
     normalizeDateInput: normalizeDateInput,
-    isEmuTrain: isEmuTrain,
+    isQueryableTrain: isQueryableTrain,
     calendarCells: calendarCells,
     bindDatePicker: bindDatePicker,
   };

@@ -625,7 +625,7 @@ class Handler(SimpleHTTPRequestHandler):
         )
 
     def handle_emu_unit(self) -> None:
-        """车次 + 日期 → 实际担当的动车组车号。
+        """车次 + 日期 → 实际担当的动车组车号，外加这趟车的始发/终到。
 
         api.rail.re 不发 CORS 头，浏览器只能走这里；查不到也回 200，
         界面上退回手工填写，别让一个查询把表单卡死。

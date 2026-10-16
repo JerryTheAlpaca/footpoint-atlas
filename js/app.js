@@ -2969,6 +2969,7 @@
     if (!el) return;
     el.textContent = message || '';
     el.className = 'trip-status' + (kind ? ' is-' + kind : '');
+    el.removeAttribute('data-lookup-note');
   }
 
   function syncUnknownStationFields() {
@@ -3004,13 +3005,13 @@
       .join('');
   }
 
-  function vehicleInput() {
-    return document.getElementById('trip-vehicle');
-  }
+  var AUTO_FILL_FIELDS = ['trip-vehicle', 'trip-origin', 'trip-terminal'];
 
   function clearVehicleLookup() {
-    var input = vehicleInput();
-    if (input) input.removeAttribute('data-emu-auto');
+    AUTO_FILL_FIELDS.forEach(function (id) {
+      var input = document.getElementById(id);
+      if (input) input.removeAttribute('data-emu-auto');
+    });
     emuLookupToken += 1;
     emuLookupKey = '';
     if (emuLookupTimer) {
@@ -3019,12 +3020,29 @@
     }
   }
 
-  // 手打过的车号不覆盖：只有空框、或上一次是这个功能自己填的，才写回。
-  function vehicleFillAllowed() {
-    var input = vehicleInput();
+  // 手打过的内容不覆盖：只有空框、或上一次是这个功能自己填的，才写回。
+  function autoFillAllowed(input) {
     if (!input) return false;
     var auto = input.getAttribute('data-emu-auto') || '';
     return !input.value.trim() || auto === input.value;
+  }
+
+  function writeAutoField(id, value) {
+    var input = document.getElementById(id);
+    if (!input || !autoFillAllowed(input)) return;
+    var text = value || '';
+    input.value = text;
+    if (text) {
+      input.setAttribute('data-emu-auto', text);
+    } else {
+      input.removeAttribute('data-emu-auto');
+    }
+  }
+
+  function anyAutoFillAllowed() {
+    return AUTO_FILL_FIELDS.some(function (id) {
+      return autoFillAllowed(document.getElementById(id));
+    });
   }
 
   function vehicleLookupKey() {
@@ -3036,19 +3054,77 @@
     ].join('|');
   }
 
-  function applyVehicleLookup(result) {
-    var input = vehicleInput();
-    if (!result || !result.matched || !input || !vehicleFillAllowed()) return;
-    input.value = result.value;
-    input.setAttribute('data-emu-auto', result.value);
+  // 一句话交代这次查询的结果：都填上了就不吭声，没查到必须写明白，
+  // 否则空框看着像网卡住了一半。措辞按"哪一半没查到"分，不写成失败。
+  function tripLookupNote(result, train) {
+    var trip = result.trip || {};
+    var unitOk = !!result.matched;
+    var tripOk = !!trip.matched;
+    if (unitOk && tripOk) return '';
+    if (result.reason === 'upstream' && trip.reason === 'upstream') {
+      return '查询服务没连上，稍等再试，也可以先手工填';
+    }
+    // 12306 的车次查询只回最近两天，老日期是"它不给了"，不能报成"没这个车次"
+    if (trip.reason === 'past') {
+      return unitOk ? '这天 12306 已经不给了，始发和终到手写'
+                    : '这天 12306 已经不给了，车号也只留最近约 30 天';
+    }
+    if (!unitOk && !tripOk) {
+      if (result.reason === 'not_emu') return '没查到 ' + train + '：12306 那天的图里没有这个车次';
+      return '没查到 ' + train + '：12306 和车组记录里都没有';
+    }
+    if (!unitOk) {
+      if (result.reason === 'not_emu') return '普速车次没有车组记录，只填了始发和终到';
+      if (result.reason === 'outside_window') return '这天没有车组记录（车号只留最近约 30 天）';
+      if (result.reason === 'upstream') return '车组记录没连上，只填了始发和终到';
+      return '没查到这天担当的车组，只填了始发和终到';
+    }
+    if (trip.reason === 'upstream') return '12306 没连上，始发和终到稍后再试';
+    return '没查到这趟车在 12306 的这天，始发和终到手写';
+  }
+
+  function setLookupNote(message) {
+    var el = document.getElementById('trip-form-status');
+    if (!el) return;
+    var mine = el.getAttribute('data-lookup-note') || '';
+    if (message) {
+      // 只改自己上一次写的那句；校验和保存结果轮到它头上时不抢字
+      if (el.textContent && el.textContent !== mine) return;
+      el.textContent = message;
+      el.className = 'trip-status';
+      el.setAttribute('data-lookup-note', message);
+      return;
+    }
+    if (mine && el.textContent === mine) {
+      el.textContent = '';
+      el.className = 'trip-status';
+    }
+    el.removeAttribute('data-lookup-note');
+  }
+
+  // 查不到就把这个功能自己填过的值清掉，否则换个车次后留下的还是上一个号的旧数据；
+  // 上游不通（reason=upstream）是"不知道"不是"没有"，那时留着不动。
+  // 担当路局不在自动填充范围内：现成的源只给当前运行图的担当，担当会随调图换人，
+  // 填进历史记录等于编数据，所以那一栏留着手工写。
+  function applyTripLookup(result) {
+    if (!result) return;
+    var trip = result.trip || {};
+    if (result.reason !== 'upstream') {
+      writeAutoField('trip-vehicle', result.matched ? result.value : '');
+    }
+    if (trip.reason !== 'upstream') {
+      writeAutoField('trip-origin', trip.matched ? trip.origin : '');
+      writeAutoField('trip-terminal', trip.matched ? trip.terminal : '');
+    }
+    setLookupNote(tripLookupNote(result, document.getElementById('trip-train').value.trim()));
   }
 
   function requestVehicleLookup() {
     var train = document.getElementById('trip-train').value.trim();
     var dateValue = window.TrainSettings.normalizeDateInput(document.getElementById('trip-date').value);
-    if (!window.TrainSettings.isEmuTrain(train)) return;
+    if (!window.TrainSettings.isQueryableTrain(train)) return;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue || '')) return;
-    if (!vehicleFillAllowed()) return;
+    if (!anyAutoFillAllowed()) return;
     var query = '?train=' + encodeURIComponent(train) +
       '&date=' + encodeURIComponent(dateValue) +
       '&from=' + encodeURIComponent(document.getElementById('trip-from').value.trim()) +
@@ -3060,10 +3136,10 @@
         return response.json();
       })
       .then(function (result) {
-        if (token === emuLookupToken) applyVehicleLookup(result);
+        if (token === emuLookupToken) applyTripLookup(result);
       })
       .catch(function () {
-        // 上游不通就不吭声，车号留着手工填
+        // 上游不通就不吭声，四个框留着手工填
       });
   }
 
@@ -3076,6 +3152,7 @@
       var key = vehicleLookupKey();
       if (!force && key === emuLookupKey) return;
       emuLookupKey = key;
+      setLookupNote('');
       requestVehicleLookup();
     }, 400);
   }
@@ -3500,12 +3577,15 @@
         scheduleVehicleLookup(false);
       });
     });
-    document.getElementById('trip-vehicle').addEventListener('input', function () {
-      var input = this;
-      if (input.getAttribute('data-emu-auto') === input.value) return;
-      input.removeAttribute('data-emu-auto');
-      // 清空车号框＝"再查一次"；手打内容则从此不再被自动覆盖
-      if (!input.value.trim()) scheduleVehicleLookup(true);
+    AUTO_FILL_FIELDS.forEach(function (id) {
+      var box = document.getElementById(id);
+      if (!box) return;
+      box.addEventListener('input', function () {
+        if (box.getAttribute('data-emu-auto') === box.value) return;
+        box.removeAttribute('data-emu-auto');
+        // 清空自动填充过的框＝"再查一次"；手打内容则从此不再被自动覆盖
+        if (!box.value.trim()) scheduleVehicleLookup(true);
+      });
     });
     document.getElementById('trip-form').addEventListener('submit', submitTripForm);
     document.getElementById('trip-form').addEventListener('keydown', handleTripFormKeydown);

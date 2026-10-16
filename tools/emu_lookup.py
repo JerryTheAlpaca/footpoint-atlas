@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""按车次和日期查实际担当的动车组车号。
+"""按车次和日期查实际担当的动车组车号，外加这趟车的始发/终到。
 
 数据源：
     api.rail.re/train/{车次}  —— 车次最近若干次实际担当的车组号（date、emu_no）。
@@ -10,6 +10,9 @@
         内部车次码解出复车次：同一趟车跨线换号，rail.re 可能只记了另一个号。
         内部码里嵌的是始发那一段的号，例如 5l000G173603 在上海虹桥→南京南
         显示成 G1736，在南京南→武汉显示成 G1737。
+    12306 车次查询        —— 车次在某天运行图上的始发/终到（from_station、
+        to_station），来自主站名表，动车组和普速都有。窗口只到最近两天，再早的
+        日期一律回空数组，所以填不出老记录，那属于查不到而不是没这个车次。
 
 对应关系拿不到就照实说查不到，绝不按"车次号 ±1"编配对。
 """
@@ -27,6 +30,8 @@ import urllib.request
 from datetime import date, timedelta
 
 RAILRE_BASE = "https://api.rail.re"
+SEARCH_URL = ("https://search.12306.cn/search/v1/train/search"
+              "?keyword=%s&date=%s")
 STATION_NAME_JS = "https://kyfw.12306.cn/otn/resources/js/framework/station_name.js"
 LEFT_TICKET_INIT = "https://kyfw.12306.cn/otn/leftTicket/init"
 LEFT_TICKET_QUERY = (
@@ -42,11 +47,16 @@ PRESELL_DAYS = 15          # 12306 预售期，超出就没有余票行可解复
 
 RAILRE_TTL = 600.0
 ALIAS_TTL = 3600.0
+SEARCH_TTL = 3600.0
 TELECODE_TTL = 86400.0
 CACHE_MAX = 256
 ALIAS_ATTEMPT_LIMIT = 2      # 复车次兜底最多试几个 leftTicket 后缀
 ALIAS_BUDGET = 12.0          # 这条兜底路径的总时间预算，超了就按查不到处理
 TIMEOUT = 6
+SEARCH_TIMEOUT = 6
+# 12306 车次查询实测只回最近两天：乘车日期问 10-14 有，10-13 起一律空数组。
+# 这不算"没这个车次"，得跟界面说清楚是这天它已经不给了。
+SEARCH_BACK_DAYS = 2
 # 12306 的站名表整份 200KB 左右，比单次余票查询慢。
 TELECODE_TIMEOUT = 10
 OFFICIAL_TIMEOUT = 5
@@ -55,7 +65,10 @@ MAX_VARIANTS = 4
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 TRAIN_RE = re.compile(r"^[GDC]\d{1,4}$")
-TRAIN_TOKEN_RE = re.compile(r"[GDC]?\d{1,4}")
+# 拆复车次时先按"字母+1~4 位数字"抓写法段，再由调用方判定用途：TRAIN_RE 只放
+# 动车组（rail.re 只记 G/D/C），TRAIN_NUMBER_RE 放宽到普速常用的字母，用于问始发/终到。
+TRAIN_ANY_RE = re.compile(r"[A-Z]?\d{1,4}")
+TRAIN_NUMBER_RE = re.compile(r"^[KTSZGDCLY]\d{1,4}$")
 UNIT_SERIAL_RE = re.compile(r"^(?P<type>[A-Z][A-Z0-9]*)(?P<serial>\d{4})$")
 
 # 动车组型号族：同族的长名写在短名前面，先匹配到谁就按谁切；剩下的字母当作
@@ -74,6 +87,7 @@ EMU_FAMILIES = (
 
 _lock = threading.Lock()
 _railre_cache: dict[str, tuple[float, list[dict]]] = {}
+_search_cache: dict[tuple[str, str], tuple[float, dict]] = {}
 _alias_cache: dict[tuple[str, str, str, str], tuple[float, list[str]]] = {}
 _telecode_cache: tuple[float, dict[str, str]] | None = None
 _opener = None
@@ -86,19 +100,12 @@ class UpstreamError(RuntimeError):
     """上游取不到数据（网络、超时、格式变了都算）。"""
 
 
-def _prune(cache: dict, ttl: float) -> None:
-    now = time.monotonic()
-    for key in [k for k, (stamp, _) in cache.items() if now - stamp >= ttl]:
-        cache.pop(key, None)
-    while len(cache) > CACHE_MAX:
-        cache.pop(next(iter(cache)))
+def train_codes(text: object, pattern: "re.Pattern[str]" = TRAIN_RE) -> list[str]:
+    """车次写法 → 展开后的全部号，写法上最后那一段排在最前。
 
-
-def train_variants(text: object) -> list[str]:
-    """车次写法 → 可上游查询的车次号列表。
-
-    "G45/8" 这种复车次写法拆成 G45、G48（缩写的那半按首段前缀补全，与上游
-    NormalizeTrainNo 同规则）；普速、纯数字一律判成非动车组，返回空。
+    填的区间通常落在复车次的尾号上（"G1736/7" 坐的是 G1737 那一段），所以尾号
+    先查；省略前缀的那半按首段补全，与上游 NormalizeTrainNo 同规则。普速、纯数字
+    在默认 pattern 下判成不合格，返回空。
     """
     raw = str(text or "").upper().replace("次", "").replace(" ", "")
     if not raw:
@@ -106,7 +113,7 @@ def train_variants(text: object) -> list[str]:
     results: list[str] = []
     initial = ""
     for index, part in enumerate(raw.split("/")):
-        match = TRAIN_TOKEN_RE.search(part)
+        match = TRAIN_ANY_RE.search(part)
         if not match:
             return []
         token = match.group()
@@ -116,11 +123,36 @@ def train_variants(text: object) -> list[str]:
             initial = token
         elif len(token) < len(initial):
             token = initial[: len(initial) - len(token)] + token
-        if TRAIN_RE.match(token) and token not in results:
+        if pattern.match(token) and token not in results:
             results.append(token)
         if len(results) >= MAX_VARIANTS:
             break
+    results.reverse()
     return results
+
+
+def train_numbers(text: object) -> list[str]:
+    """车次写法 → 能拿去 12306 问始发/终到的号（含普速）；写法不对返回空。"""
+    return train_codes(text, TRAIN_NUMBER_RE)
+
+
+def primary_code(text: object) -> str:
+    """复车次取尾号："G1736/7" → G1737。"""
+    codes = train_numbers(text)
+    return codes[0] if codes else ""
+
+
+def _prune(cache: dict, ttl: float) -> None:
+    now = time.monotonic()
+    for key in [k for k, (stamp, _) in cache.items() if now - stamp >= ttl]:
+        cache.pop(key, None)
+    while len(cache) > CACHE_MAX:
+        cache.pop(next(iter(cache)))
+
+
+def train_variants(text: object) -> list[str]:
+    """车次写法 → 可上游查询的动车组车号列表，尾号在前。"""
+    return train_codes(text, TRAIN_RE)
 
 
 def format_unit_no(raw: object) -> str:
@@ -173,6 +205,62 @@ def _get(url: str, timeout: int = TIMEOUT) -> object:
         except ValueError:
             raise UpstreamError("%s 返回的不是 JSON" % url) from None
     raise UpstreamError("%s 取不到：%s" % (url, last_error))
+
+
+def search_trip(code: str, target: str) -> dict:
+    """12306 车次查询：这趟车那天的始发/终到；没这一行返回空。
+
+    keyword 是前缀匹配（查 G2 会把 G20、G21 一起带回来），所以按 station_train_code
+    全等挑那一行，别拿第一条交差。
+    """
+    key = (code, target)
+    with _lock:
+        _prune(_search_cache, SEARCH_TTL)
+        hit = _search_cache.get(key)
+        if hit and time.monotonic() - hit[0] < SEARCH_TTL:
+            return hit[1]
+    payload = _get(SEARCH_URL % (urllib.parse.quote(code),
+                                 target.replace("-", "")), timeout=SEARCH_TIMEOUT)
+    rows = payload.get("data") if isinstance(payload, dict) else None
+    trip = {}
+    for row in rows or []:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("station_train_code") or "").upper() != code:
+            continue
+        origin = str(row.get("from_station") or "").strip()
+        terminal = str(row.get("to_station") or "").strip()
+        if origin and terminal:
+            trip = {"origin": origin, "terminal": terminal}
+        break
+    with _lock:
+        _search_cache[key] = (time.monotonic(), trip)
+    return trip
+
+
+def trip_profile(train: object, target: object) -> dict:
+    """车次 + 日期 → 界面契约：始发/终到是什么，或者为什么填不出。"""
+    empty = {"origin": "", "terminal": ""}
+    code = primary_code(train)
+    if not code:
+        return dict(empty, matched=False, reason="bad_train")
+    if not DATE_RE.match(str(target or "")):
+        return dict(empty, matched=False, reason="bad_date")
+    target = str(target)
+    try:
+        day = date.fromisoformat(target)
+    except ValueError:
+        return dict(empty, matched=False, reason="bad_date")
+    if day < date.today() - timedelta(days=SEARCH_BACK_DAYS):
+        # 这天 12306 已经不给了，别报成"没这个车次"
+        return dict(empty, matched=False, reason="past")
+    try:
+        trip = search_trip(code, target)
+    except UpstreamError:
+        return dict(empty, matched=False, reason="upstream")
+    if not trip:
+        return dict(empty, matched=False, reason="no_train")
+    return dict(empty, matched=True, reason=None, **trip)
 
 
 def railre_rows(train: str) -> list[dict]:
@@ -332,8 +420,8 @@ def _miss(reason: str, tried: list[str], window: list[str]) -> dict:
     }
 
 
-def lookup_vehicle(train: object, target: object, from_station: str = "",
-                   to_station: str = "") -> dict:
+def unit_lookup(train: object, target: object, from_station: str = "",
+                to_station: str = "") -> dict:
     """车次 + 日期 → 车号。查不到时照实返回原因，由界面退回手工填写。"""
     if not DATE_RE.match(str(target or "")):
         return _miss("bad_date", [], [])
@@ -376,11 +464,24 @@ def lookup_vehicle(train: object, target: object, from_station: str = "",
     return _miss("outside_window" if window else "no_log", tried, window)
 
 
+def lookup_vehicle(train: object, target: object, from_station: str = "",
+                   to_station: str = "") -> dict:
+    """车号 + 始发/终到一次带回，界面上的自动填充框共用这一趟请求。
+
+    始发/终到挂在 "trip" 下、原因单独算：rail.re 不通不该让始发站也变成"查不到"，
+    反过来这天的始发/终到填不出时车号照样能填。
+    """
+    result = unit_lookup(train, target, from_station, to_station)
+    result["trip"] = trip_profile(train, target)
+    return result
+
+
 def clear_caches() -> None:
     """测试用：清掉进程内缓存。"""
     global _telecode_cache, _opener, _opener_built, _session_ready, _query_suffix
     with _lock:
         _railre_cache.clear()
+        _search_cache.clear()
         _alias_cache.clear()
         _telecode_cache = None
         _opener = None

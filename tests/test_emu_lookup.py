@@ -25,14 +25,32 @@ class TrainVariantsTest(unittest.TestCase):
         self.assertEqual(self.variants("D2294"), ["D2294"])
 
     def test_compound_pair_gets_prefix_backfilled(self):
-        # 复车次省略写法：尾号按首段前缀补全，与上游 NormalizeTrainNo 同规则
-        self.assertEqual(self.variants("G45/8"), ["G45", "G48"])
-        self.assertEqual(self.variants("G1737/736"), ["G1737", "G1736"])
-        self.assertEqual(self.variants("G1737/G1736"), ["G1737", "G1736"])
+        # 复车次省略写法：尾号按首段前缀补全，与上游 NormalizeTrainNo 同规则。
+        # 填的区间落在最后那一段上，所以尾号排在最前先查。
+        self.assertEqual(self.variants("G45/8"), ["G48", "G45"])
+        self.assertEqual(self.variants("G1737/736"), ["G1736", "G1737"])
+        self.assertEqual(self.variants("G1737/G1736"), ["G1736", "G1737"])
+
 
     def test_non_emu_and_bare_number_are_rejected(self):
         for text in ("K146", "Z45", "1737", "", "G", "普速", "  "):
             self.assertEqual(self.variants(text), [], text)
+
+
+class TrainNumbersTest(unittest.TestCase):
+    def test_conv_heads_are_allowed_for_the_timetable(self):
+        # 车号只查动车组，始发/终到走时刻表，普速也放得过去
+        self.assertEqual(emu_lookup.train_numbers("K146"), ["K146"])
+        self.assertEqual(emu_lookup.train_numbers("Z45次"), ["Z45"])
+        self.assertEqual(emu_lookup.train_numbers("1737"), [])
+
+    def test_primary_code_is_the_tail_of_a_compound_pair(self):
+        # 省略写法照首段前缀补全："G1736/7" 尾号是 G1737，"G1737/736" 尾号是 G1736
+        self.assertEqual(emu_lookup.primary_code("G1736/7"), "G1737")
+        self.assertEqual(emu_lookup.primary_code("G1737/736"), "G1736")
+        self.assertEqual(emu_lookup.primary_code("D2253/2256"), "D2256")
+        self.assertEqual(emu_lookup.primary_code("G2"), "G2")
+        self.assertEqual(emu_lookup.primary_code(""), "")
 
 
 class FormatUnitTest(unittest.TestCase):
@@ -112,6 +130,12 @@ class LookupVehicleTest(unittest.TestCase):
     def setUp(self):
         emu_lookup.clear_caches()
         self.addCleanup(emu_lookup.clear_caches)
+        # 始发/终到另打 12306，别在这些用例里真联网
+        patcher = mock.patch.object(
+            emu_lookup, "trip_profile",
+            return_value={"origin": "", "terminal": "", "matched": False, "reason": "past"})
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def test_reunion_is_returned_as_one_field_value(self):
         with mock.patch.object(emu_lookup, "railre_rows", return_value=rows(
@@ -189,10 +213,25 @@ class LookupVehicleTest(unittest.TestCase):
         with mock.patch.object(emu_lookup, "railre_rows", side_effect=fake_rows), \
                 mock.patch.object(emu_lookup, "alias_numbers", return_value=[]):
             result = emu_lookup.lookup_vehicle("G45/8", "2026-10-16")
-        self.assertEqual(seen, ["G45", "G48"])
+        # 尾号先查，命中就不必再试首段
+        self.assertEqual(seen, ["G48"])
         self.assertTrue(result["matched"])
         self.assertEqual(result["usedTrain"], "G48")
+        self.assertEqual(result["tried"], ["G48"])
         self.assertFalse(result["viaAlias"])
+
+    def test_compound_input_falls_back_to_the_head_number(self):
+        seen = []
+
+        def fake_rows(number):
+            seen.append(number)
+            return rows(("2026-10-16", "CR400AFX2542")) if number == "G45" else []
+
+        with mock.patch.object(emu_lookup, "railre_rows", side_effect=fake_rows), \
+                mock.patch.object(emu_lookup, "alias_numbers", return_value=[]):
+            result = emu_lookup.lookup_vehicle("G45/8", "2026-10-16")
+        self.assertEqual(seen, ["G48", "G45"])
+        self.assertEqual(result["usedTrain"], "G45")
 
     def test_alias_number_is_used_only_after_the_typed_number_misses(self):
         target = (date.today() + timedelta(days=1)).isoformat()
@@ -208,6 +247,93 @@ class LookupVehicleTest(unittest.TestCase):
         self.assertEqual(result["usedTrain"], "G1736")
         self.assertEqual(alias.call_args[0][0], ["G1737"])
         self.assertEqual(result["tried"], ["G1737", "G1736"])
+
+
+class TripProfileTest(unittest.TestCase):
+    def setUp(self):
+        emu_lookup.clear_caches()
+        self.addCleanup(emu_lookup.clear_caches)
+
+    def setUp(self):
+        emu_lookup.clear_caches()
+        self.addCleanup(emu_lookup.clear_caches)
+        # 12306 车次查询只回最近两天，用明天的日期才不会哪天都测成 "past"
+        self.day = (date.today() + timedelta(days=1)).isoformat()
+
+    def payload(self, *hits):
+        return {"status": True, "data": list(hits)}
+
+    def row(self, code, origin, terminal):
+        return {"station_train_code": code, "from_station": origin,
+                "to_station": terminal, "train_no": "24000" + code}
+
+    def test_the_row_with_this_exact_number_is_the_trip(self):
+        # keyword 是前缀匹配：查 G2 会把 G20 一起带回来，必须按号全等挑那一行
+        payload = self.payload(self.row("G20", "北京南", "上海虹桥"),
+                               self.row("G2", "上海虹桥", "北京南"))
+        with mock.patch.object(emu_lookup, "_get", return_value=payload) as get:
+            trip = emu_lookup.trip_profile("G2", self.day)
+        self.assertEqual((trip["origin"], trip["terminal"]), ("上海虹桥", "北京南"))
+        self.assertTrue(trip["matched"])
+        get.assert_called_once()
+
+    def test_compound_pair_asks_with_the_tail_number(self):
+        payload = self.payload(self.row("G1737", "上海虹桥", "宜昌北"))
+        with mock.patch.object(emu_lookup, "_get", return_value=payload) as get:
+            emu_lookup.trip_profile("G1736/7", self.day)
+        self.assertIn("keyword=G1737", get.call_args[0][0])
+        self.assertIn("date=" + self.day.replace("-", ""), get.call_args[0][0])
+
+    def test_date_past_the_window_is_not_reported_as_a_missing_train(self):
+        # 实测 12306 只回最近两天：10-14 还有，10-13 起一律空数组，别骂成"没这车次"
+        old = (date.today() - timedelta(days=emu_lookup.SEARCH_BACK_DAYS + 30)).isoformat()
+        with mock.patch.object(emu_lookup, "_get") as get:
+            trip = emu_lookup.trip_profile("G1970", old)
+        get.assert_not_called()
+        self.assertEqual(trip["reason"], "past")
+
+    def test_no_row_for_that_day_is_a_real_miss(self):
+        with mock.patch.object(emu_lookup, "_get", return_value=self.payload()):
+            trip = emu_lookup.trip_profile("Z45", self.day)
+        self.assertFalse(trip["matched"])
+        self.assertEqual(trip["reason"], "no_train")
+
+    def test_upstream_error_is_not_reported_as_no_data(self):
+        with mock.patch.object(emu_lookup, "_get",
+                               side_effect=emu_lookup.UpstreamError("连不上")):
+            trip = emu_lookup.trip_profile("G2", self.day)
+        self.assertFalse(trip["matched"])
+        self.assertEqual(trip["reason"], "upstream")
+
+    def test_junk_and_bad_date_are_not_queried_at_all(self):
+        with mock.patch.object(emu_lookup, "_get") as get:
+            self.assertEqual(emu_lookup.trip_profile("动车", self.day)["reason"], "bad_train")
+            self.assertEqual(emu_lookup.trip_profile("G2", "20261016")["reason"], "bad_date")
+            # 写法像日期但这天不存在
+            self.assertEqual(emu_lookup.trip_profile("G2", "2026-02-31")["reason"], "bad_date")
+        get.assert_not_called()
+
+    def test_conv_train_still_gets_a_trip(self):
+        # 普速没有车号记录，但 12306 知道它的始发终到
+        with mock.patch.object(emu_lookup, "railre_rows") as railre, \
+                mock.patch.object(emu_lookup, "_get",
+                                  return_value=self.payload(self.row("K146", "武昌", "西安"))):
+            result = emu_lookup.lookup_vehicle("K146", self.day)
+        railre.assert_not_called()
+        self.assertEqual(result["reason"], "not_emu")
+        self.assertEqual(result["trip"]["origin"], "武昌")
+        self.assertEqual(result["trip"]["terminal"], "西安")
+
+    def test_the_two_sources_fail_independently(self):
+        with mock.patch.object(emu_lookup, "railre_rows", return_value=rows(
+                ("2026-10-16", "CR400AFX2542"))), \
+                mock.patch.object(emu_lookup, "alias_numbers", return_value=[]), \
+                mock.patch.object(emu_lookup, "trip_profile",
+                                  return_value={"origin": "", "terminal": "",
+                                                "matched": False, "reason": "past"}):
+            result = emu_lookup.lookup_vehicle("G2", "2026-10-16")
+        self.assertTrue(result["matched"])
+        self.assertFalse(result["trip"]["matched"])
 
 
 class AliasNumbersTest(unittest.TestCase):
